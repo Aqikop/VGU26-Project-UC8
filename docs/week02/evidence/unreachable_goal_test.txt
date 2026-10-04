@@ -1,0 +1,26 @@
+# THỰC NGHIỆM TUẦN 02: BẰNG CHỨNG LẬP QUỸ ĐẠO MOVEIT & AN TOÀN NGOÀI TẦM VỚI
+# Máy thực hiện: kduy-5560
+# Thời gian: 03/10/2026
+
+==================================================
+       UC8 - WEEK 02: UR10e MOVEIT PLANNING TEST  
+==================================================
+Robot model       : ur10e_robot
+Planning Frame    : base_link
+End-Effector Link : tool0
+Planning Group    : manipulator
+Current Joints    : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+>>> TEST 1: Lập quỹ đạo tới vị trí hợp lệ (Pose A: x=0.45m, y=-0.20m, z=0.40m)
+- Kết quả            : THÀNH CÔNG (PASSED)
+- Thời gian tính toán: 0.134 s
+- Số điểm quỹ đạo    : 12 waypoints
+- Trạng thái thực thi: KHÔNG GỬI LỆNH (Plan-only an toàn)
+
+>>> TEST 2: Mục tiêu ngoài tầm với (Pose Unreachable: x=10.0m, y=0.0m, z=0.50m)
+- Cảnh báo hệ thống  : [WARN] Fail: ABORTED: TIMED_OUT
+- Kết quả            : THÀNH CÔNG (PASSED - Từ chối chính xác)
+- Thời gian phản hồi : 5.087 s (Đúng ngưỡng timeout 5.0s cấu hình)
+- Hành vi an toàn    : Robot giữ nguyên vị trí an toàn, không phát sinh quỹ đạo lỗi.
+
+KẾT LUẬN: ĐẠT YÊU CẦU NGHIỆM THU TUẦN 02 (R2).

@@ -1,0 +1,66 @@
+# ==============================
+# Unity generated files
+# ==============================
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Bb]uild/
+**/[Bb]uilds/
+**/[Ll]ogs/
+**/UserSettings/
+**/MemoryCaptures/
+**/Recordings/
+
+# Unity IDE files
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# ==============================
+# ROS catkin generated files
+# ==============================
+ros_ws/build/
+ros_ws/devel/
+ros_ws/logs/
+ros_ws/log/
+ros_ws/.catkin_tools/
+
+# ROS runtime data
+.ros/
+*.bag
+*.bag.active
+
+# ==============================
+# Python generated files
+# ==============================
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ==============================
+# Editors and operating systems
+# ==============================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# ==============================
+# Temporary and archive files
+# ==============================
+*.log
+*.tmp
+*.zip

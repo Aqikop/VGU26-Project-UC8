@@ -1,0 +1,55 @@
+# CẤU HÌNH CHU TRÌNH GẮP - THẢ TĨNH (PICK AND PLACE CONFIGURATION)
+# Dự án: UC8 - Robotic Arm Conveyor Pick-and-Place with Obstacle Avoidance
+# Tuần: Week 04 / Requirement R4 (Milestone 1)
+
+# 1. Các độ lệch cao độ an toàn (Offsets) theo trục Z (mét)
+offsets:
+  pregrasp_height_offset: 0.15  # Lơ lửng trên đầu vật 15cm trước khi gắp
+  lift_height_offset: 0.15      # Nhấc bổng vật lên 15cm sau khi kẹp
+  preplace_height_offset: 0.15  # Lơ lửng trên miệng thùng 15cm trước khi hạ
+  place_descent_offset: 0.05    # Hạ nhẹ 5cm vào lòng thùng chứa
+
+# 2. Hướng kẹp chuẩn cắm thẳng đứng xuống mặt bàn (Quaternion)
+grasp_orientation:
+  x: 1.0
+  y: 0.0
+  z: 0.0
+  w: 0.0
+
+# 3. Tọa độ các thùng chứa trong hệ tọa độ base_link của Robot (mét)
+bins:
+  red_bin:
+    name: "Red Bin"
+    position:
+      x: -0.60
+      y: 0.25
+      z: 0.20
+  blue_bin:
+    name: "Blue Bin"
+    position:
+      x: -0.60
+      y: -0.05
+      z: 0.20
+  yellow_bin:
+    name: "Yellow Bin (Default)"
+    position:
+      x: -0.60
+      y: -0.35
+      z: 0.20
+
+# 4. Giới hạn thời gian (Timeouts) cho từng trạng thái State Machine (giây)
+timeouts:
+  approach_timeout: 3.0
+  descent_timeout: 2.0
+  grasp_timeout: 1.5
+  lift_timeout: 2.0
+  place_timeout: 4.0
+  release_timeout: 1.5
+  home_timeout: 3.0
+
+# 5. Cấu hình vận tốc thực thi
+execution:
+  max_velocity_scaling_factor: 0.6
+  max_acceleration_scaling_factor: 0.5
+  planning_time: 5.0
+  planning_attempts: 10

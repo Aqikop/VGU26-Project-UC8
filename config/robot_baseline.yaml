@@ -1,0 +1,64 @@
+# CẤU HÌNH BASELINE ROBOT UR10e (ROBOT BASELINE CONFIGURATION)
+# Dự án: UC8 - Robotic Arm Conveyor Pick-and-Place with Obstacle Avoidance
+# Tuần: Week 02 / Requirement R2
+
+robot:
+  model: "UR10e"
+  manufacturer: "Universal Robots"
+  dof: 6
+  payload_kg: 12.5
+  reach_m: 1.300
+
+moveit:
+  planning_group: "manipulator"
+  planning_frame: "base_link"
+  end_effector_link: "tool0"
+  planner_id: "RRTConnectkConfigDefault"
+  planning_time: 5.0
+  num_planning_attempts: 10
+  max_velocity_scaling_factor: 0.2
+  max_acceleration_scaling_factor: 0.2
+  goal_position_tolerance: 0.005 # 5mm
+  goal_orientation_tolerance: 0.01 # rad
+
+joints:
+  names:
+    - "shoulder_pan_joint"
+    - "shoulder_lift_joint"
+    - "elbow_joint"
+    - "wrist_1_joint"
+    - "wrist_2_joint"
+    - "wrist_3_joint"
+  limits:
+    shoulder_pan_joint:
+      min: -6.283185307179586 # -2*pi
+      max: 6.283185307179586  # 2*pi
+      max_velocity: 3.141592653589793
+    shoulder_lift_joint:
+      min: -6.283185307179586
+      max: 6.283185307179586
+      max_velocity: 3.141592653589793
+    elbow_joint:
+      min: -3.141592653589793 # -pi
+      max: 3.141592653589793  # pi
+      max_velocity: 3.141592653589793
+    wrist_1_joint:
+      min: -6.283185307179586
+      max: 6.283185307179586
+      max_velocity: 6.283185307179586
+    wrist_2_joint:
+      min: -6.283185307179586
+      max: 6.283185307179586
+      max_velocity: 6.283185307179586
+    wrist_3_joint:
+      min: -6.283185307179586
+      max: 6.283185307179586
+      max_velocity: 6.283185307179586
+
+home_pose_joints:
+  shoulder_pan_joint: 0.0
+  shoulder_lift_joint: -1.5707963267948966 # -pi/2
+  elbow_joint: 0.0
+  wrist_1_joint: -1.5707963267948966 # -pi/2
+  wrist_2_joint: 0.0
+  wrist_3_joint: 0.0
