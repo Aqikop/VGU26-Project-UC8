@@ -69,16 +69,16 @@ class TaskStateMachine:
         self.is_busy = False
 
         # Altitude configuration parameters
-        self.pregrasp_offset_z = 0.15 # 15cm above object
-        self.grasp_offset_z = 0.052   # 5.2cm above object center (grips cube center, finger tips hover 8mm above conveyor)
-        self.lift_offset_z = 0.15     # Lift 15cm after grasp
+        self.pregrasp_offset_z = 0.16 # 16cm above object center (hovering 10cm above cube top)
+        self.grasp_offset_z = 0.065   # 6.5cm above object center (fingertips clear conveyor by 2.3cm, zero sinking)
+        self.lift_offset_z = 0.16     # Lift 16cm after grasp
         # Optimal STANDBY joint pose (Wrist points strictly 90 degrees downward):
         # Shoulder and elbow elevated, avoiding table and conveyor collisions
         # tool0 points vertically downward onto pick zone (X = -0.60m, Z = 0.42m)
         self.standby_joints = [0.2945, -1.4760, -2.1278, -1.1022, 1.5708, 0.5291]
 
-        # Orientation pointing strictly downward (100% compatible with pick pose):
-        self.down_orientation = Quaternion(x=0.7854, y=0.6190, z=0.0, w=0.0)
+        # Orientation strictly orthogonal to conveyor and cubes (Z down, X along conveyor, Y across):
+        self.down_orientation = Quaternion(x=0.7071068, y=0.7071068, z=0.0, w=0.0)
 
         # Coordinates for the 3 sorting bins in Option 1 (Front Pick - Flanking Bins):
         # - Red Bin: Robot Left (y = +0.55m)

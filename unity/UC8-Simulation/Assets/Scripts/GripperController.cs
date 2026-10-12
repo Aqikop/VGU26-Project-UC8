@@ -63,10 +63,23 @@ public class GripperController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!clawInitialized)
+        if (!clawInitialized && attachPoint != null)
         {
-            SetupVisualClaw();
-            clawInitialized = true;
+            // Kiểm tra xem robot đã vào tư thế chúc thẳng đứng xuống đất chưa (để định vị trục vuông góc chính xác)
+            float maxDown = 0f;
+            Vector3[] cardinal = { Vector3.up, Vector3.down, Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
+            foreach (Vector3 c in cardinal)
+            {
+                float dot = Vector3.Dot(attachPoint.TransformDirection(c), Vector3.down);
+                if (dot > maxDown) maxDown = dot;
+            }
+
+            // Chờ robot chúc xuống đất (hoặc sau 1.5s) để chốt hướng kẹp chuẩn xác
+            if (maxDown > 0.85f || Time.timeSinceLevelLoad > 1.5f)
+            {
+                SetupVisualClaw();
+                clawInitialized = true;
+            }
         }
 
         AnimateFingers();
@@ -222,20 +235,20 @@ public class GripperController : MonoBehaviour
         lCarriage.transform.SetParent(clawRoot, false);
         leftFingerCarriage = lCarriage.transform;
 
-        // Tay kẹp nhôm trái - dài 4.2cm CHĨA THẲNG ĐỨNG XUỐNG ĐẤT (đầu ngón dừng an toàn cách băng chuyền 8mm)
-        CreatePartBox(leftFingerCarriage, "LeftArm", toolDirLocal * 0.021f - clampDirLocal * 0.005f, new Vector3(0.010f, 0.042f, 0.024f), aluMat);
+        // Tay kẹp nhôm trái - dài 4.0cm CHĨA THẲNG ĐỨNG XUỐNG ĐẤT (dừng an toàn cách băng chuyền > 2cm)
+        CreatePartBox(leftFingerCarriage, "LeftArm", toolDirLocal * 0.020f - clampDirLocal * 0.005f, new Vector3(0.010f, 0.040f, 0.024f), aluMat);
         // Đệm cao su tiếp xúc mặt trong
-        CreatePartBox(leftFingerCarriage, "LeftRubberPad", toolDirLocal * 0.020f + clampDirLocal * 0.002f, new Vector3(0.004f, 0.034f, 0.020f), rubberMat);
+        CreatePartBox(leftFingerCarriage, "LeftRubberPad", toolDirLocal * 0.020f + clampDirLocal * 0.002f, new Vector3(0.004f, 0.032f, 0.020f), rubberMat);
 
         // 6. Cụm ngón kẹp phải (Right Finger Carriage)
         GameObject rCarriage = new GameObject("RightFingerCarriage");
         rCarriage.transform.SetParent(clawRoot, false);
         rightFingerCarriage = rCarriage.transform;
 
-        // Tay kẹp nhôm phải - dài 4.2cm CHĨA THẲNG ĐỨNG XUỐNG ĐẤT
-        CreatePartBox(rightFingerCarriage, "RightArm", toolDirLocal * 0.021f + clampDirLocal * 0.005f, new Vector3(0.010f, 0.042f, 0.024f), aluMat);
+        // Tay kẹp nhôm phải - dài 4.0cm CHĨA THẲNG ĐỨNG XUỐNG ĐẤT
+        CreatePartBox(rightFingerCarriage, "RightArm", toolDirLocal * 0.020f + clampDirLocal * 0.005f, new Vector3(0.010f, 0.040f, 0.024f), aluMat);
         // Đệm cao su tiếp xúc mặt trong
-        CreatePartBox(rightFingerCarriage, "RightRubberPad", toolDirLocal * 0.020f - clampDirLocal * 0.002f, new Vector3(0.004f, 0.034f, 0.020f), rubberMat);
+        CreatePartBox(rightFingerCarriage, "RightRubberPad", toolDirLocal * 0.020f - clampDirLocal * 0.002f, new Vector3(0.004f, 0.032f, 0.020f), rubberMat);
 
         UpdateStatusLED();
         AnimateFingers();
@@ -341,20 +354,8 @@ public class GripperController : MonoBehaviour
                 col.isTrigger = true;
             }
 
-            // Lưu lại cao độ Y hiện tại của khối hộp trên băng chuyền (tọa độ thế giới trong Unity)
-            float restingY = attachedObject.transform.position.y;
-
-            // Căn chỉnh tâm khối hộp vào giữa 2 đệm cao su của ngón kẹp
-            Vector3 worldGraspCenter = attachPoint.position + attachPoint.TransformDirection(toolDirLocal * 0.052f);
-
-            // Chống đâm xuyên tuyệt đối: không bao giờ cho phép khối hộp bị lún xuống dưới cao độ nghỉ ban đầu
-            if (worldGraspCenter.y < restingY)
-            {
-                worldGraspCenter.y = restingY;
-            }
-
-            attachedObject.transform.position = worldGraspCenter;
-            attachedObject.transform.rotation = attachPoint.rotation * Quaternion.LookRotation(depthDirLocal, toolDirLocal);
+            // Parenting: Khóa vật thể vào tay gắp tool0, giữ nguyên 100% tọa độ thế giới và góc quay thế giới!
+            // Tuyệt đối không can thiệp position/rotation để chống giật, xê dịch hay xoay lệch hộp khi kẹp
             attachedObject.transform.SetParent(attachPoint, true);
             isHolding = true;
 
