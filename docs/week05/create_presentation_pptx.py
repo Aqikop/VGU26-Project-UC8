@@ -254,7 +254,7 @@ def main():
         ["03-04", "Baseline Recap & Scope Fulfillment", "100% completion of Milestone 1 commitments (R1-R4)"],
         ["05", "System Architecture", "Bidirectional closed loop: Unity 2022.3 <-> ROS-TCP <-> ROS Noetic"],
         ["06", "Feedback & Issue Resolutions", "Faculty claw feedback, anti-miss scanner, orthogonal zero-sink grasp"],
-        ["07-08", "Workcell Layout & Kinematics", "Option 1 bilateral symmetry, 90° wrist lock, pure base SCARA sweep"],
+        ["07-08", "Workcell Layout & Kinematics", "Option 1 bilateral symmetry, 90° wrist lock, and Interactive Trajectory [T]"],
         ["09-10", "PhysX Simulation & State Machine", "Friction deceleration, multi-item flow, 7-step sequencer"],
         ["11-12", "Benchmark QA & Technical Defenses", "70 empirical trials, 100% success rate, answers to faculty committee"],
         ["13-14", "Week 06 Objectives & Milestone 2 Roadmap", "R5 conveyor robustness, vision classification, static obstacle avoidance"],
@@ -375,6 +375,7 @@ def main():
 
     p_items = [
         ("Kinematic Optimization:", "Locked wrist strictly downward (q4 = 90.0°) & implemented pure base SCARA sweep, cutting cycle time by 65%."),
+        ("Interactive Trajectory Trail [T]:", "Implemented real-time neon ribbon visualizer at tool0 with 3.5s auto-fade and color-coded destination paths."),
         ("Realistic PhysX Deceleration:", "Replaced artificial freezing with pure friction coasting (StopConveyor()) halting cubes at X ≈ 0.00 m (± 3 mm)."),
         ("Continuous Multi-Item Flow:", "Upgraded Spawner to maintain 2-3 items on conveyor simultaneously with safe 38cm spacing."),
         ("Empirical QA Logging:", "Integrated automated CSV logger recording 70 consecutive trials with 100% reliability for Milestone 1 defense.")
@@ -384,13 +385,13 @@ def main():
         r1 = p.add_run()
         r1.text = "⚙ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(11)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(11)
+        r2.font.size = Pt(10)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(8)
+        p.space_after = Pt(6)
 
     # =========================================================================
     # SLIDE 05: ARCHITECTURE
@@ -517,20 +518,20 @@ def main():
     p_geo.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
-    # SLIDE 08: KINEMATICS
+    # SLIDE 08: KINEMATICS & TRAJECTORY VISUALIZATION
     # =========================================================================
     s8 = prs.slides.add_slide(blank_layout)
-    add_header(s8, "Kinematics", "Downward Wrist Orientation and Transfer Motion", "Slide 08")
+    add_header(s8, "Kinematics & Trajectory", "Downward Wrist Lock, Transfer Motion & Trajectory Trail", "Slide 08")
 
-    add_card(s8, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
-    k1 = s8.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
+    add_card(s8, Inches(0.8), Inches(1.58), Inches(5.7), Inches(3.8), fill_color=COLOR_CARD_BG)
+    k1 = s8.shapes.add_textbox(Inches(1.05), Inches(1.75), Inches(5.2), Inches(3.45)).text_frame
     k1.word_wrap = True
     p = k1.paragraphs[0]
     p.text = "Motion Strategy"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
-    p.space_after = Pt(12)
+    p.space_after = Pt(8)
 
     strat_pts = [
         ("Downward tool orientation:", "tool0 remains vertical ([0, 0, -1]) during approach, grasp and release via locked wrist (q4 = 90.0°)."),
@@ -544,23 +545,23 @@ def main():
         r1 = p.add_run()
         r1.text = "✔ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(11)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(11)
+        r2.font.size = Pt(10)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(8)
+        p.space_after = Pt(4)
 
-    add_card(s8, Inches(6.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
-    k2 = s8.shapes.add_textbox(Inches(7.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
+    add_card(s8, Inches(6.8), Inches(1.58), Inches(5.7), Inches(3.8), fill_color=COLOR_CARD_BG)
+    k2 = s8.shapes.add_textbox(Inches(7.05), Inches(1.75), Inches(5.2), Inches(3.45)).text_frame
     k2.word_wrap = True
     p = k2.paragraphs[0]
     p.text = "Joint Values across Poses (Radians)"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(12)
+    p.space_after = Pt(8)
 
     joint_pts = [
         ("Standby pose:", "[0.2945, -1.4760, -2.1278, -1.1022, 1.5708, 0.5291]"),
@@ -574,13 +575,31 @@ def main():
         r1 = p.add_run()
         r1.text = "⚙ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(11)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(11)
+        r2.font.size = Pt(10)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(8)
+        p.space_after = Pt(4)
+
+    # Bottom Trajectory Visualizer Card
+    add_card(s8, Inches(0.8), Inches(5.6), Inches(11.733), Inches(1.15), fill_color=COLOR_CARD_BG)
+    tj_tf = s8.shapes.add_textbox(Inches(1.05), Inches(5.68), Inches(11.2), Inches(0.98)).text_frame
+    tj_tf.word_wrap = True
+    p = tj_tf.paragraphs[0]
+    p.text = "INTERACTIVE TRAJECTORY VISUALIZATION & ANTI-CLUTTER TRAIL (HOTKEY [T])"
+    p.font.size = Pt(12)
+    p.font.bold = True
+    p.font.color.rgb = COLOR_PRIMARY
+    p.space_after = Pt(3)
+
+    p_tj = tj_tf.add_paragraph()
+    p_tj.text = "• Interactive Toggle [T]: Press [T] during runtime to toggle smooth 3D neon ribbon trail mapped to tool0 end-effector.\n" \
+                "• Anti-Clutter Auto-Fade (3.5s): Automatically fades out tail points after 3.5s, preventing visual clutter across long runs.\n" \
+                "• Color-Coded Target Paths: Dynamically tints trail based on destination bin: Red (#FF2A6D), Yellow (#FFD166), Blue (#05D9E8)."
+    p_tj.font.size = Pt(10)
+    p_tj.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
     # SLIDE 09: PHYSICS AND VISUALS
@@ -869,8 +888,8 @@ def main():
         ]),
         ("Deliverables Package", COLOR_ACCENT, [
             "Git Tag Release: m1-verified",
+            "Interactive Trajectory Trail [T]",
             "Complete trials.csv QA Evidence",
-            "Clean run_workcell.sh Launcher",
             "Multi-Camera Demo Visuals"
         ])
     ]

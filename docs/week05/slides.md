@@ -115,9 +115,10 @@
 
 ---
 
-## SLIDE 08: NON-SINGULAR KINEMATICS OPTIMIZATION
+## SLIDE 08: NON-SINGULAR KINEMATICS & TRAJECTORY VISUALIZATION
 - **Strict 90° Downward Wrist Lock ($q_4 = 90.0^\circ$):** End-effector `tool0` maintains invariant downward vector $[0, 0, -1]$ throughout all states. Prevents wrist singularities, inverted arm postures, and erratic 180° elbow flips.
 - **Pure Base Shoulder Pan Rotation (SCARA-Style):** Shoulder lift and elbow angles remain virtually constant ($\Delta < 10^\circ$) during transfers. Robot sorts items by rotating **only `shoulder_pan_joint`**, reducing path length by 65% and cutting cycle time down to 11.23s.
+- **Interactive Trajectory Visualization (Hotkey [T]):** Real-time 3D neon ribbon trail mapped to `tool0`. Equipped with 3.5s anti-clutter auto-fade, instant [C] clear, and dynamic color coding per destination bin: Red (`#FF2A6D`), Yellow (`#FFD166`), and Blue (`#05D9E8`).
 
 ---
 

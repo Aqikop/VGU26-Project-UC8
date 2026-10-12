@@ -270,6 +270,7 @@ def build_pdf(output_path):
         Paragraph("<b>HIGH-VALUE WORKCELL ENHANCEMENTS</b>", h3_style),
         Spacer(1, 6),
         Paragraph("• <b>Kinematic Optimization:</b> Wrist locked 90° downward & pure base SCARA sweep (65% cycle time cut).", bullet_style),
+        Paragraph("• <b>Interactive Trajectory Trail [T]:</b> Real-time neon ribbon at tool0 with 3.5s auto-fade & color coding.", bullet_style),
         Paragraph("• <b>Zero-Teleport Physics:</b> Natural friction coasting halts cubes smoothly at X ≈ 0.00m (±3mm).", bullet_style),
         Paragraph("• <b>Continuous Multi-Item Flow:</b> Spawner maintains 2-3 items on conveyor with 38cm spacing.", bullet_style),
         Paragraph("• <b>Empirical QA Logging:</b> 70 consecutive trials logged with 100% success rate in trials.csv.", bullet_style)
@@ -403,10 +404,24 @@ def build_pdf(output_path):
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
         ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
         ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 14),
+        ('PADDING', (0,0), (-1,-1), 10),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
     story.append(t_kin)
+    story.append(Spacer(1, 8))
+
+    callout_traj = Table([[Paragraph(
+        "<b>INTERACTIVE TRAJECTORY VISUALIZATION (HOTKEY [T]):</b> Real-time 3D neon ribbon trail mapped to tool0 "
+        "with anti-clutter 3.5s auto-fade and color coding per destination bin: Red (#FF2A6D), Yellow (#FFD166), Blue (#05D9E8). "
+        "Press [T] to toggle, [C] to clear instantly.",
+        ParagraphStyle("TrajReq", fontName="DejaVu", fontSize=8.5, leading=12, textColor=PRIMARY, alignment=0)
+    )]], colWidths=[770])
+    callout_traj.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), BG_CARD),
+        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('PADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(callout_traj)
     story.append(PageBreak())
 
     # =========================================================================
