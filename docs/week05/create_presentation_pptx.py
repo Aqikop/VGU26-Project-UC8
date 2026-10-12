@@ -251,7 +251,7 @@ def main():
     agenda_headers = ["No.", "Topic", "Core Content & Engineering Focus"]
     agenda_data = [
         ["01-02", "Project Title & Agenda", "Context, requirements, and presentation structure"],
-        ["03-04", "Baseline Recap & Scope Fulfillment", "100% completion of Week 03 commitments (R1-R4)"],
+        ["03-04", "Baseline Recap & Scope Fulfillment", "100% completion of Milestone 1 commitments (R1-R4)"],
         ["05", "System Architecture", "Bidirectional closed loop: Unity 2022.3 <-> ROS-TCP <-> ROS Noetic"],
         ["06", "Feedback & Issue Resolutions", "Faculty claw feedback, anti-miss scanner, orthogonal zero-sink grasp"],
         ["07-08", "Workcell Layout & Kinematics", "Option 1 bilateral symmetry, 90° wrist lock, pure base SCARA sweep"],
@@ -264,16 +264,16 @@ def main():
               [Inches(1.2), Inches(3.6), Inches(6.933)])
 
     # =========================================================================
-    # SLIDE 03: BASELINE ACHIEVED IN WEEK 03 & COMMITMENTS
+    # SLIDE 03: BASELINE ACHIEVED IN WEEK 04 & COMMITMENTS
     # =========================================================================
     s3 = prs.slides.add_slide(blank_layout)
-    add_header(s3, "Baseline vs Commitments", "Week 03 Baseline and Commitments Set Out for Milestone 1", "Slide 03")
+    add_header(s3, "Baseline vs Commitments", "Week 04 Baseline and Commitments Set Out for Milestone 1", "Slide 03")
 
     add_card(s3, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
     f_tf = s3.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     f_tf.word_wrap = True
     p = f_tf.paragraphs[0]
-    p.text = "Baseline Achieved in Week 03"
+    p.text = "Baseline Achieved in Week 04"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
@@ -906,7 +906,7 @@ def main():
     p.space_after = Pt(3)
 
     p_c = c_btf.add_paragraph()
-    p_c.text = "• All commitments made from Week 03 have been 100% fulfilled and reinforced with faculty feedback solutions.\n" \
+    p_c.text = "• All commitments made for Milestone 1 have been 100% fulfilled and reinforced with faculty feedback solutions.\n" \
                "• The UC8 sorting workcell is fully verified and ready for formal Milestone 1 sign-off and progression to Week 06 / Milestone 2."
     p_c.font.size = Pt(10.5)
     p_c.font.color.rgb = COLOR_TEXT_LIGHT

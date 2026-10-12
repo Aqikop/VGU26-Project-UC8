@@ -192,7 +192,7 @@ def build_pdf(output_path):
     col1_items = [
         "<b>01. Project Cover:</b> Overview, platform stack, and milestone scope",
         "<b>02. Presentation Agenda:</b> 15 structured technical evaluation slides",
-        "<b>03. Baseline & Commitments:</b> Baseline achievements from Week 03",
+        "<b>03. Baseline & Commitments:</b> Baseline achievements from Week 04",
         "<b>04. Milestone 1 Scope:</b> 100% fulfillment of commitments (R1-R4)",
         "<b>05. System Architecture:</b> Bidirectional Unity <-> ROS-TCP pipeline",
         "<b>06. Feedback & Issue Resolutions:</b> Faculty claw feedback & runtime fixes",
@@ -226,9 +226,9 @@ def build_pdf(output_path):
     # =========================================================================
     # SLIDE 03: BASELINE & COMMITMENTS
     # =========================================================================
-    story.extend(make_header("Baseline Foundation", "Baseline Achieved in Week 03 vs Commitments for Milestone 1"))
+    story.extend(make_header("Baseline Foundation", "Baseline Achieved in Week 04 vs Commitments for Milestone 1"))
     base_box = [
-        Paragraph("<b>BASELINE ACHIEVED IN WEEK 03</b>", h3_style),
+        Paragraph("<b>BASELINE ACHIEVED IN WEEK 04</b>", h3_style),
         Spacer(1, 6),
         Paragraph("• <b>ROS-Unity Bridge:</b> Port 10000 TCP connection active via ros_tcp_endpoint.", bullet_style),
         Paragraph("• <b>Coordinate Conversion:</b> Verified FLU mapping: X_ROS = Z_Unity, Y_ROS = -X_Unity, Z_ROS = Y_Unity.", bullet_style),
@@ -674,7 +674,7 @@ def build_pdf(output_path):
     story.append(Spacer(1, 10))
 
     callout_final = Table([[Paragraph(
-        "<b>FORMAL MILESTONE 1 ACCEPTANCE REQUEST:</b> All commitments made from Week 03 have been 100% fulfilled "
+        "<b>FORMAL MILESTONE 1 ACCEPTANCE REQUEST:</b> All commitments made for Milestone 1 have been 100% fulfilled "
         "and reinforced with faculty feedback solutions. The UC8 sorting workcell is fully verified and ready for formal Milestone 1 sign-off "
         "and progression to Week 06 / Milestone 2.",
         ParagraphStyle("FinalReq", fontName="DejaVu-Bold", fontSize=9.0, leading=13, textColor=colors.HexColor("#FFFFFF"), alignment=1)

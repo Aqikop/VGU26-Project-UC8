@@ -16,7 +16,7 @@
 | :---: | :--- | :--- |
 | **01** | **Title Cover** | UC8 Milestone 1 Defense & Performance Evaluation |
 | **02** | **Presentation Agenda** | Complete overview of 15 structured presentation slides |
-| **03** | **Week 03 Baseline & Commitments** | Baseline achievements and commitments set out from Week 03 for Milestone 1 |
+| **03** | **Week 04 Baseline & Commitments** | Baseline achievements from Week 04 and commitments set out for Milestone 1 |
 | **04** | **Milestone 1 Scope & Fulfillment** | 100% fulfillment of commitments (R1, R2, R3, R4) with verified closed loop |
 | **05** | **System Architecture & Pipeline** | Bidirectional real-time closed loop between Unity 2022.3 and ROS Noetic |
 | **06** | **Instructor Feedback & Resolutions** | Industrial 2-finger claw, anti-miss sensor, orthogonal alignment & zero-sink parenting |
@@ -52,15 +52,15 @@
 
 ---
 
-## SLIDE 03: BASELINE ACHIEVED IN WEEK 03 & COMMITMENTS SET OUT
-### 1. What was Achieved in Week 03 (Baseline Foundation):
+## SLIDE 03: BASELINE ACHIEVED IN WEEK 04 & COMMITMENTS SET OUT
+### 1. What was Achieved in Week 04 (Baseline Foundation):
 - **ROS-Unity Network Bridge:** Seamless socket streaming on port 10000 via `ROS-TCP-Endpoint`.
 - **Coordinate Conversion:** Standardized transformation mapping from Unity Left-Handed to ROS FLU Right-Handed:
   $$\begin{cases} X_{\text{ROS}} = Z_{\text{Unity}} \\ Y_{\text{ROS}} = -X_{\text{Unity}} \\ Z_{\text{ROS}} = Y_{\text{Unity}} \end{cases}$$
 - **Object Perception:** Streaming cube 3D pose to `/detected_object_pose` and color classification to `/detected_object_type` at 10 Hz.
 - **MoveIt Inverse Kinematics:** Solved theoretical IK trajectories hovering +15cm above object on RViz.
 
-### 2. Commitments Set Out for Milestone 1:
+### 2. Commitments Set Out for Milestone 1 (Week 05):
 - **Commitment 1 (Trajectory Execution):** Break through 'plan-only' barrier; stream real-time `/joint_states` at 50 Hz to drive physical UR10e in Unity.
 - **Commitment 2 (Grasping Mechanism):** Implement an operational grasping/release mechanism for cube interaction.
 - **Commitment 3 (Task State Machine):** Construct autonomous closed-loop sequencer connecting perception, motion, and release.
