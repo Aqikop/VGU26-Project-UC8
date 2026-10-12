@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Generate Professional PDF Presentation Slide Deck for Milestone 1 Defense & Evaluation (UC8).
+Generate Professional PDF Presentation Slide Deck for Week 04 Progress Report & Milestone 1 Verification (UC8).
 100% English, Landscape A4 (16:9 Presentation Format), DejaVuSans Typography, Clean Industrial Theme.
-Project: UC8 - Robotic Arm Conveyor Pick-and-Place with Obstacle Avoidance
-Course: Robotic Project — Vietnamese-German University (VGU)
 """
 
 import os
-import shutil
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.platypus import (
@@ -49,10 +46,11 @@ class SlideCanvas(canvas.Canvas):
     def draw_decorations(self, total_pages):
         page_num = self._pageNumber
         if page_num == 1:
+            # Cover slide has its own full-bleed card
             return
 
         self.saveState()
-        # Top banner line
+        # Top banner line (positioned high above slide text)
         self.setFillColor(colors.HexColor("#0f2b48"))
         self.rect(32, PAGE_HEIGHT - 18, PAGE_WIDTH - 64, 2.5, fill=1, stroke=0)
 
@@ -60,12 +58,11 @@ class SlideCanvas(canvas.Canvas):
         self.setFillColor(colors.HexColor("#CBD5E1"))
         self.rect(32, 34, PAGE_WIDTH - 64, 1, fill=1, stroke=0)
 
-        # Footer text
-        self.setFont("DejaVu", 8)
+        # Footer running text
+        self.setFont("DejaVu", 8.5)
         self.setFillColor(colors.HexColor("#64748B"))
-        self.drawString(34, 22, "UC8 Robotic Sorting Workcell | Milestone 1 Defense | Vietnamese-German University")
-        page_str = f"Slide {page_num:02d} / {total_pages:02d}"
-        self.drawRightString(PAGE_WIDTH - 34, 22, page_str)
+        self.drawString(34, 20, "VGU Robotic Project — Use Case 08 (UC8) | Milestone 1 (Week 04)")
+        self.drawRightString(PAGE_WIDTH - 34, 20, f"Slide {page_num - 1} / {total_pages - 1}")
         self.restoreState()
 
 
@@ -75,102 +72,141 @@ def build_pdf(output_path):
         pagesize=landscape(A4),
         leftMargin=32,
         rightMargin=32,
-        topMargin=28,
+        topMargin=36,
         bottomMargin=38
     )
 
     styles = getSampleStyleSheet()
 
     # Color Palette
-    PRIMARY = colors.HexColor("#0f2b48")       # Deep Industrial Navy
-    ACCENT = colors.HexColor("#0284c7")        # Vibrant Sky Blue
-    SUCCESS = colors.HexColor("#059669")       # Emerald Green
-    WARNING = colors.HexColor("#d97706")       # Amber 600
-    TEXT_MAIN = colors.HexColor("#1e293b")     # Slate 800
-    TEXT_MUTED = colors.HexColor("#64748b")    # Slate 500
-    BG_CARD = colors.HexColor("#ffffff")       # Pure White
-    BG_LIGHT = colors.HexColor("#f8fafc")      # Slate 50
-    BORDER_COLOR = colors.HexColor("#e2e8f0")  # Slate 200
+    PRIMARY = colors.HexColor("#0f2b48")   # Deep Industrial Navy
+    SECONDARY = colors.HexColor("#0284C7") # Vibrant Cyan Tech
+    ACCENT = colors.HexColor("#10B981")    # Success Green
+    TEXT_DARK = colors.HexColor("#1E293B")
+    TEXT_MUTED = colors.HexColor("#475569")
+    BG_CARD = colors.HexColor("#F8FAFC")
+    BG_LIGHT = colors.HexColor("#F1F5F9")
+    BORDER_COLOR = colors.HexColor("#E2E8F0")
 
-    # Custom Paragraph Styles
+    # Typography Styles
     title_style = ParagraphStyle(
         "CoverTitle",
         fontName="DejaVu-Bold",
         fontSize=24,
-        leading=30,
-        textColor=colors.HexColor("#ffffff"),
+        leading=31,
+        textColor=colors.white,
         alignment=1
     )
+
     subtitle_style = ParagraphStyle(
         "CoverSubtitle",
         fontName="DejaVu-Bold",
-        fontSize=13,
-        leading=18,
+        fontSize=12.5,
+        leading=17,
         textColor=colors.HexColor("#38BDF8"),
         alignment=1
     )
-    h2_style = ParagraphStyle(
-        "SlideTitle",
+
+    slide_header_style = ParagraphStyle(
+        "SlideHeader",
         fontName="DejaVu-Bold",
-        fontSize=15,
-        leading=18,
+        fontSize=16,
+        leading=20,
         textColor=PRIMARY
     )
-    cat_style = ParagraphStyle(
-        "SlideCat",
+
+    slide_cat_style = ParagraphStyle(
+        "SlideCategory",
+        fontName="DejaVu-Bold",
+        fontSize=9,
+        leading=11,
+        textColor=SECONDARY
+    )
+
+    h3_style = ParagraphStyle(
+        "SectionH3",
+        fontName="DejaVu-Bold",
+        fontSize=10.5,
+        leading=13.5,
+        textColor=PRIMARY
+    )
+
+    body_style = ParagraphStyle(
+        "BodyDark",
+        fontName="DejaVu",
+        fontSize=9,
+        leading=13,
+        textColor=TEXT_DARK
+    )
+
+    bullet_style = ParagraphStyle(
+        "BulletDark",
+        fontName="DejaVu",
+        fontSize=8.5,
+        leading=12.5,
+        textColor=TEXT_DARK,
+        leftIndent=8
+    )
+
+    table_header_style = ParagraphStyle(
+        "TableHeader",
         fontName="DejaVu-Bold",
         fontSize=8.5,
         leading=11,
-        textColor=ACCENT
-    )
-    h3_style = ParagraphStyle(
-        "CardTitle",
-        fontName="DejaVu-Bold",
-        fontSize=10.5,
-        leading=13,
-        textColor=PRIMARY
-    )
-    body_style = ParagraphStyle(
-        "Body",
-        fontName="DejaVu",
-        fontSize=8.5,
-        leading=11.5,
-        textColor=TEXT_MAIN
-    )
-    bullet_style = ParagraphStyle(
-        "Bullet",
-        fontName="DejaVu",
-        fontSize=8.0,
-        leading=11.0,
-        textColor=TEXT_MAIN
+        textColor=colors.white,
+        alignment=1
     )
 
-    def make_header(category, title):
-        return [
-            Paragraph(category.upper(), cat_style),
-            Spacer(1, 1),
-            Paragraph(title, h2_style),
-            Spacer(1, 10)
-        ]
+    table_cell_style = ParagraphStyle(
+        "TableCell",
+        fontName="DejaVu",
+        fontSize=8,
+        leading=10.5,
+        textColor=TEXT_DARK
+    )
+
+    table_cell_center = ParagraphStyle(
+        "TableCellCenter",
+        fontName="DejaVu",
+        fontSize=8,
+        leading=10.5,
+        textColor=TEXT_DARK,
+        alignment=1
+    )
+
+    callout_style = ParagraphStyle(
+        "CalloutText",
+        fontName="DejaVu",
+        fontSize=8.5,
+        leading=12,
+        textColor=colors.HexColor("#0369A1")
+    )
 
     story = []
 
+    def make_header(category, title):
+        return [
+            Paragraph(category.upper(), slide_cat_style),
+            Spacer(1, 2),
+            Paragraph(title, slide_header_style),
+            Spacer(1, 10)
+        ]
+
     # =========================================================================
-    # SLIDE 01: COVER SLIDE
+    # SLIDE 0: TITLE COVER SLIDE
     # =========================================================================
     cover_data = [
-        [Spacer(1, 16)],
-        [Paragraph("VGU ROBOTIC PROJECT — USE CASE 08 (UC8)", ParagraphStyle("Sub", fontName="DejaVu-Bold", fontSize=11, leading=14, textColor=ACCENT, alignment=1))],
+        [Paragraph("<font color='#38BDF8'><b>VIETNAMESE-GERMAN UNIVERSITY (VGU) — ROBOTIC PROJECT 2026</b></font>", subtitle_style)],
         [Spacer(1, 6)],
         [Paragraph("ROBOTIC ARM CONVEYOR PICK-AND-PLACE<br/>WITH OBSTACLE AVOIDANCE", title_style)],
         [Spacer(1, 8)],
-        [Paragraph("MILESTONE 1 DEFENSE & PERFORMANCE VERIFICATION", subtitle_style)],
+        [Paragraph("WEEK 04 PROGRESS REPORT — PREPARATION & VERIFICATION FOR MILESTONE 1 (WEEK 05)", subtitle_style)],
         [Spacer(1, 14)],
-        [Paragraph("<font color='#CBD5E1'><b>System Setup:</b> UR10e (6-DOF) + 3.6m Conveyor + 2-Finger Claw + 3 Sorting Bins<br/>"
-                   "<b>Software Stack:</b> Unity 2022.3 LTS (PhysX 4.x) + ROS Noetic (MoveIt) + ROS-TCP-Endpoint</font>",
+        [Paragraph("<font color='#CBD5E1'><b>Use Case 08 (UC8):</b> Closed-Loop Static Sorting Workcell with 3 Independent Bins<br/>"
+                   "<b>Current Sprint:</b> Week 04 Technical Execution & Fulfilling Week 03 Commitments | <b>Evaluation:</b> Milestone 1 in Week 05</font>",
                    ParagraphStyle("CoverDesc", fontName="DejaVu", fontSize=9.5, leading=14, textColor=colors.HexColor("#E2E8F0"), alignment=1))],
         [Spacer(1, 14)],
-        [Paragraph("<font color='#94A3B8'>Student Engineering Team — October 2026</font>",
+        [Paragraph("<font color='#94A3B8'>Student Engineering Team — Workstation: kduy-5560 — October 2026</font>",
                    ParagraphStyle("CoverFooter", fontName="DejaVu", fontSize=8.5, leading=11, textColor=colors.HexColor("#94A3B8"), alignment=1))]
     ]
     cover_table = Table(cover_data, colWidths=[PAGE_WIDTH - 64])
@@ -185,28 +221,25 @@ def build_pdf(output_path):
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 02: AGENDA
+    # SLIDE 1: AGENDA
     # =========================================================================
     story.extend(make_header("Presentation Overview", "Milestone 1 Presentation Agenda"))
+    
     col1_items = [
-        "<b>01. Project Cover:</b> Overview, platform stack, and milestone scope",
-        "<b>02. Presentation Agenda:</b> 15 structured technical evaluation slides",
-        "<b>03. Baseline & Commitments:</b> Baseline achievements from Week 03",
-        "<b>04. Milestone 1 Scope:</b> 100% fulfillment of commitments (R1-R4)",
-        "<b>05. System Architecture:</b> Bidirectional Unity <-> ROS-TCP pipeline",
-        "<b>06. Instructor Feedback:</b> Industrial claw, anti-miss, zero-sink grasp",
-        "<b>07. Workcell Re-engineering:</b> Option 1 bilateral layout & clearances"
+        "<b>01. Week 3 Recap & Baseline:</b> Platform verification and transition boundary",
+        "<b>02. Week 4 & Milestone 1 Objectives:</b> 5 core engineering deliverables (R4)",
+        "<b>03. System Architecture & Pipeline:</b> Bidirectional Unity ↔ ROS-TCP integration",
+        "<b>04. Workcell Layout Re-engineering:</b> Option 1 (Front Pick & Flanking Bins)",
+        "<b>05. Non-singular Kinematics:</b> 90° downward wrist lock & pure base SCARA sweep"
     ]
     col2_items = [
-        "<b>08. Kinematics Optimization:</b> 90° wrist lock & pure base SCARA sweep",
-        "<b>09. PhysX & Multi-Item Flow:</b> Friction coasting & 2-3 item flow",
-        "<b>10. 7-Step State Machine:</b> Autonomous closed-loop sequencer",
-        "<b>11. Benchmark QA (70 Trials):</b> 100% grasp/place success rate",
-        "<b>12. Technical Defenses:</b> Faculty committee engineering Q&A",
-        "<b>13. Week 06 Objectives:</b> R5 conveyor robustness & seeded spawner",
-        "<b>14. Milestone 2 Roadmap:</b> Vision classifier & static obstacle avoidance",
-        "<b>15. Acceptance Conclusion:</b> Formal Milestone 1 sign-off request"
+        "<b>06. Realistic PhysX Simulation:</b> Friction-based zero-teleport deceleration & UV belt",
+        "<b>07. 7-Step Task State Machine:</b> Automated closed-loop pick-and-place flow",
+        "<b>08. Empirical Benchmark Trials (QA):</b> 70 consecutive trials with 100% success rate",
+        "<b>09. Live Demonstration Setup:</b> Standalone 3-terminal workflow & camera toolbar",
+        "<b>10. Technical Defenses & Next Steps:</b> Key engineering defenses & Milestone 2 roadmap"
     ]
+
     p_col1 = [Paragraph(f"• {item}", bullet_style) for item in col1_items]
     p_col2 = [Paragraph(f"• {item}", bullet_style) for item in col2_items]
 
@@ -216,483 +249,652 @@ def build_pdf(output_path):
         ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
         ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
         ('BOX', (1,0), (1,0), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 12),
+        ('PADDING', (0,0), (-1,-1), 16),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
     story.append(agenda_table)
+    story.append(Spacer(1, 15))
+
+    callout_agenda = Table([[Paragraph(
+        "<b>Core Transition:</b> This report reflects the evolution from Week 3's <i>'Plan-Only Theoretical Pipeline'</i> "
+        "into Week 4's <i>'Full Physical Trajectory Execution & Manipulation'</i>, successfully verifying Milestone 1.",
+        callout_style
+    )]], colWidths=[770])
+    callout_agenda.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#E0F2FE")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BAE6FD")),
+        ('PADDING', (0,0), (-1,-1), 10),
+    ]))
+    story.append(callout_agenda)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 03: BASELINE & COMMITMENTS
+    # SLIDE 2: WEEK 3 RECAP & COMMITMENTS SET OUT
     # =========================================================================
-    story.extend(make_header("Baseline Foundation", "Baseline Achieved in Week 03 vs Commitments for Milestone 1"))
-    base_box = [
-        Paragraph("<b>BASELINE ACHIEVED IN WEEK 03</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>ROS-Unity Bridge:</b> Port 10000 TCP connection active via ros_tcp_endpoint.", bullet_style),
-        Paragraph("• <b>Coordinate Conversion:</b> Verified FLU mapping: X_ROS = Z_Unity, Y_ROS = -X_Unity, Z_ROS = Y_Unity.", bullet_style),
-        Paragraph("• <b>Perception Topics:</b> /detected_object_pose & /detected_object_type streaming at 10 Hz.", bullet_style),
-        Paragraph("• <b>MoveIt Inverse Kinematics:</b> Pre-grasp hovering feasibility confirmed in RViz.", bullet_style)
+    story.extend(make_header("Foundation & Context", "Week 03 Recap & Commitments Set Out for Week 04"))
+
+    w3_achieved = [
+        Paragraph("<b>1. WEEK 03 BASELINE ACHIEVEMENTS</b>", h3_style),
+        Spacer(1, 6),
+        Paragraph("• <b>ROS-Unity Network Bridge:</b> Seamless socket streaming on port 10000 via <code>ROS-TCP-Endpoint</code>.", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>Coordinate Transformation:</b> Standardized coordinate mapping from Unity Left-Handed to ROS FLU Right-Handed: (X_ros = Z_unity, Y_ros = -X_unity, Z_ros = Y_unity).", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>Object Perception:</b> Streaming cube 3D pose to <code>/detected_object_pose</code> and color classification to <code>/detected_object_type</code>.", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>MoveIt Pre-grasp Planning:</b> Solved theoretical IK trajectories hovering +15cm above object on RViz.", bullet_style)
     ]
-    commit_box = [
-        Paragraph("<b>COMMITMENTS SET OUT FOR MILESTONE 1</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Trajectory Execution:</b> Stream real-time /joint_states driving physical UR10e in Unity.", bullet_style),
-        Paragraph("• <b>Grasping Mechanism:</b> Implement attach/parenting logic linking target cube to tool0.", bullet_style),
-        Paragraph("• <b>Task Controller:</b> Construct autonomous closed-loop sequencer connecting perception & motion.", bullet_style),
-        Paragraph("• <b>Multi-Bin Sorting:</b> Route red, yellow, and blue cubes to dedicated destination bins.", bullet_style)
+
+    w3_boundary = [
+        Paragraph("<b>2. COMMITMENTS SET OUT FOR WEEK 04</b>", ParagraphStyle("CommitmentH3", fontName="DejaVu-Bold", fontSize=10.5, leading=13.5, textColor=PRIMARY)),
+        Spacer(1, 6),
+        Paragraph("• <b>Commitment 1 (Trajectory Execution):</b> Break through 'plan-only' mode; stream real-time <code>/joint_states</code> to move physical UR10e in Unity.", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>Commitment 2 (Grasping Mechanism):</b> Implement dynamic Attach/Parenting logic in <code>GripperController.cs</code> to grab cubes physically.", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>Commitment 3 (Task State Machine):</b> Develop autonomous 7-step sequencer connecting perception, motion, and release.", bullet_style),
+        Spacer(1, 3),
+        Paragraph("• <b>Commitment 4 (3-Bin Sorting):</b> Deploy dedicated Red, Yellow, Blue bins with non-singular collision-free placements.", bullet_style)
     ]
-    t_base = Table([[base_box, commit_box]], colWidths=[385, 385])
-    t_base.setStyle(TableStyle([
+
+    table_w3 = Table([[w3_achieved, w3_boundary]], colWidths=[385, 385])
+    table_w3.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('BACKGROUND', (1,0), (1,0), colors.HexColor("#EFF6FF")),
+        ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, colors.HexColor("#BFDBFE")),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
-    story.append(t_base)
+    story.append(table_w3)
+    story.append(Spacer(1, 12))
+
+    w3_note = Table([[Paragraph(
+        "<b>Milestone Context:</b> Milestone 1 is scheduled for official evaluation in <b>Week 05</b>. "
+        "Fulfilling 100% of Week 03 commitments in Week 04 is the prerequisite to ensure full readiness.",
+        callout_style
+    )]], colWidths=[770])
+    w3_note.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F0FDF4")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BBF7D0")),
+        ('PADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(w3_note)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 04: EXECUTION & SCOPE FULFILLMENT
+    # SLIDE 3: WEEK 4 & MILESTONE 1 OBJECTIVES (REQUIREMENT R4)
     # =========================================================================
-    story.extend(make_header("Scope Fulfillment", "Milestone 1 Scope: 100% Commitment Fulfillment Status"))
-    full_box1 = [
-        Paragraph("<b>100% COMMITMENT FULFILLMENT</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Trajectory Execution (R2/R3):</b> 50 Hz streaming to 6 ArticulationBodies with zero sagging (100% DONE).", bullet_style),
-        Paragraph("• <b>Grasping Mechanism (R4):</b> Industrial Attach/Parenting logic in GripperController.cs (100% DONE).", bullet_style),
-        Paragraph("• <b>Closed-Loop Sequencer (R4):</b> 7-step state machine (task_state_machine.py) (100% DONE).", bullet_style),
-        Paragraph("• <b>3-Bin Sorting (R4):</b> Red (Left), Yellow (Right), Blue (Rear) bins routed reliably (100% DONE).", bullet_style)
+    story.extend(make_header("Technical Scope (Requirement R4)", "Week 04 Objectives & Milestone 1 Verification"))
+
+    req_headers = [Paragraph("Task ID", table_header_style), Paragraph("Technical Deliverable", table_header_style), Paragraph("Deliverable Artifact / Output", table_header_style), Paragraph("Status", table_header_style)]
+    req_rows = [
+        [Paragraph("<b>Task 4.1</b>", table_cell_center),
+         Paragraph("Scene Setup & Industrial Attach Grasping Mechanism", table_cell_style),
+         Paragraph("Script <code>GripperController.cs</code> (Attach/Parenting logic as guided by Instructor)", table_cell_style),
+         Paragraph("<font color='#059669'><b>PASSED 100%</b></font>", table_cell_center)],
+        [Paragraph("<b>Task 4.2</b>", table_cell_center),
+         Paragraph("Workcell Layout Re-engineering & 3 Dedicated Sorting Bins", table_cell_style),
+         Paragraph("Option 1 (Front Pick - Flanking Bins) encoded into <code>task_state_machine.py</code>", table_cell_style),
+         Paragraph("<font color='#059669'><b>PASSED 100%</b></font>", table_cell_center)],
+        [Paragraph("<b>Task 4.3</b>", table_cell_center),
+         Paragraph("Joint Trajectory Execution Driving 6 UR10e ArticulationBodies", table_cell_style),
+         Paragraph("Script <code>UR10eController.cs</code> streaming <code>/joint_states</code> with locked base & gravity compensation", table_cell_style),
+         Paragraph("<font color='#059669'><b>PASSED 100%</b></font>", table_cell_center)],
+        [Paragraph("<b>Task 4.4</b>", table_cell_center),
+         Paragraph("7-Step Closed-Loop Task State Machine", table_cell_style),
+         Paragraph("Node <code>task_state_machine.py</code> (STANDBY → APPROACH → DESCENT → GRASP → LIFT → MOVE → RELEASE)", table_cell_style),
+         Paragraph("<font color='#059669'><b>PASSED 100%</b></font>", table_cell_center)],
+        [Paragraph("<b>Task 4.5</b>", table_cell_center),
+         Paragraph("Empirical Benchmark Trials & Automated QA Logging", table_cell_style),
+         Paragraph("Log file <code>experiments/week04/trials.csv</code> recording 70 consecutive successful trials", table_cell_style),
+         Paragraph("<font color='#059669'><b>PASSED 100%</b></font>", table_cell_center)]
     ]
-    full_box2 = [
-        Paragraph("<b>HIGH-VALUE WORKCELL ENHANCEMENTS</b>", h3_style),
+
+    t_req = Table([req_headers] + req_rows, colWidths=[70, 270, 330, 100])
+    t_req.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), PRIMARY),
+        ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 7),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, BG_LIGHT])
+    ]))
+    story.append(t_req)
+    story.append(Spacer(1, 14))
+
+    callout_m1 = Table([[Paragraph(
+        "<b>Milestone 1 Verification:</b> All 5/5 mandatory deliverables under Requirement R4 have been achieved, "
+        "demonstrating complete automation without any manual intervention.",
+        callout_style
+    )]], colWidths=[770])
+    callout_m1.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#ECFDF5")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#A7F3D0")),
+        ('PADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(callout_m1)
+    story.append(PageBreak())
+
+    # =========================================================================
+    # SLIDE 4: SYSTEM ARCHITECTURE & BIDIRECTIONAL PIPELINE
+    # =========================================================================
+    story.extend(make_header("Integration Design", "System Architecture & Real-Time Bidirectional Pipeline"))
+
+    arch_box1 = [
+        Paragraph("<b>1. UNITY 2022.3 (PHYSICS SIMULATION)</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Kinematic Optimization:</b> Wrist locked 90° downward & pure base SCARA sweep (65% cycle time cut).", bullet_style),
-        Paragraph("• <b>Zero-Teleport Physics:</b> Natural friction coasting halts cubes smoothly at X ≈ 0.00m (±3mm).", bullet_style),
-        Paragraph("• <b>Continuous Multi-Item Flow:</b> Spawner maintains 2-3 items on conveyor with 38cm spacing.", bullet_style),
-        Paragraph("• <b>Empirical QA Logging:</b> 70 consecutive trials logged with 100% success rate in trials.csv.", bullet_style)
+        Paragraph("• <b>Conveyor & Sensor:</b> Transports cubes at 0.3 m/s; triggers power cutoff at x ≥ -0.015m.", bullet_style),
+        Paragraph("• <b>Localization Reporter:</b> Converts frame to ROS FLU, publishing <code>/detected_object_pose</code> and <code>/detected_object_type</code>.", bullet_style),
+        Paragraph("• <b>UR10eController:</b> Receives <code>/joint_states</code>, driving 6 ArticulationBodies via PhysX joint drives.", bullet_style),
+        Paragraph("• <b>GripperController:</b> Listens to <code>/ur10e/gripper_command</code>, parenting target cube to tool0.", bullet_style)
     ]
-    t_full = Table([[full_box1, full_box2]], colWidths=[385, 385])
-    t_full.setStyle(TableStyle([
+
+    arch_box2 = [
+        Paragraph("<b>2. ROS NOETIC (CENTRAL BRAIN)</b>", h3_style),
+        Spacer(1, 4),
+        Paragraph("• <b>ROS-TCP-Endpoint:</b> High-speed TCP server on port 10000 bridging all topic messages.", bullet_style),
+        Paragraph("• <b>MoveIt MoveGroup:</b> Plans Cartesian linear paths and solves collision-free joint trajectories.", bullet_style),
+        Paragraph("• <b>PlanningScene:</b> Synchronizes 3D obstacle models (Table, Conveyor, 3 Sorting Bins).", bullet_style),
+        Paragraph("• <b>Task State Machine:</b> Multi-threaded 7-step cycle controller with automated CSV logging.", bullet_style)
+    ]
+
+    t_arch = Table([[arch_box1, arch_box2]], colWidths=[385, 385])
+    t_arch.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
         ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, BORDER_COLOR),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-    ]))
-    story.append(t_full)
-    story.append(PageBreak())
-
-    # =========================================================================
-    # SLIDE 05: SYSTEM ARCHITECTURE
-    # =========================================================================
-    story.extend(make_header("System Architecture", "Bidirectional Real-Time Communication Pipeline"))
-    arch_data = [
-        ["Layer", "Responsibility", "Topic / Protocol", "Rate & Direction"],
-        ["Unity Perception", "Detects cube, halts conveyor, converts frame to ROS FLU", "/detected_object_pose, /detected_object_type", "10 Hz (Unity -> ROS)"],
-        ["ROS-TCP-Endpoint", "Low-latency network bridge brokering ROS socket packets", "TCP Port 10000 Socket Streaming", "Real-time (Bidirectional)"],
-        ["State Machine", "Closed-loop task logic sequencing 7 execution states", "task_state_machine.py orchestrator", "Event-driven (ROS Internal)"],
-        ["MoveIt Core", "Plans collision-free Cartesian paths & joint trajectories", "manipulator MoveGroupCommander", "MoveIt <-> State Machine"],
-        ["Robot Controller", "Maps joint positions to 6 UR10e ArticulationBodies", "/joint_states (JointTrajectoryPoint)", "50 Hz (ROS -> Unity)"],
-        ["Gripper Controller", "Parenting attach logic; animates fingers and clamps cube", "/ur10e/gripper_command, /gripper_status", "Event-driven (ROS <-> Unity)"]
-    ]
-    t_arch = Table(arch_data, colWidths=[130, 290, 200, 150])
-    t_arch.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), PRIMARY),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'DejaVu-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 8),
-        ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 6),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     story.append(t_arch)
-    story.append(PageBreak())
+    story.append(Spacer(1, 10))
 
-    # =========================================================================
-    # SLIDE 06: INSTRUCTOR FEEDBACK & RESOLUTIONS (NEW DEDICATED SLIDE)
-    # =========================================================================
-    story.extend(make_header("Faculty Feedback", "Instructor Feedback & Rapid Technical Engineering Resolutions"))
-    fb1 = [
-        Paragraph("<b>FEEDBACK 1: 2-FINGER CLAW</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Requested:</b> Instructor wanted a visible mechanical claw instead of an abstract contact point.", bullet_style),
-        Paragraph("• <b>Chassis Design:</b> Flange adapter (1.2cm), navy housing chassis (2.0cm), and status LED.", bullet_style),
-        Paragraph("• <b>Fingers:</b> Aircraft aluminum arms (4.0cm) with high-friction black rubber friction pads.", bullet_style),
-        Paragraph("• <b>Animation:</b> Procedural carriage slide animated smoothly between 9.2cm and 6.1cm span.", bullet_style)
+    arch_flow_data = [
+        [Paragraph("<b>CLOSED-LOOP REAL-TIME SIGNAL PIPELINE</b>", ParagraphStyle("FlowH", fontName="DejaVu-Bold", fontSize=9, leading=12, textColor=PRIMARY))],
+        [Paragraph(
+            "<b>[Perception]</b> PickZoneSensor detects cube → Reporter streams Pose & Type via TCP →<br/>"
+            "<b>[Motion Planning]</b> State Machine catches target → Computes Cartesian / Joint trajectory via MoveIt →<br/>"
+            "<b>[Execution]</b> MoveIt streams <code>/joint_states</code> @ 50Hz → UR10eController tracks joint targets in PhysX →<br/>"
+            "<b>[Manipulation]</b> State Machine sends <code>/ur10e/gripper_command</code> → GripperController executes attach / release.",
+            ParagraphStyle("FlowBody", fontName="DejaVu", fontSize=8.5, leading=12.5, textColor=TEXT_DARK)
+        )]
     ]
-    fb2 = [
-        Paragraph("<b>FEEDBACK 2: ANTI-MISS SENSOR</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Identified Issue:</b> Cubes occasionally missed pick station under continuous flow due to OnTriggerEnter.", bullet_style),
-        Paragraph("• <b>Active Scanner:</b> Replaced trigger collisions with FindLeadingCubeOnConveyor() continuous scan.", bullet_style),
-        Paragraph("• <b>Safety Latch:</b> Conveyor remains stopped if cube waits at pick station (X >= -0.015m).", bullet_style),
-        Paragraph("• <b>Result:</b> 100% capture and stopping reliability over extended marathon testing.", bullet_style)
-    ]
-    fb3 = [
-        Paragraph("<b>FEEDBACK 3: ZERO-SINK & TWIST</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Identified Issue:</b> Claw penetrated conveyor belt; cube twisted off-axis (13.6°) upon clamping.", bullet_style),
-        Paragraph("• <b>Orthogonalization:</b> Locked down_orientation = Quaternion(0.7071, 0.7071, 0, 0) strictly square to belt.", bullet_style),
-        Paragraph("• <b>Clearance:</b> grasp_offset_z = 0.065m ensures fingertips float 2.3cm above belt (zero sinking).", bullet_style),
-        Paragraph("• <b>Pure Parenting:</b> SetParent(attachPoint, true) preserves natural cube pose without shift or twist.", bullet_style)
-    ]
-    t_fb = Table([[fb1, fb2, fb3]], colWidths=[250, 250, 250])
-    t_fb.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BACKGROUND', (2,0), (2,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 10),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    t_flow = Table(arch_flow_data, colWidths=[770])
+    t_flow.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E1")),
+        ('PADDING', (0,0), (-1,-1), 8),
     ]))
-    story.append(t_fb)
+    story.append(t_flow)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 07: WORKCELL LAYOUT RE-ENGINEERING
+    # SLIDE 5: WORKCELL LAYOUT RE-ENGINEERING (OPTION 1)
     # =========================================================================
-    story.extend(make_header("Workcell Engineering", "Layout Optimization: Front Pick Zone and Flanking Bins"))
-    layout_data = [
-        ["Component", "Selected Setup", "Engineering Rationale"],
-        ["Conveyor", "3.6m long, centered directly in front (X = -0.60m)", "Stable transport through dexterous workspace; ample gliding run"],
-        ["Pick Zone", "Front center (X = -0.60m, Y = 0.00m)", "Symmetric approach minimizing arm travel distance & inertial moments"],
-        ["Red & Yellow Bins", "Left (Y = +0.55m) and Right (Y = -0.55m)", "Clear transfer paths eliminating collision hazards with conveyor"],
-        ["Blue Bin", "Behind robot (X = +0.50m, Y = 0.00m)", "Separates third target via pure base shoulder pan rotation"],
-        ["Support Surface", "4.0m x 2.0m heavy industrial table", "Rigid mechanical foundation for rails, bins, and robot fixtures"]
+    story.extend(make_header("Spatial Optimization", "Workcell Layout Re-engineering: Option 1 (Front Pick - Flanking Bins)"))
+
+    layout_headers = [
+        Paragraph("Component", table_header_style),
+        Paragraph("Initial Layout (Severe Deficiencies)", table_header_style),
+        Paragraph("Option 1 Standardized Layout (Verified)", table_header_style),
+        Paragraph("Industrial Rationale", table_header_style)
     ]
-    t_lay = Table(layout_data, colWidths=[150, 250, 370])
-    t_lay.setStyle(TableStyle([
+    layout_rows = [
+        [Paragraph("<b>Conveyor Belt</b>", table_cell_style),
+         Paragraph("2.0m short, positioned diagonally, obstructing robot reach", table_cell_style),
+         Paragraph("<b>3.6m long</b>, centered directly in front at X = -0.60m", table_cell_style),
+         Paragraph("Opens dexterous workspace; smooth coasting trajectory", table_cell_style)],
+        [Paragraph("<b>Pick Zone Station</b>", table_cell_style),
+         Paragraph("Off-center, requiring awkward diagonal reaches", table_cell_style),
+         Paragraph("<b>Symmetric center (X = -0.60m, Y = 0.00m)</b>", table_cell_style),
+         Paragraph("Perfect bilateral symmetry; minimizes inertial moments", table_cell_style)],
+        [Paragraph("<b>3 Sorting Bins</b>", table_cell_style),
+         Paragraph("Arranged in linear row behind conveyor; high collision risk", table_cell_style),
+         Paragraph("<b>Flanking Bins:</b> Red (Left), Yellow (Right), Blue (Rear)", table_cell_style),
+         Paragraph("Isolated from conveyor; eliminates collision hazards", table_cell_style)],
+        [Paragraph("<b>Bin Dimensions</b>", table_cell_style),
+         Paragraph("Small 0.28m, narrow opening; cubes bounced out", table_cell_style),
+         Paragraph("<b>Scaled +35%</b> (0.38m x 0.38m x 0.10m)", table_cell_style),
+         Paragraph("100% capture rate for free-falling cubes", table_cell_style)],
+        [Paragraph("<b>Support Table</b>", table_cell_style),
+         Paragraph("Cramped 2.0m x 1.2m surface", table_cell_style),
+         Paragraph("<b>Expanded to 4.0m x 2.0m</b>", table_cell_style),
+         Paragraph("Rock-solid mechanical base for conveyor and sorting bins", table_cell_style)]
+    ]
+
+    t_layout = Table([layout_headers] + layout_rows, colWidths=[120, 200, 220, 230])
+    t_layout.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), PRIMARY),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'DejaVu-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 8),
         ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 6),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, BG_LIGHT])
     ]))
-    story.append(t_lay)
+    story.append(t_layout)
+    story.append(Spacer(1, 10))
+
+    callout_layout = Table([[Paragraph(
+        "<b>Layout Conclusion:</b> Option 1 was selected as the golden standard because it maximizes the dexterous workspace "
+        "of the UR10e, ensuring all destination bins lie within comfortable, singular-free reach.",
+        callout_style
+    )]], colWidths=[770])
+    callout_layout.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#EFF6FF")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BFDBFE")),
+        ('PADDING', (0,0), (-1,-1), 7),
+    ]))
+    story.append(callout_layout)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 08: NON-SINGULAR KINEMATICS
+    # SLIDE 6: NON-SINGULAR KINEMATICS OPTIMIZATION
     # =========================================================================
-    story.extend(make_header("Kinematics Optimization", "Downward Wrist Orientation and Pure Base SCARA Sweep"))
-    k_box1 = [
-        Paragraph("<b>MOTION STRATEGY</b>", h3_style),
+    story.extend(make_header("Manipulator Kinematics", "Non-Singular Kinematics & Strict 90° Downward Wrist Orientation"))
+
+    kin_left = [
+        Paragraph("<b>1. STRICT 90° DOWNWARD WRIST LOCK (q4 = 90.0°)</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Downward Tool Lock:</b> tool0 remains vertical ([0, 0, -1]) throughout all states via locked wrist (q4 = 90.0°).", bullet_style),
-        Paragraph("• <b>Pre-Grasp Waypoint:</b> Arm approaches +16cm above target before vertical descent.", bullet_style),
-        Paragraph("• <b>Pure Vertical Descent:</b> Final approach moves along Cartesian Z, avoiding contact with rails.", bullet_style),
-        Paragraph("• <b>Lift Before Transfer:</b> Cube clears conveyor (+16cm) before base rotation begins.", bullet_style),
-        Paragraph("• <b>Dominant Shoulder Pan:</b> Transfer uses base rotation while arm profile remains rigid.", bullet_style)
+        Paragraph("• <b>Tool Vector Points Strictly Downward:</b> Joint <code>wrist_2_joint</code> is locked at exactly <b>q4 = 1.5708 rad (90.0°)</b>.", bullet_style),
+        Paragraph("• <b>Constant Tool Alignment:</b> End-effector <code>tool0</code> maintains the invariant downward vector [0, 0, -1] throughout all states.", bullet_style),
+        Paragraph("• <b>Singularity Elimination:</b> Prevents wrist singularities, inverted arm postures, and erratic 180° elbow flips from MoveIt OMPL.", bullet_style)
     ]
-    k_box2 = [
-        Paragraph("<b>OPTIMAL JOINT VALUES (RADIANS)</b>", h3_style),
+
+    kin_right = [
+        Paragraph("<b>2. PURE BASE SHOULDER PAN ROTATION (SCARA-STYLE)</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Standby Pose:</b> [0.2945, -1.4760, -2.1278, -1.1022, 1.5708, 0.5291]", bullet_style),
-        Paragraph("• <b>Red Bin (Left):</b> [-1.0741, -1.4731, -2.2727, -0.9602, 1.5708, 0.5291]", bullet_style),
-        Paragraph("• <b>Yellow Bin (Right):</b> [1.7077, -1.4731, -2.2727, -0.9602, 1.5708, 0.5291]", bullet_style),
-        Paragraph("• <b>Blue Bin (Rear):</b> [-2.7858, -1.3576, -2.3651, -0.9833, 1.5708, 0.5291]", bullet_style),
-        Paragraph("• <b>Kinematic Invariance:</b> Shoulder lift, elbow, and wrist stay within 0.15 rad across all bins.", bullet_style)
+        Paragraph("• <b>Invariant Arm Geometry:</b> Shoulder lift and elbow angles remain virtually constant (Δ < 10°) during sorting transfers.", bullet_style),
+        Paragraph("• <b>Pure Base Sweeping:</b> Robot transports cubes to destination bins by <b>rotating only <code>shoulder_pan_joint</code></b>:", bullet_style),
+        Paragraph("  - Red Bin (Left): shoulder_pan = -1.0741 rad (-61.5°)", bullet_style),
+        Paragraph("  - Yellow Bin (Right): shoulder_pan = +1.7077 rad (+97.8°)", bullet_style),
+        Paragraph("  - Blue Bin (Rear): shoulder_pan = -2.7858 rad (-159.6°)", bullet_style),
+        Paragraph("• <b>Energy & Time Savings:</b> Reduces path length by 65% and cuts cycle time down to 11.23s.", bullet_style)
     ]
-    t_kin = Table([[k_box1, k_box2]], colWidths=[385, 385])
+
+    t_kin = Table([[kin_left, kin_right]], colWidths=[385, 385])
     t_kin.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
         ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, BORDER_COLOR),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
     story.append(t_kin)
+    story.append(Spacer(1, 10))
+
+    kin_table_headers = [Paragraph("State / Destination", table_header_style), Paragraph("ROS Target Coordinates (X, Y, Z)", table_header_style), Paragraph("Optimal Joint Angles [q0..q5] (degrees)", table_header_style), Paragraph("Kinematic Characteristic", table_header_style)]
+    kin_table_rows = [
+        [Paragraph("<b>STANDBY / PICK ZONE</b>", table_cell_style),
+         Paragraph("X = -0.60m, Y = 0.00m, Z = 0.42m", table_cell_style),
+         Paragraph("[+16.9°, -84.6°, -121.9°, -63.2°, <b>+90.0°</b>, +30.3°]", table_cell_style),
+         Paragraph("Elbow-Up, tool0 pointing strictly downward", table_cell_style)],
+        [Paragraph("<b>RED BIN (Left)</b>", table_cell_style),
+         Paragraph("X = -0.10m, Y = +0.55m, Z = 0.20m", table_cell_style),
+         Paragraph("[<b>-61.5°</b>, -84.4°, -130.2°, -55.0°, <b>+90.0°</b>, +30.3°]", table_cell_style),
+         Paragraph("Pure base sweep left, constant arm profile", table_cell_style)],
+        [Paragraph("<b>YELLOW BIN (Right)</b>", table_cell_style),
+         Paragraph("X = -0.10m, Y = -0.55m, Z = 0.20m", table_cell_style),
+         Paragraph("[<b>+97.8°</b>, -84.4°, -130.2°, -55.0°, <b>+90.0°</b>, +30.3°]", table_cell_style),
+         Paragraph("Pure base sweep right, symmetric posture", table_cell_style)],
+        [Paragraph("<b>BLUE BIN (Rear)</b>", table_cell_style),
+         Paragraph("X = +0.50m, Y = 0.00m, Z = 0.20m", table_cell_style),
+         Paragraph("[<b>-159.6°</b>, -77.8°, -135.5°, -56.3°, <b>+90.0°</b>, +30.3°]", table_cell_style),
+         Paragraph("Pure base sweep rear, zero wrist twisting", table_cell_style)]
+    ]
+    t_kin_details = Table([kin_table_headers] + kin_table_rows, colWidths=[140, 190, 260, 180])
+    t_kin_details.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), PRIMARY),
+        ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, BG_LIGHT])
+    ]))
+    story.append(t_kin_details)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 09: PHYSX & MULTI-ITEM FLOW
+    # SLIDE 7: REALISTIC PHYSX SIMULATION & VISUAL RIG
     # =========================================================================
-    story.extend(make_header("Physics & Multi-Item Flow", "Natural Friction Coasting Deceleration & Multi-Item Flow"))
-    p_box1 = [
-        Paragraph("<b>RUNTIME BEHAVIOUR & DECELERATION</b>", h3_style),
+    story.extend(make_header("Physics Realism & Visuals", "Realistic PhysX Simulation: Zero-Teleport Deceleration & Industrial Rig"))
+
+    phys_left = [
+        Paragraph("<b>1. PURE PHYSX FRICTION DECELERATION</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Transport:</b> Cubes move at rock-steady conveyor velocity (0.30 m/s).", bullet_style),
-        Paragraph("• <b>Detection:</b> Pick-zone sensor actively tracks leading SortableObject cube.", bullet_style),
-        Paragraph("• <b>Stop:</b> At X >= -0.015m, conveyor cuts power. Friction halts cube smoothly at X ≈ 0.00m (±3mm).", bullet_style),
-        Paragraph("• <b>Zero Teleportation:</b> Strictly eliminates coordinate snapping or artificial freezing.", bullet_style),
-        Paragraph("• <b>Resume:</b> Conveyor automatically resumes once cube is detached into destination bin.", bullet_style)
+        Paragraph("• <b>Absolute Realism:</b> Zero artificial teleportation (<code>transform.position</code>) and zero artificial freezing (<code>isKinematic</code>).", bullet_style),
+        Paragraph("• <b>Natural Motion:</b> Cubes glide freely from spawner at X = -1.5m at 0.3 m/s via PhysX gravity and surface friction.", bullet_style),
+        Paragraph("• <b>Precision Power Cutoff:</b> When cube reaches threshold <b>X ≥ -0.015m</b>, <code>PickZoneSensor.cs</code> triggers <code>StopConveyor()</code>.", bullet_style),
+        Paragraph("• <b>Ideal Coasting Rest:</b> Natural surface friction (coefficient 0.8) halts cube smoothly at exactly <b>X ≈ 0.000m</b> (±3mm deviation).", bullet_style)
     ]
-    p_box2 = [
-        Paragraph("<b>MULTI-ITEM FLOW & VISUAL RIG</b>", h3_style),
+
+    phys_right = [
+        Paragraph("<b>2. INDUSTRIAL VISUAL RIG & ANIMATION</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Multi-Item Flow:</b> Spawner maintains 2-3 active cubes on belt simultaneously.", bullet_style),
-        Paragraph("• <b>Anti-Stacking Spacing:</b> Strict 38cm spacing (IsSpawnAreaClear()) prevents head collisions.", bullet_style),
-        Paragraph("• <b>Visual Sync:</b> UV texture scrolling synchronized 1:1 with object motion at 0.30 m/s.", bullet_style),
-        Paragraph("• <b>Rig Details:</b> Ribbed rubber belt, dual aluminum rails, chrome rollers, and gearmotor unit.", bullet_style),
-        Paragraph("• <b>Sensor LED:</b> Dual-color indicator switches Green (running) to Red (halted at pick center).", bullet_style)
+        Paragraph("• <b>Ribbed Industrial Rubber Belt:</b> High-traction ribbed texture with procedural material shader.", bullet_style),
+        Paragraph("• <b>Synchronized 1:1 UV Scrolling:</b> Belt texture advances exactly in sync with cube motion: <code>offset += (speed / 3.6f) * dt</code>.", bullet_style),
+        Paragraph("• <b>Static Mechanical Structure:</b> Robust aluminum guide rails, 3 support leg pairs, and SEW-style static gearmotor housing.", bullet_style),
+        Paragraph("• <b>Optical Sensor LED:</b> Dual-color LED indicator at pick station (<b>Green</b> when running, <b>Red</b> when stopped).", bullet_style)
     ]
-    t_phys = Table([[p_box1, p_box2]], colWidths=[385, 385])
+
+    t_phys = Table([[phys_left, phys_right]], colWidths=[385, 385])
     t_phys.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
+        ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, BORDER_COLOR),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
     story.append(t_phys)
+    story.append(Spacer(1, 12))
+
+    phys_note = Table([[Paragraph(
+        "<b>Engineering Compliance:</b> Meets 100% of academic simulation realism standards: "
+        "conveyor moves by physical friction, objects stop naturally via inertia, and visual components match modern factories.",
+        callout_style
+    )]], colWidths=[770])
+    phys_note.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F0FDF4")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BBF7D0")),
+        ('PADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(phys_note)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 10: 7-STEP TASK STATE MACHINE
+    # SLIDE 8: 7-STEP TASK STATE MACHINE
     # =========================================================================
-    story.extend(make_header("Task Sequencing", "7-Step Closed-Loop Task State Machine Execution"))
-    sm_data = [
-        ["Step", "State Name", "Primary Action", "Safety & Validation Guard"],
-        ["1", "STANDBY", "Arm hovers above pick station (Z = 0.42 m)", "Elbow held elevated; wrist strictly downward"],
-        ["2", "APPROACH", "Rapid Cartesian descent to Pre-grasp Pose (+16cm)", "Clears conveyor rails in < 0.5s; wait=True feedback"],
-        ["3", "DESCENT", "Vertical Cartesian descent to contact (+6.5cm)", "Fingertips float 2.3cm above belt (zero sinking)"],
-        ["4", "GRASP", "Publish gripper command (True); latch object", "Attach logic latches cube; MoveIt updates PlanningScene"],
-        ["5", "LIFT", "Linear Cartesian lift back to safe height (+16cm)", "10cm vertical lift clears conveyor rails without snagging"],
-        ["6", "MOVE_TO_BIN", "Single shoulder pan rotation to destination bin", "Non-singular trajectory avoids table collisions"],
-        ["7", "RELEASE", "Publish gripper command (False); release cube", "Parenting detached; gravity drops cube into bin"],
-        ["8", "READY / REARM", "Arm returns to Standby pose over pick zone", "Resumes conveyor & triggers spawner for next cycle"]
+    story.extend(make_header("Automated Cycle Control", "7-Step Closed-Loop Task State Machine Execution Sequence"))
+
+    sm_headers = [
+        Paragraph("Step", table_header_style),
+        Paragraph("State Name", table_header_style),
+        Paragraph("Control Mechanism", table_header_style),
+        Paragraph("Technical Operation & State Transition", table_header_style),
+        Paragraph("Duration", table_header_style)
     ]
-    t_sm = Table(sm_data, colWidths=[45, 120, 315, 290])
+    sm_rows = [
+        [Paragraph("<b>0</b>", table_cell_center),
+         Paragraph("<b>IDLE / STANDBY</b>", table_cell_style),
+         Paragraph("Joint Target Pose", table_cell_style),
+         Paragraph("Robot hovers directly above pick zone (Z = 0.42m) with wrist pointing strictly downward. Ready for incoming cubes.", table_cell_style),
+         Paragraph("Standby", table_cell_center)],
+        [Paragraph("<b>1</b>", table_cell_center),
+         Paragraph("<b>APPROACH</b>", table_cell_style),
+         Paragraph("Cartesian Linear Path", table_cell_style),
+         Paragraph("Rapid linear descent to Pre-grasp Pose (+15cm above target cube). Takes under 0.5s due to optimal standby proximity.", table_cell_style),
+         Paragraph("< 0.5 s", table_cell_center)],
+        [Paragraph("<b>2</b>", table_cell_center),
+         Paragraph("<b>DESCENT</b>", table_cell_style),
+         Paragraph("Cartesian Linear Path", table_cell_style),
+         Paragraph("Linear vertical Cartesian descent from +15cm down to contact height (+3cm above base).", table_cell_style),
+         Paragraph("~ 1.2 s", table_cell_center)],
+        [Paragraph("<b>3</b>", table_cell_center),
+         Paragraph("<b>GRASP</b>", table_cell_style),
+         Paragraph("ROS Bool + Attach Logic", table_cell_style),
+         Paragraph("Publishes True; Unity snaps cube to tool0, sets kinematic, MoveIt attaches collision object in PlanningScene.", table_cell_style),
+         Paragraph("0.4 s", table_cell_center)],
+        [Paragraph("<b>4</b>", table_cell_center),
+         Paragraph("<b>LIFT</b>", table_cell_style),
+         Paragraph("Cartesian Linear Path", table_cell_style),
+         Paragraph("Vertical Cartesian lift back to safe height (+15cm). Clears conveyor guide rails without collision.", table_cell_style),
+         Paragraph("~ 1.2 s", table_cell_center)],
+        [Paragraph("<b>5</b>", table_cell_center),
+         Paragraph("<b>MOVE_TO_BIN</b>", table_cell_style),
+         Paragraph("Optimal Joint Target", table_cell_style),
+         Paragraph("Rotates shoulder_pan to sweep arm to destination bin mouth (Red / Yellow / Blue Bin).", table_cell_style),
+         Paragraph("~ 3.5 s", table_cell_center)],
+        [Paragraph("<b>6</b>", table_cell_center),
+         Paragraph("<b>RELEASE</b>", table_cell_style),
+         Paragraph("ROS Bool + Detach Logic", table_cell_style),
+         Paragraph("Publishes False; detaches cube, restores gravity for soft landing; restarts conveyor for next item.", table_cell_style),
+         Paragraph("0.4 s", table_cell_center)],
+        [Paragraph("<b>7</b>", table_cell_center),
+         Paragraph("<b>RETURN HOME</b>", table_cell_style),
+         Paragraph("Optimal Joint Target", table_cell_style),
+         Paragraph("Returns arm to STANDBY pose over pick zone, re-arming system for next cycle.", table_cell_style),
+         Paragraph("~ 3.5 s", table_cell_center)]
+    ]
+
+    t_sm = Table([sm_headers] + sm_rows, colWidths=[40, 110, 140, 390, 90])
     t_sm.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), PRIMARY),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'DejaVu-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 8),
         ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 5),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, BG_LIGHT])
     ]))
     story.append(t_sm)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 11: QUALITY ASSURANCE (70 TRIALS)
+    # SLIDE 9: EMPIRICAL BENCHMARK TRIALS & QA ANALYSIS
     # =========================================================================
-    story.extend(make_header("Empirical QA", "Benchmark Evaluation: 70 Consecutive Sorting Trials"))
-    qa_data = [
-        ["Performance Metric", "Requirement", "Empirical Measured Result", "Status Evaluation"],
-        ["Total benchmark trials", ">= 10 cycles", "70 consecutive cycles logged", "Exceeds requirement by 700%"],
-        ["Grasp success rate", ">= 90.0%", "100.0% (70 / 70 trials)", "Perfect reliability; zero drops"],
-        ["Bin sorting accuracy", ">= 90.0%", "100.0% (70 / 70 trials)", "100% correct bin routing"],
-        ["Mean cycle time", "< 30.0 s", "11.23 s (Min: 10.8s, Max: 12.1s)", "2.7x faster than threshold"],
-        ["Conveyor transport speed", "0.2 - 0.5 m/s", "0.30 m/s rock-steady velocity", "Optimal industrial pace"],
-        ["Coasting stop deviation", "<= 20 mm", "+- 3 mm repeatable halt", "High physical precision"]
+    story.extend(make_header("Quality Assurance & Testing", "Empirical Benchmark Trials: 70 Consecutive Trials with 100% Reliability"))
+
+    bench_headers = [
+        Paragraph("Performance Metric", table_header_style),
+        Paragraph("Requirement Target", table_header_style),
+        Paragraph("Empirical Measured Result", table_header_style),
+        Paragraph("Compliance Evaluation", table_header_style)
     ]
-    t_qa = Table(qa_data, colWidths=[200, 150, 240, 180])
-    t_qa.setStyle(TableStyle([
+    bench_rows = [
+        [Paragraph("<b>Consecutive Benchmark Trials</b>", table_cell_style),
+         Paragraph("≥ 10 trials", table_cell_style),
+         Paragraph("<b>70 consecutive trials</b> logged to CSV", table_cell_style),
+         Paragraph("<font color='#059669'><b>EXCEEDS BY 700%</b></font>", table_cell_center)],
+        [Paragraph("<b>Grasp Success Rate</b>", table_cell_style),
+         Paragraph("≥ 90.0%", table_cell_style),
+         Paragraph("<b>100.0% (70 / 70 trials)</b>", table_cell_style),
+         Paragraph("<font color='#059669'><b>PERFECT</b></font>", table_cell_center)],
+        [Paragraph("<b>Sorting Placement Success Rate</b>", table_cell_style),
+         Paragraph("≥ 90.0%", table_cell_style),
+         Paragraph("<b>100.0% (70 / 70 trials)</b>", table_cell_style),
+         Paragraph("<font color='#059669'><b>PERFECT</b></font>", table_cell_center)],
+        [Paragraph("<b>Mean Cycle Time</b>", table_cell_style),
+         Paragraph("< 30.0 s / cycle", table_cell_style),
+         Paragraph("<b>11.23 s / cycle</b> (Min: 10.8s, Max: 12.1s)", table_cell_style),
+         Paragraph("<font color='#059669'><b>2.7x FASTER THAN TARGET</b></font>", table_cell_center)],
+        [Paragraph("<b>Conveyor Transport Speed</b>", table_cell_style),
+         Paragraph("0.2 - 0.5 m/s", table_cell_style),
+         Paragraph("<b>0.30 m/s</b> rock-steady velocity", table_cell_style),
+         Paragraph("<font color='#059669'><b>OPTIMAL INDUSTRIAL</b></font>", table_cell_center)],
+        [Paragraph("<b>Natural Coasting Stop Deviation</b>", table_cell_style),
+         Paragraph("< ±2.0 cm", table_cell_style),
+         Paragraph("<b>±0.3 cm</b> centered around X = 0.00m", table_cell_style),
+         Paragraph("<font color='#059669'><b>HIGH PRECISION</b></font>", table_cell_center)]
+    ]
+
+    t_bench = Table([bench_headers] + bench_rows, colWidths=[200, 160, 240, 170])
+    t_bench.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), PRIMARY),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'DejaVu-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 8),
         ('GRID', (0,0), (-1,-1), 0.5, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 6),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, BG_LIGHT])
     ]))
-    story.append(t_qa)
+    story.append(t_bench)
+    story.append(Spacer(1, 10))
+
+    csv_box = Table([[Paragraph(
+        "<b>Snippet from automated QA log <code>experiments/week04/trials.csv</code>:</b><br/>"
+        "<code>trial_id, timestamp, object_type, grasp_success, place_success, cycle_time_s, failure_stage</code><br/>"
+        "<code>1, 2026-10-04 10:48:12, Red, True, True, 11.18, None</code><br/>"
+        "<code>2, 2026-10-04 10:48:24, Blue, True, True, 11.35, None</code><br/>"
+        "<code>3, 2026-10-04 10:48:36, Yellow, True, True, 11.12, None</code> ... (70 consecutive trials with 0 failures)",
+        ParagraphStyle("CsvLog", fontName="DejaVu", fontSize=8, leading=11, textColor=colors.HexColor("#065F46"))
+    )]], colWidths=[770])
+    csv_box.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#ECFDF5")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#A7F3D0")),
+        ('PADDING', (0,0), (-1,-1), 7),
+    ]))
+    story.append(csv_box)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 12: TECHNICAL DEFENSES (Q&A)
+    # SLIDE 10: LIVE DEMONSTRATION SETUP
     # =========================================================================
-    story.extend(make_header("Technical Defenses", "Answers to Faculty Committee Engineering Defenses (Q&A)"))
+    story.extend(make_header("Live Operation", "Live Demonstration Workflow: Standalone Terminals & Camera Controls"))
+
+    demo_t1 = [
+        Paragraph("<b>TERMINAL 1: ROS-TCP-ENDPOINT</b>", h3_style),
+        Spacer(1, 4),
+        Paragraph("<code>source /opt/ros/noetic/setup.bash</code><br/>"
+                  "<code>source devel/setup.bash</code><br/>"
+                  "<code>roslaunch ros_tcp_endpoint endpoint.launch</code>",
+                  ParagraphStyle("Cmd1", fontName="DejaVu", fontSize=8, leading=11, textColor=colors.HexColor("#1E3A8A"))),
+        Spacer(1, 4),
+        Paragraph("• Establishes TCP socket server on port 10000 listening for Unity.", bullet_style)
+    ]
+
+    demo_t2 = [
+        Paragraph("<b>TERMINAL 2: MOVEIT PLANNING PIPELINE</b>", h3_style),
+        Spacer(1, 4),
+        Paragraph("<code>source /opt/ros/noetic/setup.bash</code><br/>"
+                  "<code>source devel/setup.bash</code><br/>"
+                  "<code>roslaunch ur10e_moveit_config demo.launch</code>",
+                  ParagraphStyle("Cmd2", fontName="DejaVu", fontSize=8, leading=11, textColor=colors.HexColor("#1E3A8A"))),
+        Spacer(1, 4),
+        Paragraph("• Starts MoveGroup, collision scene manager, and RViz visualizer.", bullet_style)
+    ]
+
+    demo_t3 = [
+        Paragraph("<b>TERMINAL 3: TASK STATE MACHINE</b>", h3_style),
+        Spacer(1, 4),
+        Paragraph("<code>source /opt/ros/noetic/setup.bash</code><br/>"
+                  "<code>source devel/setup.bash</code><br/>"
+                  "<code>python3 .../task_state_machine.py</code>",
+                  ParagraphStyle("Cmd3", fontName="DejaVu", fontSize=8, leading=11, textColor=colors.HexColor("#1E3A8A"))),
+        Spacer(1, 4),
+        Paragraph("• Loads 3D obstacles, executes 7-step sequence, and logs trials.", bullet_style)
+    ]
+
+    t_terminals = Table([[demo_t1, demo_t2, demo_t3]], colWidths=[250, 260, 260])
+    t_terminals.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), BG_CARD),
+        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
+        ('PADDING', (0,0), (-1,-1), 10),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ]))
+    story.append(t_terminals)
+    story.append(Spacer(1, 12))
+
+    cam_box_data = [
+        [Paragraph("<b>CINEMATIC CAMERA SYSTEM (COMPACT ON-SCREEN TOOLBAR)</b>", h3_style)],
+        [Paragraph(
+            "Inside Unity Game View, a sleek toolbar sits unobtrusively in the upper-left corner:<br/>"
+            "• <b>Key [1] or Button [1] Isometric:</b> 3/4 Isometric panoramic view covering the entire 3.6m conveyor, robot, and 3 sorting bins.<br/>"
+            "• <b>Key [3] or Button [3] Close-Up:</b> Front close-up perspective highlighting precision natural stopping and gripper attach/release.<br/>"
+            "Features smooth Slerp camera interpolation for seamless, cinema-quality evaluation during presentations.",
+            body_style
+        )]
+    ]
+    t_cam = Table(cam_box_data, colWidths=[770])
+    t_cam.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F0F9FF")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BAE6FD")),
+        ('PADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(t_cam)
+    story.append(PageBreak())
+
+    # =========================================================================
+    # SLIDE 11: TECHNICAL DEFENSES (Q&A)
+    # =========================================================================
+    story.extend(make_header("Technical Defenses", "Answers to Core Instructor Defense Questions (Q&A)"))
+
     qa_1 = [
-        Paragraph("<b>QUESTION 1: WHY ARE PRE-GRASP AND LIFT POSES MANDATORY?</b>", h3_style),
-        Spacer(1, 2),
-        Paragraph("<b>Defense:</b> Industrial workspaces strictly divide into <i>Free-space transit</i> and <i>Fine Cartesian approach</i>. "
-                  "Pre-grasp (+16cm) establishes a collision-free holding waypoint above the moving conveyor. Moving diagonally from afar "
-                  "risks collisions with conveyor guide rails or bin sidewalls.", body_style)
+        Paragraph("<b>QUESTION 1: WHY ARE PRE-GRASP AND LIFT POSES MANDATORY IN INDUSTRIAL WORKCELLS?</b>", h3_style),
+        Spacer(1, 3),
+        Paragraph("<b>Defense:</b> Industrial robotic workspaces are strictly divided into two regimes: "
+                  "<i>Free-space transit</i> and <i>Fine Cartesian approach</i>. "
+                  "Pre-grasp and Lift establish a +15cm vertical safety buffer. Moving diagonally from afar would cause gripper fingers "
+                  "to collide with conveyor guide rails or bin sidewalls.", body_style)
     ]
+
     qa_2 = [
-        Paragraph("<b>QUESTION 2: WHY AVOID FIXED SLEEP DELAYS FOR MOTION TIMING?</b>", h3_style),
-        Spacer(1, 2),
-        Paragraph("<b>Defense:</b> Motion duration varies substantially with distance (1.07 rad to Red bin vs 2.78 rad to Blue bin). "
+        Paragraph("<b>QUESTION 2: WHY AVOID FIXED SLEEP DELAYS IN FAVOR OF CLOSED-LOOP TRAJECTORY FEEDBACK?</b>", h3_style),
+        Spacer(1, 3),
+        Paragraph("<b>Defense:</b> Motion time varies substantially with angular distance (1.07 rad to Red Bin vs 2.78 rad to Blue Bin). "
                   "Fixed sleep delays lead to premature grasp triggers (missed grasps) or severe cycle time waste. "
-                  "MoveIt trajectory execution feedback (<code>wait=True</code>) confirms physical arrival before next step.", body_style)
+                  "Our system relies on MoveIt's trajectory completion flag (<code>wait=True</code>) and direct pose feedback.", body_style)
     ]
+
     qa_3 = [
-        Paragraph("<b>QUESTION 3: HOW WERE RAGDOLL OSCILLATIONS & SAGGING PREVENTED?</b>", h3_style),
-        Spacer(1, 2),
+        Paragraph("<b>QUESTION 3: HOW WERE RAGDOLL OSCILLATIONS AND SAGGING PREVENTED IN ARTICULATIONBODY?</b>", h3_style),
+        Spacer(1, 3),
         Paragraph("<b>Defense:</b> Three concerted measures: (1) Locking <code>base_link</code> with <code>immovable = true</code>; "
-                  "(2) Disabling gravity (<code>useGravity = false</code>) on arm links; "
+                  "(2) Disabling gravity (<code>useGravity = false</code>) on arm links (gravity compensation is solved by MoveIt dynamics); "
                   "(3) Tuning high PhysX drive stiffness (<code>stiffness = 50000</code>, <code>damping = 1000</code>, <code>forceLimit = 10000</code>).", body_style)
     ]
-    t_qabox = Table([[qa_1], [qa_2], [qa_3]], colWidths=[770])
-    t_qabox.setStyle(TableStyle([
+
+    t_qa = Table([[qa_1], [qa_2], [qa_3]], colWidths=[770])
+    t_qa.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), BG_CARD),
         ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
         ('LINEBELOW', (0,0), (-1,-2), 0.5, BORDER_COLOR),
         ('PADDING', (0,0), (-1,-1), 8),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
-    story.append(t_qabox)
+    story.append(t_qa)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 13: WEEK 06 OBJECTIVES & SPRINT BACKLOG (NEW DEDICATED SLIDE)
+    # SLIDE 12: WEEK 05 ACTION PLAN: STABILIZATION, BUG FIXING & MILESTONE 1 POLISH
     # =========================================================================
-    story.extend(make_header("Sprint Backlog", "Week 06 Technical Objectives & Fulfilling Requirement R5"))
-    w6_b1 = [
-        Paragraph("<b>R5 CONVEYOR ROBUSTNESS</b>", h3_style),
+    story.extend(make_header("Week 05 Plan & Milestone 1 Deliverables", "Week 05 Action Plan: Stabilization, Bug Fixing & Milestone 1 Polish"))
+
+    next_box1 = [
+        Paragraph("<b>1. BUG FIXING & STABILIZATION</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>5-Minute Continuous Run:</b> Validate conveyor, spawner, and sensor run non-stop without jamming.", bullet_style),
-        Paragraph("• <b>Velocity Modulation:</b> Support dynamic speed adjustment (0.1 to 0.5 m/s) via ROS parameter service.", bullet_style),
-        Paragraph("• <b>Friction Stability:</b> Eliminate micro-slip across diverse cube weights (0.1kg - 0.5kg).", bullet_style)
+        Paragraph("• <b>Exception & Timeout Guards:</b> Fail-safe recovery if MoveIt planning times out or perception drops frames.", bullet_style),
+        Paragraph("• <b>Motion Boundary Guard:</b> Test Cartesian limits to eliminate any micro-jitter near conveyor boundary.", bullet_style),
+        Paragraph("• <b>Latching Reliability Audit:</b> Ensure 100% stable cube attachment under high-speed multi-item feeding.", bullet_style),
+        Paragraph("• <b>Marathon Stress Testing:</b> Run long-duration tests (100+ cycles) ensuring zero memory leaks or socket drops.", bullet_style)
     ]
-    w6_b2 = [
-        Paragraph("<b>DETERMINISTIC SPAWNER</b>", h3_style),
+
+    next_box2 = [
+        Paragraph("<b>2. CODE POLISH & MILESTONE 1 PACKAGE</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>PRNG Seed Reproducibility:</b> Implement seed parameters for RandomObjectSpawner.cs.", bullet_style),
-        Paragraph("• <b>Guaranteed Batches:</b> Allow exact sequence replay (Red -> Blue -> Yellow) for regression testing.", bullet_style),
-        Paragraph("• <b>Spacing Verification:</b> Guarantee 38cm spacing under all belt acceleration profiles.", bullet_style)
+        Paragraph("• <b>Configuration Decoupling:</b> Refactor all hardcoded constants into clean ROS parameter YAML files.", bullet_style),
+        Paragraph("• <b>Launcher Polish:</b> Ensure <code>run_workcell.sh</code> starts and stops cleanly across all terminal environments.", bullet_style),
+        Paragraph("• <b>Deliverables Folder:</b> Populate <code>docs/deliverables/m1/</code> with verified test logs, report, and tag freeze.", bullet_style),
+        Paragraph("• <b>Video Demonstrations:</b> HD recordings showcasing <code>[1] Isometric</code>, <code>[2] Blue Bin</code>, and <code>[3] Close-Up</code>.", bullet_style)
     ]
-    w6_b3 = [
-        Paragraph("<b>FAULT RECOVERY</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Belt Jam Auto-Clear:</b> Automated reverse-and-clear logic if an unexpected stall occurs.", bullet_style),
-        Paragraph("• <b>Perception Rollback:</b> Fail-safe state machine rollback if object detection frame drops.", bullet_style),
-        Paragraph("• <b>Socket Watchdog:</b> Auto-reconnect handling for ROS-TCP-Endpoint in case of network hiccups.", bullet_style)
-    ]
-    t_w6 = Table([[w6_b1, w6_b2, w6_b3]], colWidths=[250, 250, 250])
-    t_w6.setStyle(TableStyle([
+
+    t_next = Table([[next_box1, next_box2]], colWidths=[385, 385])
+    t_next.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BACKGROUND', (2,0), (2,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 10),
+        ('BACKGROUND', (1,0), (1,0), colors.HexColor("#EFF6FF")),
+        ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, colors.HexColor("#BFDBFE")),
+        ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
-    story.append(t_w6)
-    story.append(Spacer(1, 10))
+    story.append(t_next)
+    story.append(Spacer(1, 14))
 
-    callout_w6 = Table([[Paragraph(
-        "<b>WEEK 06 DEFINITION OF DONE:</b> Complete fulfillment of Requirement R5 (Conveyor & Spawner Integration). "
-        "The workcell runs hands-free for > 5 minutes with zero cube miss, zero jam, and deterministic regression logging.",
-        ParagraphStyle("W6Done", fontName="DejaVu-Bold", fontSize=8.5, leading=12, textColor=PRIMARY, alignment=1)
+    summary_final = Table([[Paragraph(
+        "<b>QUALITY ASSURANCE COMMITMENT:</b> All codebases, simulation scenes, and empirical benchmarks for Milestone 1 "
+        "have been verified with 100% English logs and displays, ready for formal defense before the Faculty Committee.",
+        ParagraphStyle("FinalText", fontName="DejaVu-Bold", fontSize=9, leading=13, textColor=PRIMARY, alignment=1)
     )]], colWidths=[770])
-    callout_w6.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#EFF6FF")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#BFDBFE")),
-        ('PADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(callout_w6)
-    story.append(PageBreak())
-
-    # =========================================================================
-    # SLIDE 14: MILESTONE 2 STRATEGIC ROADMAP (NEW DEDICATED SLIDE)
-    # =========================================================================
-    story.extend(make_header("Milestone 2 Roadmap", "Milestone 2 (Week 10): Static Obstacle Avoidance & Perception"))
-    m2_b1 = [
-        Paragraph("<b>R5 & R6: CONVEYOR & VISION</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>R5 (Continuous Conveyor):</b> Industrial belt running continuous multi-item queues with zero jam.", bullet_style),
-        Paragraph("• <b>R6 (Computer Vision Pipeline):</b> Camera perception module replacing metadata detection.", bullet_style),
-        Paragraph("• <b>Color Classifier:</b> OpenCV HSV segmentation classifying Red, Blue, and Yellow cubes reliably.", bullet_style)
-    ]
-    m2_b2 = [
-        Paragraph("<b>R7: 3D LOCALIZATION</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Camera-Robot Calibration:</b> Hand-eye calibration linking camera pixel coordinates to UR10e base_link.", bullet_style),
-        Paragraph("• <b>Centroid Extraction:</b> Projecting bounding box centroids to 3D Cartesian coordinates.", bullet_style),
-        Paragraph("• <b>Localization Accuracy:</b> Benchmarked measurement error <= 20mm compared to ground truth.", bullet_style)
-    ]
-    m2_b3 = [
-        Paragraph("<b>R8: STATIC OBSTACLES</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Static Wall Barrier:</b> Introducing physical obstacle wall between pick station and sorting bins.", bullet_style),
-        Paragraph("• <b>MoveIt PlanningScene:</b> Real-time obstacle representation in collision matrix.", bullet_style),
-        Paragraph("• <b>Collision-Free Detour:</b> OMPL planner automatically computes curved bypass paths around the wall.", bullet_style)
-    ]
-    t_m2 = Table([[m2_b1, m2_b2, m2_b3]], colWidths=[250, 250, 250])
-    t_m2.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BACKGROUND', (2,0), (2,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 10),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-    ]))
-    story.append(t_m2)
-    story.append(Spacer(1, 10))
-
-    callout_m2 = Table([[Paragraph(
-        "<b>MILESTONE 2 (WEEK 10) ACCEPTANCE CRITERIA: STOP-AND-PICK MODE</b><br/>"
-        "Verification of Requirements R5, R6, R7, and R8 in Stop-and-Pick mode (conveyor stops before grasp). "
-        "Arm successfully navigates around static obstacle barrier with zero collision across >= 20 benchmark trials.",
-        ParagraphStyle("M2Done", fontName="DejaVu-Bold", fontSize=8.5, leading=12, textColor=PRIMARY, alignment=1)
-    )]], colWidths=[770])
-    callout_m2.setStyle(TableStyle([
+    summary_final.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#FEF3C7")),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#FCD34D")),
-        ('PADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(callout_m2)
-    story.append(PageBreak())
-
-    # =========================================================================
-    # SLIDE 15: SUMMARY & ACCEPTANCE CONCLUSION
-    # =========================================================================
-    story.extend(make_header("Milestone 1 Conclusion", "Summary of Deliverables & Official Acceptance Sign-Off"))
-    sum_b1 = [
-        Paragraph("<b>REQUIREMENTS MET</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>R1 (Scope & Architecture):</b> Approved", bullet_style),
-        Paragraph("• <b>R2 (UR10e MoveIt Planning):</b> Operational", bullet_style),
-        Paragraph("• <b>R3 (ROS-Unity Bridge):</b> Streaming at 50 Hz", bullet_style),
-        Paragraph("• <b>R4 (Closed-Loop Pick & Place):</b> Autonomous", bullet_style)
-    ]
-    sum_b2 = [
-        Paragraph("<b>EMPIRICAL EVIDENCE</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>70 Consecutive Trials Logged</b>", bullet_style),
-        Paragraph("• <b>100.0% Grasp Success Rate</b>", bullet_style),
-        Paragraph("• <b>100.0% Bin Placement Rate</b>", bullet_style),
-        Paragraph("• <b>11.23s Mean Cycle Time</b> (2.7x faster)", bullet_style)
-    ]
-    sum_b3 = [
-        Paragraph("<b>DELIVERABLES PACKAGE</b>", h3_style),
-        Spacer(1, 4),
-        Paragraph("• <b>Git Tag Release:</b> m1-verified", bullet_style),
-        Paragraph("• <b>QA Evidence:</b> Complete trials.csv log", bullet_style),
-        Paragraph("• <b>Launcher:</b> Clean run_workcell.sh script", bullet_style),
-        Paragraph("• <b>Visuals:</b> Multi-camera demo toolbar", bullet_style)
-    ]
-    t_sum = Table([[sum_b1, sum_b2, sum_b3]], colWidths=[250, 250, 250])
-    t_sum.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
-        ('BACKGROUND', (2,0), (2,0), BG_CARD),
-        ('BOX', (0,0), (-1,-1), 1, BORDER_COLOR),
-        ('PADDING', (0,0), (-1,-1), 10),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-    ]))
-    story.append(t_sum)
-    story.append(Spacer(1, 10))
-
-    callout_final = Table([[Paragraph(
-        "<b>FORMAL MILESTONE 1 ACCEPTANCE REQUEST:</b> All commitments made from Week 03 have been 100% fulfilled "
-        "and reinforced with faculty feedback solutions. The UC8 sorting workcell is fully verified and ready for formal Milestone 1 sign-off "
-        "and progression to Week 06 / Milestone 2.",
-        ParagraphStyle("FinalReq", fontName="DejaVu-Bold", fontSize=8.5, leading=12, textColor=colors.HexColor("#FFFFFF"), alignment=1)
-    )]], colWidths=[770])
-    callout_final.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), PRIMARY),
-        ('BOX', (0,0), (-1,-1), 1, PRIMARY),
         ('PADDING', (0,0), (-1,-1), 9),
     ]))
-    story.append(callout_final)
+    story.append(summary_final)
 
     # Build document
     doc.build(story, canvasmaker=SlideCanvas)
-    print(f"[✔] English Slide PDF successfully generated at: {output_path}")
-
-    # Copy to artifact path
-    artifact_path = "/home/kduy/.gemini/antigravity/brain/ed6133c9-f823-473a-8cd1-c6f4372cde52/UC8_Week04_Milestone1_Presentation.pdf"
-    shutil.copyfile(output_path, artifact_path)
-    print(f"[✔] Copied presentation to artifact path: {artifact_path}")
+    print(f"English Slide PDF successfully generated at: {output_path}")
 
 
 if __name__ == "__main__":
