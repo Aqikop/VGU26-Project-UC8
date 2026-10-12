@@ -100,6 +100,12 @@ public class GripperController : MonoBehaviour
                 attachPoint = transform;
             }
             Debug.Log($"[GripperController] Attach point resolved to: {attachPoint.name}");
+
+            // Tự động gắn TrajectoryVisualizer vào tool0 nếu chưa có
+            if (attachPoint != null && attachPoint.GetComponent<TrajectoryVisualizer>() == null)
+            {
+                attachPoint.gameObject.AddComponent<TrajectoryVisualizer>();
+            }
         }
     }
 
@@ -360,6 +366,18 @@ public class GripperController : MonoBehaviour
             isHolding = true;
 
             UpdateStatusLED();
+
+            // Cập nhật màu vệt quỹ đạo phát sáng theo màu hộp đang gắp
+            SortableObject sortable = attachedObject.GetComponent<SortableObject>();
+            if (sortable != null && attachPoint != null)
+            {
+                TrajectoryVisualizer traj = attachPoint.GetComponent<TrajectoryVisualizer>();
+                if (traj != null)
+                {
+                    traj.OnObjectGrasped(sortable.ObjectType);
+                }
+            }
+
             Debug.Log($"[Gripper] GRASP SUCCESS: Clamped and attached {attachedObject.name} into 2-Finger Claw!");
         }
         else
@@ -406,6 +424,16 @@ public class GripperController : MonoBehaviour
 
         isHolding = false;
         UpdateStatusLED();
+
+        // Xóa hoặc reset vệt quỹ đạo sau khi thả hộp vào thùng
+        if (attachPoint != null)
+        {
+            TrajectoryVisualizer traj = attachPoint.GetComponent<TrajectoryVisualizer>();
+            if (traj != null)
+            {
+                traj.OnObjectReleased();
+            }
+        }
 
         Debug.Log($"[Gripper] RELEASE SUCCESS: Released {attachedObject.name} into sorting bin!");
 
