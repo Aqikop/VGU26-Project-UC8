@@ -70,6 +70,7 @@ class TaskStateMachine:
 
         # Altitude configuration parameters
         self.pregrasp_offset_z = 0.15 # 15cm above object
+        self.grasp_offset_z = 0.052   # 5.2cm above object center (grips cube center, finger tips hover 8mm above conveyor)
         self.lift_offset_z = 0.15     # Lift 15cm after grasp
         # Optimal STANDBY joint pose (Wrist points strictly 90 degrees downward):
         # Shoulder and elbow elevated, avoiding table and conveyor collisions
@@ -309,7 +310,7 @@ class TaskStateMachine:
             grasp_pose = Pose()
             grasp_pose.position.x = object_pose.position.x
             grasp_pose.position.y = object_pose.position.y
-            grasp_pose.position.z = object_pose.position.z + 0.03 # 3cm above object base
+            grasp_pose.position.z = object_pose.position.z + self.grasp_offset_z
             grasp_pose.orientation = self.down_orientation
 
             if not self.move_cartesian_line(grasp_pose):

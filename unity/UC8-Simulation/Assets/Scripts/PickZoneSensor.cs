@@ -1,11 +1,14 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Cảm biến vùng gắp (PickZone) - Vận hành thuần vật lý thực tế (Pure Realistic Physics):
-/// Khối hộp tự do trôi tự nhiên trên băng chuyền. Khi trôi đến đúng tâm trạm gắp (X >= -0.01m),
-/// băng chuyền dừng lại để ma sát tự nhiên hãm khối hộp đứng yên ngay trước mặt robot.
-/// Tuyệt đối không dùng teleport, không snap tọa độ nhân tạo, đảm bảo độ chân thực 100%.
+/// Tự động phát hiện và hãm phôi chính xác tại tâm trạm gắp (stopThresholdX).
+/// Khắc phục triệt để lỗi miss khối trong chế độ đa vật thể (Continuous Multi-Item Flow):
+/// - Quét liên tục tất cả khối hộp trên băng chuyền thay vì phụ thuộc sự kiện OnTriggerEnter (vốn chỉ bắn 1 lần).
+/// - Khóa cứng việc dừng băng chuyền khi có khối hộp đã tới trạm gắp, ngăn hiện tượng trôi quá đà.
+/// - Chỉ tiếp tục dòng chảy khi vật thể đã được gắp và trạm gắp sẵn sàng đón phôi tiếp theo.
 /// </summary>
 public class PickZoneSensor : MonoBehaviour
 {
@@ -20,8 +23,14 @@ public class PickZoneSensor : MonoBehaviour
     [Tooltip("Threshold X coordinate where conveyor cuts power to let object coast to a stop")]
     [SerializeField] private float stopThresholdX = -0.015f;
 
+    [Tooltip("Maximum allowed X coordinate before object is considered beyond reach")]
+    [SerializeField] private float maxPickZoneX = 0.25f;
+
+    [Tooltip("Approach detection window start coordinate (World X)")]
+    [SerializeField] private float minApproachX = -0.60f;
+
     private float lastPublishTime = 0f;
-    private GameObject currentObject;
+    private GameObject currentTargetObject = null;
     private bool hasStoppedConveyor = false;
 
     private void Awake()
@@ -32,88 +41,124 @@ public class PickZoneSensor : MonoBehaviour
 
     private void Update()
     {
-        if (currentObject == null) return;
+        // 1. Quét tìm khối hộp hợp lệ dẫn đầu trên băng chuyền
+        GameObject candidate = FindLeadingCubeOnConveyor();
 
-        SortableObject sortable = currentObject.GetComponent<SortableObject>();
-        if (sortable == null || sortable.isSorted || currentObject.transform.parent != null)
+        if (candidate == null)
         {
-            // Vật thể đã được robot kẹp nhấc lên hoặc đã phân loại
-            currentObject = null;
-            hasStoppedConveyor = false;
+            // Không có khối hộp nào đang ở trong trạm gắp
+            if (hasStoppedConveyor)
+            {
+                hasStoppedConveyor = false;
+                if (conveyor != null) conveyor.StartConveyor();
+            }
+            currentTargetObject = null;
             return;
         }
 
-        // 1. Theo dõi chuyển động tự nhiên của khối hộp trên băng tải
-        if (!hasStoppedConveyor)
+        currentTargetObject = candidate;
+        SortableObject sortable = currentTargetObject.GetComponent<SortableObject>();
+
+        // 2. Kiểm tra vị trí của khối hộp dẫn đầu
+        float cubeX = currentTargetObject.transform.position.x;
+
+        if (cubeX >= stopThresholdX && cubeX <= maxPickZoneX)
         {
-            // Khi khối hộp trôi tự nhiên tới tâm trạm gắp trước mặt robot
-            if (currentObject.transform.position.x >= stopThresholdX)
+            // Khối hộp đã vào đúng tâm trạm gắp -> Hãm dừng băng chuyền ngay lập tức
+            if (!hasStoppedConveyor)
             {
                 hasStoppedConveyor = true;
-                if (conveyor != null)
-                {
-                    conveyor.StopConveyor();
-                }
-                Debug.Log($"[PickZone] Object {currentObject.name} coasted to pick station center (X={currentObject.transform.position.x:F3}m). Stopping conveyor naturally!");
+                if (conveyor != null) conveyor.StopConveyor();
+                Debug.Log($"[PickZone] Object {currentTargetObject.name} reached pick station center (X={cubeX:F3}m). Conveyor STOPPED.");
             }
-        }
 
-        // 2. Stream target object pose to ROS at 10Hz
-        if (hasStoppedConveyor)
-        {
+            // Stream tọa độ sang ROS với tần số publishRateHz (10 Hz)
             float interval = 1f / Mathf.Max(1f, publishRateHz);
             if (Time.time - lastPublishTime >= interval)
             {
                 lastPublishTime = Time.time;
-                if (localizationReporter != null)
+                if (localizationReporter != null && sortable != null)
                 {
-                    localizationReporter.ReportObjectPose(currentObject.transform, sortable);
+                    localizationReporter.ReportObjectPose(currentTargetObject.transform, sortable);
                 }
+            }
+        }
+        else if (cubeX < stopThresholdX)
+        {
+            // Khối hộp đang trên đường trôi tới trạm gắp -> Đảm bảo băng chuyền đang chạy
+            if (hasStoppedConveyor)
+            {
+                hasStoppedConveyor = false;
+                if (conveyor != null) conveyor.StartConveyor();
             }
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// Tìm kiếm khối hộp chưa phân loại, chưa bị gắp, đang nằm trên mặt băng tải và đi xa nhất (dẫn đầu)
+    /// </summary>
+    public GameObject FindLeadingCubeOnConveyor()
     {
-        Rigidbody body = other.attachedRigidbody;
-        GameObject detectedObject = (body != null) ? body.gameObject : other.gameObject;
+        SortableObject[] allObjects = FindObjectsOfType<SortableObject>();
+        GameObject leadingObj = null;
+        float maxX = float.MinValue;
 
-        SortableObject sortable = detectedObject.GetComponent<SortableObject>();
-        if (sortable == null || sortable.isSorted || detectedObject.transform.parent != null)
+        foreach (SortableObject obj in allObjects)
         {
-            return;
+            if (obj == null || obj.isSorted) continue;
+            // Nếu đã được gắp bởi robot (đã SetParent vào tool0) -> Bỏ qua
+            if (obj.transform.parent != null) continue;
+
+            Vector3 pos = obj.transform.position;
+            // Đảm bảo khối hộp nằm trên mặt băng chuyền (Z quanh -0.60m, Y > 0)
+            if (Mathf.Abs(pos.z - (-0.60f)) > 0.25f || pos.y < 0f) continue;
+
+            // Nằm trong dải tiếp cận và đón phôi của trạm gắp
+            if (pos.x >= minApproachX && pos.x <= maxPickZoneX)
+            {
+                if (pos.x > maxX)
+                {
+                    maxX = pos.x;
+                    leadingObj = obj.gameObject;
+                }
+            }
         }
 
-        // Detect object but do NOT stop conveyor yet; let it coast to center
-        currentObject = detectedObject;
-        hasStoppedConveyor = false;
-        Debug.Log($"[PickZone] Object {detectedObject.name} ({sortable.ObjectType}) entered sensor area, gliding to pick center...");
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        Rigidbody body = other.attachedRigidbody;
-        GameObject exitedObj = (body != null) ? body.gameObject : other.gameObject;
-
-        if (currentObject != null && exitedObj == currentObject)
-        {
-            Debug.Log($"[PickZone] Object {exitedObj.name} left pick zone.");
-            currentObject = null;
-            hasStoppedConveyor = false;
-        }
+        return leadingObj;
     }
 
     /// <summary>
-    /// Reset or resume state
+    /// Cho phép gọi ForceResume từ ngoài, kiểm tra an toàn trước khi bật băng chuyền
     /// </summary>
     public void ForceResume()
     {
-        currentObject = null;
+        // Kiểm tra xem có khối nào đang đứng ở trạm gắp không
+        GameObject candidate = FindLeadingCubeOnConveyor();
+        if (candidate != null && candidate.transform.position.x >= stopThresholdX)
+        {
+            // Vẫn còn khối đang đợi tại trạm -> Không bật băng chuyền để chống trôi quá đà!
+            hasStoppedConveyor = true;
+            if (conveyor != null) conveyor.StopConveyor();
+            return;
+        }
+
         hasStoppedConveyor = false;
+        currentTargetObject = null;
         if (conveyor != null)
         {
             conveyor.StartConveyor();
-            Debug.Log("[PickZone] Conveyor resumed via ForceResume.");
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Vẽ dải đón phôi của trạm gắp trong Scene view
+        Gizmos.color = hasStoppedConveyor ? Color.red : Color.green;
+        Vector3 center = new Vector3((minApproachX + maxPickZoneX) * 0.5f, 0.15f, -0.60f);
+        Vector3 size = new Vector3(maxPickZoneX - minApproachX, 0.25f, 0.35f);
+        Gizmos.DrawWireCube(center, size);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(new Vector3(stopThresholdX, 0f, -0.80f), new Vector3(stopThresholdX, 0.35f, -0.40f));
     }
 }
