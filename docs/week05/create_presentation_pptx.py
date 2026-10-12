@@ -4,7 +4,7 @@
 """
 Generate Professional Widescreen 16:9 PowerPoint Presentation (.pptx)
 Milestone 1 Defense & Verification — Autonomous Closed-Loop Sorting Workcell & Future Roadmap.
-100% Data Filled In — Zero Image Placeholders.
+Enhanced Typography & Visual Proportions (Larger text, balanced card layout).
 Project: UC8 - Robotic Arm Conveyor Pick-and-Place with Obstacle Avoidance
 Course: Robotic Project — Vietnamese-German University (VGU)
 """
@@ -51,50 +51,50 @@ def set_shape_flat(shape, fill_color, border_color=None, border_width=1):
 
 def add_header(slide, category, title, slide_label=None):
     # Category tag
-    cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(10), Inches(0.3))
+    cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.38), Inches(10), Inches(0.32))
     tf_c = cat_box.text_frame
     tf_c.word_wrap = True
     tf_c.margin_left = tf_c.margin_right = tf_c.margin_top = tf_c.margin_bottom = 0
     p_c = tf_c.paragraphs[0]
     p_c.text = category.upper()
-    p_c.font.size = Pt(10)
+    p_c.font.size = Pt(11)
     p_c.font.bold = True
     p_c.font.color.rgb = COLOR_ACCENT
 
     # Title
-    title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.68), Inches(11.5), Inches(0.6))
+    title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.68), Inches(11.5), Inches(0.65))
     tf_t = title_box.text_frame
     tf_t.word_wrap = True
     tf_t.margin_left = tf_t.margin_right = tf_t.margin_top = tf_t.margin_bottom = 0
     p_t = tf_t.paragraphs[0]
     p_t.text = title
-    p_t.font.size = Pt(20)
+    p_t.font.size = Pt(22)
     p_t.font.bold = True
     p_t.font.color.rgb = COLOR_PRIMARY
 
     # Header horizontal line
-    line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.32), Inches(11.733), Inches(0.02))
+    line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.36), Inches(11.733), Inches(0.025))
     set_shape_flat(line, COLOR_BORDER)
 
     # Footer
-    footer_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(6.9), Inches(11.733), Inches(0.015))
+    footer_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(6.92), Inches(11.733), Inches(0.015))
     set_shape_flat(footer_line, COLOR_BORDER)
 
-    ft_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.95), Inches(8.0), Inches(0.35))
+    ft_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.96), Inches(8.5), Inches(0.35))
     tf_f = ft_box.text_frame
     tf_f.margin_left = tf_f.margin_right = tf_f.margin_top = tf_f.margin_bottom = 0
     p_f = tf_f.paragraphs[0]
     p_f.text = "UC8 Robotic Sorting Workcell | Milestone 1 Defense | Vietnamese-German University"
-    p_f.font.size = Pt(9)
+    p_f.font.size = Pt(9.5)
     p_f.font.color.rgb = COLOR_TEXT_MUTED
 
     if slide_label:
-        pg_box = slide.shapes.add_textbox(Inches(10.533), Inches(6.95), Inches(2.0), Inches(0.35))
+        pg_box = slide.shapes.add_textbox(Inches(10.233), Inches(6.96), Inches(2.3), Inches(0.35))
         tf_p = pg_box.text_frame
         tf_p.margin_left = tf_p.margin_right = tf_p.margin_top = tf_p.margin_bottom = 0
         p_p = tf_p.paragraphs[0]
         p_p.text = slide_label
-        p_p.font.size = Pt(9)
+        p_p.font.size = Pt(9.5)
         p_p.font.bold = True
         p_p.font.color.rgb = COLOR_ACCENT
         p_p.alignment = PP_ALIGN.RIGHT
@@ -103,7 +103,7 @@ def add_header(slide, category, title, slide_label=None):
 def add_card(slide, left, top, width, height, fill_color=COLOR_CARD_BG, border_color=COLOR_BORDER):
     shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
     set_shape_flat(shape, fill_color, border_color)
-    shape.adjustments[0] = 0.03
+    shape.adjustments[0] = 0.025
     return shape
 
 
@@ -125,7 +125,7 @@ def add_table(slide, left, top, width, height, headers, data, col_widths=None):
         p = cell.text_frame.paragraphs[0]
         p.text = header
         p.font.bold = True
-        p.font.size = Pt(10)
+        p.font.size = Pt(11)
         p.font.color.rgb = COLOR_TEXT_LIGHT
 
     for row_idx, row_data in enumerate(data):
@@ -138,7 +138,7 @@ def add_table(slide, left, top, width, height, headers, data, col_widths=None):
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             p = cell.text_frame.paragraphs[0]
             p.text = str(cell_value)
-            p.font.size = Pt(9.5)
+            p.font.size = Pt(10.5)
             p.font.color.rgb = COLOR_TEXT_MAIN
             if col_idx == 0:
                 p.font.bold = True
@@ -157,27 +157,27 @@ def main():
     bg1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
     set_shape_flat(bg1, COLOR_DARK_BG)
 
-    bar = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1.0), Inches(0.9), Inches(1.2), Inches(0.08))
+    bar = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1.0), Inches(0.85), Inches(1.5), Inches(0.09))
     set_shape_flat(bar, COLOR_ACCENT)
 
-    tbox = s1.shapes.add_textbox(Inches(1.0), Inches(1.15), Inches(11.333), Inches(2.2))
+    tbox = s1.shapes.add_textbox(Inches(1.0), Inches(1.05), Inches(11.333), Inches(2.3))
     tf = tbox.text_frame
     tf.word_wrap = True
     p1 = tf.paragraphs[0]
     p1.text = "UC8: ROBOTIC ARM CONVEYOR PICK-AND-PLACE"
-    p1.font.size = Pt(28)
+    p1.font.size = Pt(29)
     p1.font.bold = True
     p1.font.color.rgb = COLOR_TEXT_LIGHT
 
     p2 = tf.add_paragraph()
     p2.text = "WITH OBSTACLE AVOIDANCE"
-    p2.font.size = Pt(28)
+    p2.font.size = Pt(29)
     p2.font.bold = True
     p2.font.color.rgb = COLOR_ACCENT
 
     p3 = tf.add_paragraph()
-    p3.text = "Milestone 1 Defense & Performance Verification (UR10e Workcell)"
-    p3.font.size = Pt(16)
+    p3.text = "Milestone 1 Official Defense & Technical Evaluation (Week 05)"
+    p3.font.size = Pt(17)
     p3.font.color.rgb = RGBColor(148, 163, 184)
 
     # Left Card: Meta Information
@@ -186,30 +186,30 @@ def main():
     mtf.word_wrap = True
     p = mtf.paragraphs[0]
     p.text = "PROJECT METADATA"
-    p.font.size = Pt(12)
+    p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(8)
+    p.space_after = Pt(10)
 
     meta_items = [
         ("Course:", "Robotic Project — Vietnamese-German University"),
-        ("System:", "UR10e, 3.6m Conveyor, 2-Finger Claw, MoveIt & Unity"),
+        ("System:", "UR10e (6-DOF) + 3.6m Conveyor + 2-Finger Claw + 3 Bins"),
         ("Evaluation:", "Milestone 1 Official Defense (Requirements R1 - R4)"),
         ("Next Phase:", "Week 06 Sprint & Milestone 2 (Static Obstacle Avoidance)"),
-        ("Status:", "100% Verified Closed-Loop Sequencer (70/70 Trials OK)")
+        ("Empirical Status:", "100% Verified Closed-Loop Sequencer (70/70 Trials OK)")
     ]
     for lbl, val in meta_items:
         p = mtf.add_paragraph()
         r1 = p.add_run()
         r1.text = f"• {lbl:<15} "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_TEXT_LIGHT
         r2 = p.add_run()
         r2.text = val
-        r2.font.size = Pt(10)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = RGBColor(203, 213, 225)
-        p.space_after = Pt(4)
+        p.space_after = Pt(5)
 
     # Right Card: Verified Highlights
     add_card(s1, Inches(6.8), Inches(3.6), Inches(5.5), Inches(3.2), fill_color=RGBColor(30, 41, 59), border_color=RGBColor(51, 65, 85))
@@ -217,16 +217,16 @@ def main():
     atf.word_wrap = True
     p = atf.paragraphs[0]
     p.text = "MILESTONE 1 VERIFIED HIGHLIGHTS"
-    p.font.size = Pt(12)
+    p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = COLOR_SUCCESS
-    p.space_after = Pt(8)
+    p.space_after = Pt(10)
 
     arch_items = [
         ("UR10e Motion Streaming:", "50 Hz /joint_states driving 6 ArticulationBodies"),
-        ("Procedural 2-Finger Claw:", "Flange mount, status LED, aluminum arms, rubber pads"),
+        ("Industrial 2-Finger Claw:", "Procedural flange mount, status LED, aluminum arms"),
         ("Autonomous Sequencer:", "7-step closed-loop state machine (zero human input)"),
-        ("Zero-Teleport Physics:", "Pure friction coasting stop halting cubes with ±3mm precision"),
+        ("Zero-Teleport Physics:", "Pure friction coasting stop halting cubes (±3mm precision)"),
         ("Quality Assurance:", "70 consecutive trials logged with 100% success rate")
     ]
     for lbl, val in arch_items:
@@ -234,13 +234,13 @@ def main():
         r1 = p.add_run()
         r1.text = f"✔ {lbl} "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_SUCCESS
         r2 = p.add_run()
         r2.text = val
-        r2.font.size = Pt(10)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = RGBColor(203, 213, 225)
-        p.space_after = Pt(4)
+        p.space_after = Pt(5)
 
     # =========================================================================
     # SLIDE 02: OVERVIEW / AGENDA
@@ -253,14 +253,14 @@ def main():
         ["01-02", "Project Title & Agenda", "Context, requirements, and presentation structure"],
         ["03-04", "Baseline Recap & Scope Fulfillment", "100% completion of Week 03 commitments (R1-R4)"],
         ["05", "System Architecture", "Bidirectional closed loop: Unity 2022.3 <-> ROS-TCP <-> ROS Noetic"],
-        ["06", "Instructor Feedback & Resolutions", "Industrial 2-finger claw, anti-miss scanner, orthogonal zero-sink grasp"],
+        ["06", "Feedback & Issue Resolutions", "Faculty claw feedback, anti-miss scanner, orthogonal zero-sink grasp"],
         ["07-08", "Workcell Layout & Kinematics", "Option 1 bilateral symmetry, 90° wrist lock, pure base SCARA sweep"],
         ["09-10", "PhysX Simulation & State Machine", "Friction deceleration, multi-item flow, 7-step sequencer"],
         ["11-12", "Benchmark QA & Technical Defenses", "70 empirical trials, 100% success rate, answers to faculty committee"],
         ["13-14", "Week 06 Objectives & Milestone 2 Roadmap", "R5 conveyor robustness, vision classification, static obstacle avoidance"],
         ["15", "Summary & M1 Acceptance Conclusion", "Milestone 1 criteria sign-off and transition to Milestone 2 development"]
     ]
-    add_table(s2, Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.0), agenda_headers, agenda_data,
+    add_table(s2, Inches(0.8), Inches(1.58), Inches(11.733), Inches(5.1), agenda_headers, agenda_data,
               [Inches(1.2), Inches(3.6), Inches(6.933)])
 
     # =========================================================================
@@ -269,20 +269,20 @@ def main():
     s3 = prs.slides.add_slide(blank_layout)
     add_header(s3, "Baseline vs Commitments", "Week 03 Baseline and Commitments Set Out for Milestone 1", "Slide 03")
 
-    add_card(s3, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    f_tf = s3.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s3, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    f_tf = s3.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     f_tf.word_wrap = True
     p = f_tf.paragraphs[0]
     p.text = "Baseline Achieved in Week 03"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     f_items = [
-        ("ROS-Unity bridge:", "TCP communication available on port 10000 via ros_tcp_endpoint."),
+        ("ROS-Unity bridge:", "TCP communication established on port 10000 via ros_tcp_endpoint."),
         ("Coordinate conversion:", "Unity coordinates mapped to ROS FLU: X_ROS = Z_Unity, Y_ROS = -X_Unity, Z_ROS = Y_Unity."),
-        ("Object topics:", "/detected_object_pose (Pose) and /detected_object_type (String) published at 10 Hz."),
+        ("Object perception:", "/detected_object_pose (Pose) and /detected_object_type (String) published at 10 Hz."),
         ("MoveIt planning:", "Pre-grasp feasibility verified in RViz (+15cm hover pose above detected cube base).")
     ]
     for lbl, desc in f_items:
@@ -290,43 +290,43 @@ def main():
         r1 = p.add_run()
         r1.text = "✔ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_SUCCESS
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(10)
 
-    add_card(s3, Inches(6.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    c_tf = s3.shapes.add_textbox(Inches(7.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s3, Inches(6.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    c_tf = s3.shapes.add_textbox(Inches(7.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     c_tf.word_wrap = True
     p = c_tf.paragraphs[0]
     p.text = "Commitments Set Out for Milestone 1"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     c_items = [
         ("Trajectory execution:", "Overcome 'plan-only' barrier; stream real-time joint-states to drive physical UR10e in Unity."),
         ("Grasping mechanism:", "Implement attach/parenting logic linking target cube to tool0 upon arrival."),
         ("Task controller:", "Construct autonomous closed-loop sequencer connecting perception, motion, and release."),
         ("Multi-bin sorting:", "Route red, yellow, and blue cubes to dedicated destination bins without collision."),
-        ("Milestone 1 Context:", "Fulfilling 100% of these commitments in Week 04 is the prerequisite for Milestone 1 evaluation.")
+        ("Milestone 1 Context:", "Fulfilling 100% of these commitments in Week 04 is the prerequisite for Milestone 1.")
     ]
     for lbl, desc in c_items:
         p = c_tf.add_paragraph()
         r1 = p.add_run()
         r1.text = "🎯 " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
     # =========================================================================
     # SLIDE 04: EXECUTION AND SCOPE
@@ -334,20 +334,20 @@ def main():
     s4 = prs.slides.add_slide(blank_layout)
     add_header(s4, "Execution and Scope", "Milestone 1 Scope: 100% Commitment Fulfillment Status", "Slide 04")
 
-    add_card(s4, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    e_tf = s4.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s4, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    e_tf = s4.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     e_tf.word_wrap = True
     p = e_tf.paragraphs[0]
     p.text = "100% Commitment Fulfillment Status"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_SUCCESS
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     e_items = [
         ("Trajectory Execution (R2/R3):", "Streamed /joint_states at 50 Hz to 6 ArticulationBodies with zero sagging and smooth tracking (100% DONE)."),
         ("Grasping Mechanism (R4):", "Implemented industrial Attach/Parenting logic in GripperController.cs with instant latching (100% DONE)."),
-        ("Closed-Loop State Machine (R4):", "Constructed 7-step autonomous sequencer (task_state_machine.py) with zero human intervention (100% DONE)."),
+        ("Closed-Loop Sequencer (R4):", "Constructed 7-step autonomous sequencer (task_state_machine.py) with zero human intervention (100% DONE)."),
         ("3-Bin Sorting System (R4):", "Deployed Red (Left), Yellow (Right), and Blue (Rear) bins with dedicated non-singular trajectories (100% DONE).")
     ]
     for lbl, desc in e_items:
@@ -355,23 +355,23 @@ def main():
         r1 = p.add_run()
         r1.text = "✔ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
-    add_card(s4, Inches(6.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    p_tf = s4.shapes.add_textbox(Inches(7.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s4, Inches(6.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    p_tf = s4.shapes.add_textbox(Inches(7.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     p_tf.word_wrap = True
     p = p_tf.paragraphs[0]
     p.text = "Milestone 1 High-Value Enhancements"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     p_items = [
         ("Kinematic Optimization:", "Locked wrist strictly downward (q4 = 90.0°) & implemented pure base SCARA sweep, cutting cycle time by 65%."),
@@ -384,13 +384,13 @@ def main():
         r1 = p.add_run()
         r1.text = "⚙ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
     # =========================================================================
     # SLIDE 05: ARCHITECTURE
@@ -398,24 +398,24 @@ def main():
     s5 = prs.slides.add_slide(blank_layout)
     add_header(s5, "Architecture", "System Architecture: Bidirectional Communication Pipeline", "Slide 05")
 
-    pipe_headers = ["Layer", "Key Responsibility", "Topic / Protocol", "Direction"]
+    pipe_headers = ["Layer", "Key Responsibility", "Topic / Protocol", "Rate & Direction"]
     pipe_data = [
-        ["Unity Perception", "Detects cube, halts conveyor, converts frame to ROS FLU", "/detected_object_pose, /detected_object_type", "Unity -> ROS (10 Hz)"],
-        ["ROS-TCP-Endpoint", "Low-latency network bridge brokering serialised ROS messages", "TCP Port 10000 Socket Streaming", "Bidirectional (Real-time)"],
-        ["State Machine", "Closed-loop task logic sequencing 7 execution states", "task_state_machine.py orchestrator", "Internal ROS Node"],
+        ["Unity Perception", "Detects cube, halts conveyor, converts frame to ROS FLU", "/detected_object_pose, /detected_object_type", "10 Hz (Unity -> ROS)"],
+        ["ROS-TCP-Endpoint", "Low-latency network bridge brokering serialised ROS messages", "TCP Port 10000 Socket Streaming", "Real-time (Bidirectional)"],
+        ["State Machine", "Closed-loop task logic sequencing 7 execution states", "task_state_machine.py orchestrator", "Event-driven (ROS Node)"],
         ["MoveIt Core", "Plans collision-free Cartesian paths & joint trajectories", "manipulator MoveGroupCommander", "MoveIt <-> State Machine"],
-        ["Robot Controller", "Maps joint positions to 6 UR10e ArticulationBodies", "/joint_states (JointTrajectoryPoint)", "ROS -> Unity (50 Hz)"],
-        ["Gripper Controller", "Parenting attach logic; animates fingers and clamps cube", "/ur10e/gripper_command, /gripper_status", "ROS <-> Unity (Event-driven)"]
+        ["Robot Controller", "Maps joint positions to 6 UR10e ArticulationBodies", "/joint_states (JointTrajectoryPoint)", "50 Hz (ROS -> Unity)"],
+        ["Gripper Controller", "Parenting attach logic; animates fingers and clamps cube", "/ur10e/gripper_command, /gripper_status", "Event-driven (ROS <-> Unity)"]
     ]
-    add_table(s5, Inches(0.8), Inches(1.6), Inches(11.733), Inches(3.8), pipe_headers, pipe_data,
+    add_table(s5, Inches(0.8), Inches(1.58), Inches(11.733), Inches(3.8), pipe_headers, pipe_data,
               [Inches(2.0), Inches(4.333), Inches(3.2), Inches(2.2)])
 
     add_card(s5, Inches(0.8), Inches(5.6), Inches(11.733), Inches(1.15), fill_color=COLOR_CARD_BG)
-    btf = s5.shapes.add_textbox(Inches(1.0), Inches(5.68), Inches(11.333), Inches(0.98)).text_frame
+    btf = s5.shapes.add_textbox(Inches(1.05), Inches(5.68), Inches(11.2), Inches(0.98)).text_frame
     btf.word_wrap = True
     p = btf.paragraphs[0]
     p.text = "CORE INTERFACE SPECIFICATIONS & STANDARDS"
-    p.font.size = Pt(11)
+    p.font.size = Pt(12)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
     p.space_after = Pt(4)
@@ -424,57 +424,64 @@ def main():
     p_spec.text = "• Coordinate Mapping: X_ROS = Z_Unity, Y_ROS = -X_Unity, Z_ROS = Y_Unity\n" \
                   "• Planning Group: manipulator | Planning Frame: base_link | End Effector: tool0\n" \
                   "• Streaming Topics: /detected_object_pose (Pose), /detected_object_type (String), /joint_states @ 50 Hz, /ur10e/gripper_command (Bool)"
-    p_spec.font.size = Pt(9.5)
+    p_spec.font.size = Pt(10.5)
     p_spec.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
-    # SLIDE 06: INSTRUCTOR FEEDBACK & RESOLUTIONS (NEW HIGH-VALUE SLIDE)
+    # SLIDE 06: INSTRUCTOR FEEDBACK & RUNTIME ISSUE RESOLUTIONS
     # =========================================================================
     s6 = prs.slides.add_slide(blank_layout)
-    add_header(s6, "Instructor Feedback & Resolutions", "Addressing Faculty Feedback with Rapid Technical Solutions", "Slide 06")
+    add_header(s6, "Feedback & Issue Resolutions", "Instructor Feedback and Solving Runtime Engineering Challenges", "Slide 06")
 
     feedback_cards = [
-        ("Feedback 1: 2-Finger Claw", COLOR_PRIMARY, [
-            ("Requested:", "Instructor recommended adding a visible mechanical gripper claw instead of an abstract suction point."),
-            ("Solution:", "Built procedural industrial 2-finger claw (VisualClaw): Flange adapter (1.2cm), navy housing chassis (2.0cm), and status LED."),
-            ("Fingers:", "Aircraft aluminum arms (4.0cm) with high-friction black rubber pads, driven by kinematic carriage animation.")
+        ("Instructor Feedback", "Requirement: Visible 2-Finger Claw", COLOR_PRIMARY, [
+            ("Faculty Feedback:", "Instructor requested a visible mechanical gripper claw on the robot rather than an abstract suction/contact point."),
+            ("Procedural Claw (VisualClaw):", "Designed flange adapter (1.2cm), navy housing chassis (2.0cm), and dual-color status LED (Cyan/Emerald)."),
+            ("Industrial Fingers:", "Aircraft aluminum arms (4.0cm) with high-friction black rubber pads; animated carriage (9.2cm to 6.1cm span).")
         ]),
-        ("Feedback 2: Missed Cubes", COLOR_WARNING, [
-            ("Issue:", "During continuous multi-item flow, cubes were occasionally missed due to missed OnTriggerEnter events."),
-            ("Solution:", "Replaced passive trigger collisions with continuous active scanning (FindLeadingCubeOnConveyor())."),
-            ("Safety Latch:", "Conveyor remains halted if a cube is waiting at pick station (X >= -0.015m), achieving 100% capture reliability.")
+        ("Runtime Issue 1", "Challenge: Missed Cubes in Continuous Flow", COLOR_WARNING, [
+            ("Observed Bug:", "Over extended runs, cubes occasionally slipped past pick station due to missed trigger collisions."),
+            ("Root Cause:", "OnTriggerEnter is fragile under continuous multi-item flow and physics frame discretization."),
+            ("Technical Solution:", "Replaced trigger collisions with continuous active scanning (FindLeadingCubeOnConveyor()) + safety stop latch at X >= -0.015m (100% reliable).")
         ]),
-        ("Feedback 3: Anti-Sink & Twist", COLOR_SUCCESS, [
-            ("Issue:", "Claw slightly penetrated conveyor belt during descent; upon grasping, cube twisted off-axis (13.6° skew)."),
-            ("Orthogonalization:", "Standardized down_orientation = Quaternion(0.7071, 0.7071, 0, 0), locking tool0 strictly square to belt."),
-            ("Anti-Sink Clearance:", "Set grasp_offset_z = 0.065m (fingertips clear belt by 2.3cm). Pure parenting preserves natural cube pose.")
+        ("Runtime Issue 2", "Challenge: Conveyor Penetration & Off-Axis Twist", COLOR_SUCCESS, [
+            ("Observed Bug:", "Claw slightly penetrated belt during descent; upon grasping, cube twisted off-axis by 13.6°."),
+            ("Root Cause:", "Tool orientation was skewed (0.7854 quaternion), and forced position/rotation snapped cube off-axis."),
+            ("Technical Solution:", "Standardized down_orientation = Quaternion(0.7071, 0.7071, 0, 0), elevated fingertips (+2.3cm clearance), and pure parenting.")
         ])
     ]
 
-    for idx, (title, color, items_list) in enumerate(feedback_cards):
+    for idx, (title, subtitle, color, items_list) in enumerate(feedback_cards):
         x = Inches(0.8 + idx * 4.0)
-        add_card(s6, x, Inches(1.6), Inches(3.733), Inches(5.0), fill_color=COLOR_CARD_BG)
-        ftf = s6.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(4.6)).text_frame
+        add_card(s6, x, Inches(1.58), Inches(3.733), Inches(5.1), fill_color=COLOR_CARD_BG)
+        ftf = s6.shapes.add_textbox(x + Inches(0.2), Inches(1.75), Inches(3.333), Inches(4.75)).text_frame
         ftf.word_wrap = True
         p = ftf.paragraphs[0]
         p.text = title
-        p.font.size = Pt(13)
+        p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = color
-        p.space_after = Pt(10)
+        p.space_after = Pt(2)
+
+        p_sub = ftf.add_paragraph()
+        p_sub.text = subtitle
+        p_sub.font.size = Pt(10)
+        p_sub.font.bold = True
+        p_sub.font.color.rgb = COLOR_TEXT_MUTED
+        p_sub.space_after = Pt(10)
 
         for lbl, desc in items_list:
             p = ftf.add_paragraph()
             r1 = p.add_run()
             r1.text = "• " + lbl + " "
             r1.font.bold = True
-            r1.font.size = Pt(9.5)
+            r1.font.size = Pt(10.5)
             r1.font.color.rgb = COLOR_PRIMARY
             r2 = p.add_run()
             r2.text = desc
-            r2.font.size = Pt(9.0)
+            r2.font.size = Pt(10)
             r2.font.color.rgb = COLOR_TEXT_MAIN
-            p.space_after = Pt(6)
+            p.space_after = Pt(8)
 
     # =========================================================================
     # SLIDE 07: LAYOUT OPTIMIZATION
@@ -482,23 +489,23 @@ def main():
     s7 = prs.slides.add_slide(blank_layout)
     add_header(s7, "Layout Optimization", "Workcell Layout: Front Pick Zone and Flanking Bins", "Slide 07")
 
-    layout_headers = ["Component", "Selected Setup", "Engineering Reason"]
+    layout_headers = ["Component", "Selected Setup", "Engineering Rationale"]
     layout_data = [
-        ["Conveyor", "3.6 m, centered (X = -0.60 m)", "Stable transport through robot workspace; ample gliding run"],
-        ["Pick zone", "Front center (X = -0.60 m, Y = 0.00 m)", "Short, symmetric approach minimizing arm travel distance & inertia"],
+        ["Conveyor", "3.6 m, centered directly in front (X = -0.60 m)", "Stable transport through robot workspace; ample gliding run"],
+        ["Pick zone", "Front center (X = -0.60 m, Y = 0.00 m)", "Symmetric approach minimizing arm travel distance & inertial moments"],
         ["Red and yellow bins", "Left (Y = +0.55 m) and right (Y = -0.55 m)", "Clear transfer paths eliminating collision hazards with conveyor"],
-        ["Blue bin", "Behind robot (X = +0.50 m, Y = 0.00 m)", "Separates third sorting target via pure base pan rotation"],
-        ["Support surface", "4.0 m × 2.0 m heavy industrial table", "Rigid foundation for rails, bins and robot base fixtures"]
+        ["Blue bin", "Behind robot (X = +0.50 m, Y = 0.00 m)", "Separates third sorting target via pure base shoulder pan rotation"],
+        ["Support surface", "4.0 m × 2.0 m heavy industrial table", "Rigid mechanical foundation for rails, bins, and robot fixtures"]
     ]
-    add_table(s7, Inches(0.8), Inches(1.6), Inches(11.733), Inches(3.8), layout_headers, layout_data,
+    add_table(s7, Inches(0.8), Inches(1.58), Inches(11.733), Inches(3.8), layout_headers, layout_data,
               [Inches(2.4), Inches(3.8), Inches(5.533)])
 
     add_card(s7, Inches(0.8), Inches(5.6), Inches(11.733), Inches(1.15), fill_color=COLOR_CARD_BG)
-    ltf = s7.shapes.add_textbox(Inches(1.0), Inches(5.68), Inches(11.333), Inches(0.98)).text_frame
+    ltf = s7.shapes.add_textbox(Inches(1.05), Inches(5.68), Inches(11.2), Inches(0.98)).text_frame
     ltf.word_wrap = True
     p = ltf.paragraphs[0]
     p.text = "SPATIAL CLEARANCE & SAFETY DIMENSIONS"
-    p.font.size = Pt(11)
+    p.font.size = Pt(12)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
     p.space_after = Pt(4)
@@ -506,7 +513,7 @@ def main():
     p_geo = ltf.add_paragraph()
     p_geo.text = "• Bin Mouth Enlargement: Expanded +35% to 0.38 m × 0.38 m × 0.10 m for 100% free-fall capture rate.\n" \
                  "• Vertical Safety Envelopes: +16 cm Pre-grasp & Lift altitude completely clears conveyor aluminum rails (Z = +0.10 m) with zero contact."
-    p_geo.font.size = Pt(9.5)
+    p_geo.font.size = Pt(10.5)
     p_geo.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
@@ -515,15 +522,15 @@ def main():
     s8 = prs.slides.add_slide(blank_layout)
     add_header(s8, "Kinematics", "Downward Wrist Orientation and Transfer Motion", "Slide 08")
 
-    add_card(s8, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    k1 = s8.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s8, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    k1 = s8.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     k1.word_wrap = True
     p = k1.paragraphs[0]
     p.text = "Motion Strategy"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     strat_pts = [
         ("Downward tool orientation:", "tool0 remains vertical ([0, 0, -1]) during approach, grasp and release via locked wrist (q4 = 90.0°)."),
@@ -537,43 +544,43 @@ def main():
         r1 = p.add_run()
         r1.text = "✔ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
-    add_card(s8, Inches(6.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    k2 = s8.shapes.add_textbox(Inches(7.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s8, Inches(6.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    k2 = s8.shapes.add_textbox(Inches(7.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     k2.word_wrap = True
     p = k2.paragraphs[0]
     p.text = "Joint Values across Poses (Radians)"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     joint_pts = [
-        ("Standby:", "[0.2945, -1.4760, -2.1278, -1.1022, 1.5708, 0.5291]"),
+        ("Standby pose:", "[0.2945, -1.4760, -2.1278, -1.1022, 1.5708, 0.5291]"),
         ("Red bin (left):", "[-1.0741, -1.4731, -2.2727, -0.9602, 1.5708, 0.5291]"),
         ("Yellow bin (right):", "[1.7077, -1.4731, -2.2727, -0.9602, 1.5708, 0.5291]"),
         ("Blue bin (rear):", "[-2.7858, -1.3576, -2.3651, -0.9833, 1.5708, 0.5291]"),
-        ("Observation:", "Shoulder lift, elbow, and wrist joints stay within 0.15 rad of each other across all three bin targets; only shoulder pan swings widely.")
+        ("Kinematic Invariance:", "Shoulder lift, elbow, and wrist joints stay within 0.15 rad across all bins; only shoulder pan swings widely.")
     ]
     for lbl, desc in joint_pts:
         p = k2.add_paragraph()
         r1 = p.add_run()
         r1.text = "⚙ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
     # =========================================================================
     # SLIDE 09: PHYSICS AND VISUALS
@@ -581,21 +588,21 @@ def main():
     s9 = prs.slides.add_slide(blank_layout)
     add_header(s9, "Physics and Visuals", "Conveyor Motion and Pick-Zone Stopping", "Slide 09")
 
-    add_card(s9, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    pv1 = s9.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s9, Inches(0.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    pv1 = s9.shapes.add_textbox(Inches(1.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     pv1.word_wrap = True
     p = pv1.paragraphs[0]
-    p.text = "Runtime Behaviour & Natural Friction Deceleration"
-    p.font.size = Pt(13)
+    p.text = "Runtime Behaviour & Friction Deceleration"
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_SUCCESS
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     run_pts = [
         ("Transport:", "Objects move at configured conveyor speed (rock-steady 0.30 m/s)."),
-        ("Detection:", "Pick-zone optical sensor actively identifies every SortableObject cube."),
-        ("Stop:", "At X >= -0.015 m, conveyor cuts power (StopConveyor()). Friction halts cube smoothly at X ≈ 0.000 m (± 3 mm)."),
-        ("Zero Teleportation:", "Eliminates artificial coordinate snapping or kinematic freezing."),
+        ("Detection:", "Pick-zone sensor actively identifies leading SortableObject cube."),
+        ("Stop:", "At X >= -0.015 m, conveyor cuts power. Friction halts cube smoothly at X ≈ 0.000 m (± 3 mm)."),
+        ("Zero Teleportation:", "Strictly eliminates artificial coordinate snapping or kinematic freezing."),
         ("Resume:", "Conveyor restarts automatically after cube handling and release into bin.")
     ]
     for lbl, desc in run_pts:
@@ -603,23 +610,23 @@ def main():
         r1 = p.add_run()
         r1.text = "✔ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
-    add_card(s9, Inches(6.8), Inches(1.6), Inches(5.7), Inches(5.0), fill_color=COLOR_CARD_BG)
-    pv2 = s9.shapes.add_textbox(Inches(7.0), Inches(1.8), Inches(5.3), Inches(4.6)).text_frame
+    add_card(s9, Inches(6.8), Inches(1.58), Inches(5.7), Inches(5.1), fill_color=COLOR_CARD_BG)
+    pv2 = s9.shapes.add_textbox(Inches(7.05), Inches(1.8), Inches(5.2), Inches(4.7)).text_frame
     pv2.word_wrap = True
     p = pv2.paragraphs[0]
     p.text = "Multi-Item Flow & Visual Rig Consistency"
-    p.font.size = Pt(13)
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = COLOR_ACCENT
-    p.space_after = Pt(10)
+    p.space_after = Pt(12)
 
     vis_pts = [
         ("Continuous Multi-Item Flow:", "Upgraded Spawner maintains 2-3 active cubes on belt simultaneously, providing continuous sorting."),
@@ -633,19 +640,19 @@ def main():
         r1 = p.add_run()
         r1.text = "⚙ " + lbl + " "
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = COLOR_PRIMARY
         r2 = p.add_run()
         r2.text = desc
-        r2.font.size = Pt(9.5)
+        r2.font.size = Pt(11)
         r2.font.color.rgb = COLOR_TEXT_MAIN
-        p.space_after = Pt(6)
+        p.space_after = Pt(8)
 
     # =========================================================================
     # SLIDE 10: AUTOMATION PIPELINE
     # =========================================================================
     s10 = prs.slides.add_slide(blank_layout)
-    add_header(s10, "Automation Pipeline", "7-Step Closed-Loop Task State Machine", "Slide 10")
+    add_header(s10, "Automation Pipeline", "7-Step Closed-Loop Task State Machine Execution", "Slide 10")
 
     step_headers = ["Step", "State Name", "Primary Action", "Safety & Validation Guard"]
     step_data = [
@@ -658,7 +665,7 @@ def main():
         ["7", "RELEASE", "Publish gripper command (False); release cube", "Parenting detached; gravity drops cube into bin"],
         ["8", "READY / REARM", "Arm returns to Standby pose over pick zone", "Resumes conveyor & triggers spawner for next cycle"]
     ]
-    add_table(s10, Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.0), step_headers, step_data,
+    add_table(s10, Inches(0.8), Inches(1.58), Inches(11.733), Inches(5.1), step_headers, step_data,
               [Inches(0.8), Inches(2.2), Inches(4.733), Inches(4.0)])
 
     # =========================================================================
@@ -667,7 +674,7 @@ def main():
     s11 = prs.slides.add_slide(blank_layout)
     add_header(s11, "Quality Assurance", "Empirical Test Benchmark: 70 Consecutive Trials", "Slide 11")
 
-    qa_headers = ["Performance Metric", "Requirement", "Empirical Result", "Status Evaluation"]
+    qa_headers = ["Performance Metric", "Requirement", "Empirical Measured Result", "Status Evaluation"]
     qa_data = [
         ["Total benchmark trials", ">= 10 cycles", "70 consecutive cycles logged", "Exceeds requirement by 700%"],
         ["Grasp success rate", ">= 90.0%", "100.0% (70 / 70 trials)", "Perfect reliability; zero drops"],
@@ -676,7 +683,7 @@ def main():
         ["Conveyor transport speed", "0.2 - 0.5 m/s", "0.30 m/s rock-steady velocity", "Optimal industrial pace"],
         ["Coasting stop deviation", "<= 20 mm", "+- 3 mm repeatable halt", "High physical precision"]
     ]
-    add_table(s11, Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.0), qa_headers, qa_data,
+    add_table(s11, Inches(0.8), Inches(1.58), Inches(11.733), Inches(5.1), qa_headers, qa_data,
               [Inches(3.2), Inches(2.2), Inches(3.6), Inches(2.733)])
 
     # =========================================================================
@@ -704,25 +711,25 @@ def main():
     ]
     for idx, (title, points) in enumerate(qa_cards):
         x = Inches(0.8 + idx * 4.0)
-        add_card(s12, x, Inches(1.6), Inches(3.733), Inches(5.0), fill_color=COLOR_CARD_BG)
-        qtf = s12.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(4.6)).text_frame
+        add_card(s12, x, Inches(1.58), Inches(3.733), Inches(5.1), fill_color=COLOR_CARD_BG)
+        qtf = s12.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(4.7)).text_frame
         qtf.word_wrap = True
         p = qtf.paragraphs[0]
         p.text = title
-        p.font.size = Pt(12)
+        p.font.size = Pt(13)
         p.font.bold = True
         p.font.color.rgb = COLOR_PRIMARY
-        p.space_after = Pt(10)
+        p.space_after = Pt(12)
 
         for pt in points:
             p = qtf.add_paragraph()
             p.text = "• " + pt
-            p.font.size = Pt(9.5)
+            p.font.size = Pt(10.5)
             p.font.color.rgb = COLOR_TEXT_MAIN
-            p.space_after = Pt(6)
+            p.space_after = Pt(8)
 
     # =========================================================================
-    # SLIDE 13: WEEK 06 OBJECTIVES & SPRINT BACKLOG (NEW DEDICATED SLIDE)
+    # SLIDE 13: WEEK 06 OBJECTIVES & SPRINT BACKLOG
     # =========================================================================
     s13 = prs.slides.add_slide(blank_layout)
     add_header(s13, "Week 06 Objectives", "Week 06 Sprint: Fulfilling Requirement R5 & Robustness", "Slide 13")
@@ -747,12 +754,12 @@ def main():
 
     for idx, (title, color, items_list) in enumerate(w6_cols):
         x = Inches(0.8 + idx * 4.0)
-        add_card(s13, x, Inches(1.6), Inches(3.733), Inches(4.0), fill_color=COLOR_CARD_BG)
-        ptf = s13.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.6)).text_frame
+        add_card(s13, x, Inches(1.58), Inches(3.733), Inches(4.1), fill_color=COLOR_CARD_BG)
+        ptf = s13.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.7)).text_frame
         ptf.word_wrap = True
         p = ptf.paragraphs[0]
         p.text = title
-        p.font.size = Pt(13)
+        p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = color
         p.space_after = Pt(12)
@@ -760,17 +767,17 @@ def main():
         for itm in items_list:
             p = ptf.add_paragraph()
             p.text = "• " + itm
-            p.font.size = Pt(9.5)
+            p.font.size = Pt(10.5)
             p.font.color.rgb = COLOR_TEXT_MAIN
-            p.space_after = Pt(6)
+            p.space_after = Pt(8)
 
     # Bottom Target Summary
-    add_card(s13, Inches(0.8), Inches(5.8), Inches(11.733), Inches(0.95), fill_color=COLOR_CARD_BG)
-    w6_btf = s13.shapes.add_textbox(Inches(1.0), Inches(5.88), Inches(11.333), Inches(0.8)).text_frame
+    add_card(s13, Inches(0.8), Inches(5.82), Inches(11.733), Inches(0.95), fill_color=COLOR_CARD_BG)
+    w6_btf = s13.shapes.add_textbox(Inches(1.05), Inches(5.9), Inches(11.2), Inches(0.8)).text_frame
     w6_btf.word_wrap = True
     p = w6_btf.paragraphs[0]
     p.text = "WEEK 06 DEFINITION OF DONE"
-    p.font.size = Pt(11)
+    p.font.size = Pt(12)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
     p.space_after = Pt(3)
@@ -778,11 +785,11 @@ def main():
     p_w6 = w6_btf.add_paragraph()
     p_w6.text = "• Complete fulfillment of Requirement R5 (Conveyor & Spawner Integration).\n" \
                 "• The workcell runs hands-free for > 5 minutes with zero cube miss, zero jam, and deterministic regression logging."
-    p_w6.font.size = Pt(9.5)
+    p_w6.font.size = Pt(10.5)
     p_w6.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
-    # SLIDE 14: MILESTONE 2 STRATEGIC ROADMAP (NEW DEDICATED SLIDE)
+    # SLIDE 14: MILESTONE 2 STRATEGIC ROADMAP
     # =========================================================================
     s14 = prs.slides.add_slide(blank_layout)
     add_header(s14, "Milestone 2 Strategic Roadmap", "Milestone 2 (Week 10): Static Obstacle Avoidance & Perception", "Slide 14")
@@ -807,12 +814,12 @@ def main():
 
     for idx, (title, color, items_list) in enumerate(m2_cols):
         x = Inches(0.8 + idx * 4.0)
-        add_card(s14, x, Inches(1.6), Inches(3.733), Inches(4.0), fill_color=COLOR_CARD_BG)
-        ptf = s14.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.6)).text_frame
+        add_card(s14, x, Inches(1.58), Inches(3.733), Inches(4.1), fill_color=COLOR_CARD_BG)
+        ptf = s14.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.7)).text_frame
         ptf.word_wrap = True
         p = ptf.paragraphs[0]
         p.text = title
-        p.font.size = Pt(13)
+        p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = color
         p.space_after = Pt(12)
@@ -820,17 +827,17 @@ def main():
         for itm in items_list:
             p = ptf.add_paragraph()
             p.text = "• " + itm
-            p.font.size = Pt(9.5)
+            p.font.size = Pt(10.5)
             p.font.color.rgb = COLOR_TEXT_MAIN
-            p.space_after = Pt(6)
+            p.space_after = Pt(8)
 
     # Bottom M2 Acceptance Card
-    add_card(s14, Inches(0.8), Inches(5.8), Inches(11.733), Inches(0.95), fill_color=RGBColor(254, 243, 199), border_color=RGBColor(252, 211, 77))
-    m2_btf = s14.shapes.add_textbox(Inches(1.0), Inches(5.88), Inches(11.333), Inches(0.8)).text_frame
+    add_card(s14, Inches(0.8), Inches(5.82), Inches(11.733), Inches(0.95), fill_color=RGBColor(254, 243, 199), border_color=RGBColor(252, 211, 77))
+    m2_btf = s14.shapes.add_textbox(Inches(1.05), Inches(5.9), Inches(11.2), Inches(0.8)).text_frame
     m2_btf.word_wrap = True
     p = m2_btf.paragraphs[0]
     p.text = "MILESTONE 2 (WEEK 10) ACCEPTANCE CRITERIA: STOP-AND-PICK MODE"
-    p.font.size = Pt(11)
+    p.font.size = Pt(12)
     p.font.bold = True
     p.font.color.rgb = COLOR_PRIMARY
     p.space_after = Pt(3)
@@ -838,7 +845,7 @@ def main():
     p_m2 = m2_btf.add_paragraph()
     p_m2.text = "• Verification of Requirements R5, R6, R7, and R8 in Stop-and-Pick mode (conveyor stops before grasp).\n" \
                 "• Arm successfully navigates around static obstacle barrier with zero collision across >= 20 benchmark trials."
-    p_m2.font.size = Pt(9.5)
+    p_m2.font.size = Pt(10.5)
     p_m2.font.color.rgb = COLOR_TEXT_MAIN
 
     # =========================================================================
@@ -847,7 +854,6 @@ def main():
     s15 = prs.slides.add_slide(blank_layout)
     add_header(s15, "Milestone 1 Conclusion", "Summary of Deliverables & Official Acceptance Sign-Off", "Slide 15")
 
-    # 3 Summary Cards
     sum_cols = [
         ("Requirements Met", COLOR_SUCCESS, [
             "R1 (Architecture & Scope): 100% Approved",
@@ -871,12 +877,12 @@ def main():
 
     for idx, (title, color, items_list) in enumerate(sum_cols):
         x = Inches(0.8 + idx * 4.0)
-        add_card(s15, x, Inches(1.6), Inches(3.733), Inches(3.8), fill_color=COLOR_CARD_BG)
-        ptf = s15.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.4)).text_frame
+        add_card(s15, x, Inches(1.58), Inches(3.733), Inches(3.85), fill_color=COLOR_CARD_BG)
+        ptf = s15.shapes.add_textbox(x + Inches(0.2), Inches(1.8), Inches(3.333), Inches(3.45)).text_frame
         ptf.word_wrap = True
         p = ptf.paragraphs[0]
         p.text = title
-        p.font.size = Pt(13)
+        p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = color
         p.space_after = Pt(12)
@@ -884,17 +890,17 @@ def main():
         for itm in items_list:
             p = ptf.add_paragraph()
             p.text = "✔ " + itm
-            p.font.size = Pt(10)
+            p.font.size = Pt(11)
             p.font.color.rgb = COLOR_TEXT_MAIN
-            p.space_after = Pt(6)
+            p.space_after = Pt(8)
 
     # Bottom Acceptance Box
     add_card(s15, Inches(0.8), Inches(5.6), Inches(11.733), Inches(1.15), fill_color=COLOR_DARK_BG)
-    c_btf = s15.shapes.add_textbox(Inches(1.0), Inches(5.68), Inches(11.333), Inches(0.98)).text_frame
+    c_btf = s15.shapes.add_textbox(Inches(1.05), Inches(5.68), Inches(11.2), Inches(0.98)).text_frame
     c_btf.word_wrap = True
     p = c_btf.paragraphs[0]
     p.text = "FORMAL MILESTONE 1 ACCEPTANCE REQUEST"
-    p.font.size = Pt(11)
+    p.font.size = Pt(12)
     p.font.bold = True
     p.font.color.rgb = COLOR_SUCCESS
     p.space_after = Pt(3)
@@ -902,7 +908,7 @@ def main():
     p_c = c_btf.add_paragraph()
     p_c.text = "• All commitments made from Week 03 have been 100% fulfilled and reinforced with faculty feedback solutions.\n" \
                "• The UC8 sorting workcell is fully verified and ready for formal Milestone 1 sign-off and progression to Week 06 / Milestone 2."
-    p_c.font.size = Pt(9.5)
+    p_c.font.size = Pt(10.5)
     p_c.font.color.rgb = COLOR_TEXT_LIGHT
 
     # Save presentation
