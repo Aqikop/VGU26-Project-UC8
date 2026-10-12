@@ -2,8 +2,11 @@ using UnityEngine;
 
 /// <summary>
 /// Điều khiển góc nhìn Camera chuyên nghiệp cho Workcell UR10e:
-/// - Góc mặc định: Góc toàn cảnh 3/4 Isometric (Góc đẹp nhất, bao quát 100% băng chuyền 3.6m, robot và 3 thùng).
-/// - Hỗ trợ chuyển đổi mượt mà giữa 4 góc máy điện ảnh bằng phím tắt [1], [2], [3], [4] hoặc GUI trên màn hình.
+/// - [1] Góc toàn cảnh 3/4 Isometric: Bao quát 100% băng chuyền 3.6m, robot và 3 thùng.
+/// - [2] Góc cận cảnh Thùng Xanh (Blue Bin): Quan sát vị trí thùng xanh phía sau robot.
+/// - [3] Góc cận cảnh Trạm Gắp (Close-Up Gripper): Quan sát phôi và mỏ kẹp tool0.
+/// Hỗ trợ chuyển đổi mượt mà bằng phím tắt [1], [2], [3] (cả hàng số trên và bàn phím số Numpad).
+/// GUI mặc định ẩn hoàn toàn theo yêu cầu để màn hình thông thoáng.
 /// </summary>
 public class WorkcellCameraController : MonoBehaviour
 {
@@ -30,6 +33,16 @@ public class WorkcellCameraController : MonoBehaviour
     [Header("Camera Transition Speed")]
     [SerializeField] private float transitionSpeed = 5.0f;
 
+    [Header("GUI Configuration")]
+    [Tooltip("Bật/tắt thanh nút bấm GUI (mặc định tắt để tránh che màn hình)")]
+    [SerializeField] private bool showGUI = false;
+
+    [Tooltip("Khoảng cách từ lề trái (pixels)")]
+    [SerializeField] private float guiX = 12f;
+
+    [Tooltip("Khoảng cách từ lề trên (pixels)")]
+    [SerializeField] private float guiY = 78f;
+
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private float targetFov;
@@ -38,12 +51,14 @@ public class WorkcellCameraController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
 
-        // Thiết lập 2 góc máy chọn lọc theo yêu cầu:
-        // [1] Cinematic Isometric: Góc toàn cảnh 3/4 bao quát 100% băng chuyền 3.6m, robot và 3 thùng
-        // [3] Close-Up Gripper: Cận cảnh phôi và tay gắp
+        // Thiết lập 3 góc máy điện ảnh:
+        // [1] Isometric: Toàn cảnh bao quát workcell
+        // [2] Blue Bin: Cận cảnh thùng xanh (Blue Bin) ở tọa độ Z = 0.5m
+        // [3] Close-Up: Cận cảnh trạm gắp phôi và cánh tay
         presets = new CameraPreset[]
         {
             new CameraPreset("[1] Isometric", new Vector3(-1.20f, 1.70f, -2.20f), new Vector3(30f, 30f, 0f), 52f),
+            new CameraPreset("[2] Blue Bin",  new Vector3( 0.65f, 0.90f,  1.10f), new Vector3(35f, -135f, 0f), 46f),
             new CameraPreset("[3] Close-Up",  new Vector3(-0.70f, 0.85f, -1.35f), new Vector3(22f, 35f, 0f), 45f)
         };
 
@@ -52,10 +67,15 @@ public class WorkcellCameraController : MonoBehaviour
 
     private void Update()
     {
-        // Phím tắt chuyển đổi nhanh giữa 2 góc máy: [1] Toàn cảnh và [3] Cận cảnh
+        // Phím tắt chuyển đổi nhanh giữa 3 góc máy:
+        // Phím [1]: Toàn cảnh Isometric
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) SwitchToPreset(0);
-        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3) ||
-            Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) SwitchToPreset(1);
+
+        // Phím [2]: Cận cảnh Thùng Xanh (Blue Bin)
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) SwitchToPreset(1);
+
+        // Phím [3]: Cận cảnh Trạm Gắp (Close-Up Gripper)
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) SwitchToPreset(2);
 
         // Lướt chuyển động mượt mà (Smooth Interpolation)
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * transitionSpeed);
@@ -73,6 +93,7 @@ public class WorkcellCameraController : MonoBehaviour
         targetPosition = presets[index].position;
         targetRotation = Quaternion.Euler(presets[index].eulerAngles);
         targetFov = presets[index].fov;
+        Debug.Log($"[Camera] Switched to preset: {presets[index].name}");
     }
 
     private void ApplyPresetInstant(int index)
@@ -89,8 +110,10 @@ public class WorkcellCameraController : MonoBehaviour
 
     private void OnGUI()
     {
-        // Thanh công cụ chuyển camera siêu gọn ở góc trên bên trái
-        GUILayout.BeginArea(new Rect(12, 12, 210, 36), GUI.skin.box);
+        if (!showGUI) return;
+
+        // Thanh công cụ chuyển camera (chỉ hiện khi showGUI = true)
+        GUILayout.BeginArea(new Rect(guiX, guiY, 310, 36), GUI.skin.box);
         GUILayout.BeginHorizontal();
 
         for (int i = 0; i < presets.Length; i++)

@@ -1,11 +1,12 @@
 # UC8: ROBOTIC ARM CONVEYOR PICK-AND-PLACE WITH OBSTACLE AVOIDANCE
-## Week 04 Progress Report — Milestone 1 Verification (Requirement R4)
+## Week 04 Progress Report — Technical Execution & Preparation for Milestone 1 (Week 05)
 
 - **Course:** Robotic Project — Vietnamese-German University (VGU)
 - **Project Topic:** Use Case 08 (UC8) — Robotic Sorting Workcell
 - **Simulated Hardware:** UR10e (6-DOF Manipulator) + 3.6m Industrial Conveyor Belt + 3 Dedicated Sorting Bins
 - **Engineering Stack:** Unity 2022.3 LTS (PhysX 4.x / ArticulationBody) + ROS Noetic (MoveIt Motion Planning)
-- **Milestone 1 Objective:** Closed-loop automated static pick-and-place cycle with 3 independent sorting bins
+- **Current Phase:** Week 04 Technical Sprint — Fulfilling Week 03 Commitments & Pre-M1 Verification
+- **Upcoming Milestone:** Milestone 1 Formal Defense & Evaluation (Requirement R4) in Week 05
 
 ---
 
@@ -13,53 +14,51 @@
 
 | Slide | Topic | Key Focus |
 | :---: | :--- | :--- |
-| **01** | **Week 3 Recap & Baseline** | Foundation achieved in Week 3 and transition boundary |
-| **02** | **Milestone 1 Objectives** | 5 core technical deliverables under Requirement R4 |
+| **01** | **Week 03 Recap & Commitments Set Out** | Baseline achievements and commitments made from Week 03 for Week 04 |
+| **02** | **Week 04 Scope & Pre-M1 Deliverables** | 100% fulfillment of commitments & preparation for Milestone 1 in Week 05 |
 | **03** | **System Architecture** | Bidirectional real-time closed loop between Unity and ROS Noetic |
 | **04** | **Workcell Layout Re-engineering** | Spatial optimization of Option 1 (Front Pick - Flanking Bins) |
 | **05** | **Non-singular Kinematics** | Strict 90° downward wrist lock and pure base SCARA sweep |
-| **06** | **Realistic PhysX Simulation** | Friction-based zero-teleport deceleration and industrial visual rig |
+| **06** | **Realistic PhysX Simulation** | Friction-based zero-teleport deceleration and continuous multi-item flow |
 | **07** | **7-Step Task State Machine** | Automated execution cycle from Standby to Release |
 | **08** | **Empirical Benchmark Trials (QA)** | Statistical analysis of 70 trials: 100% success rate, 11.23s cycle time |
-| **09** | **Live Demonstration Setup** | 3 standalone terminal commands and compact camera toolbar |
+| **09** | **Live Demonstration Setup** | Autonomous launcher script, 3 terminal pipelines, and camera switching |
 | **10** | **Technical Defenses (Q&A)** | Formal engineering answers to key faculty committee questions |
-| **11** | **Milestone 2 Roadmap** | Next steps: Dynamic conveyor tracking & real-time obstacle avoidance |
+| **11** | **Week 05 Plan & Milestone 1 Deliverables** | Bug fixing, edge-case stabilization, code polish, and official M1 submission |
 
 ---
 
-## SLIDE 1: WEEK 03 RECAP & TRANSITION BOUNDARY
+## SLIDE 1: WEEK 03 RECAP & COMMITMENTS SET OUT FOR WEEK 04
 
-### 1. Week 03 Verified Baseline:
-- Established robust TCP communication between Unity and ROS Noetic via `ROS-TCP-Endpoint` (Port 10000).
-- Standardized coordinate transformation algorithm from Unity Left-Handed to ROS FLU Right-Handed:
+### 1. What was Achieved in Week 03 (Baseline):
+- **ROS-Unity Network Bridge:** Seamless socket streaming on port 10000 via `ROS-TCP-Endpoint`.
+- **Coordinate Transformation:** Standardized coordinate mapping from Unity Left-Handed to ROS FLU Right-Handed:
   $$\begin{cases} X_{\text{ROS}} = Z_{\text{Unity}} \\ Y_{\text{ROS}} = -X_{\text{Unity}} \\ Z_{\text{ROS}} = Y_{\text{Unity}} \end{cases}$$
-- Encapsulated cube localization into two standard ROS topics:
-  - `/detected_object_pose` (`geometry_msgs/Pose`)
-  - `/detected_object_type` (`std_msgs/String`)
-- MoveIt solved inverse kinematics (IK) for Pre-grasp hover pose ($Z_{\text{obj}} + 0.15\text{ m}$) verified on RViz.
+- **Object Perception:** Streaming cube 3D pose to `/detected_object_pose` and color classification to `/detected_object_type` at 10 Hz.
+- **MoveIt Inverse Kinematics:** Solved theoretical IK trajectories hovering +15cm above object on RViz.
 
-### 2. Week 03 Known Boundary:
-- **Plan-Only Limitation:** MoveIt only computed theoretical motion paths; the UR10e robot in Unity did not execute physical motion.
-- **No Manipulation:** Absence of physical grasping/release mechanism.
-- **No Automation State Machine:** Lacked an autonomous closed-loop sequencing engine connecting perception, manipulation, and sorting.
+### 2. Commitments Set Out from Week 03 for Week 04:
+- **Commitment 1 (Trajectory Execution):** Break through "plan-only" mode; stream real-time `/joint_states` to drive the physical UR10e in Unity.
+- **Commitment 2 (Grasping Mechanism):** Implement an operational grasping/release mechanism (Attach logic) for cube interaction.
+- **Commitment 3 (Task State Machine):** Develop an autonomous closed-loop task state machine coordinating perception and arm execution.
+- **Commitment 4 (Multi-Bin Sorting):** Deploy independent sorting bins (Red, Yellow, Blue) and achieve repeatable placement.
+- **Milestone 1 Context:** All Week 03 commitments must be completed in Week 04 to ensure full readiness for Milestone 1 evaluation in **Week 05**.
 
 ---
 
-## SLIDE 2: WEEK 04 OBJECTIVES & MILESTONE 1 VERIFICATION
+## SLIDE 2: WEEK 04 SCOPE: FULFILLING COMMITMENTS & PRE-M1 DELIVERABLES
 
-### 5 Core Engineering Deliverables (Requirement R4):
-1. **Trajectory Execution:**
-   - Stream real-time `/joint_states` from MoveIt into Unity.
-   - Control 6 ArticulationBody revolute joints to follow the trajectory smoothly without oscillations.
-2. **Grasping Mechanism:**
-   - Implement dynamic **Attach/Parenting Logic** as directed by the course instructor.
-3. **Closed-Loop Task State Machine:**
-   - Construct an automated 7-step sequencer: `STANDBY` $\rightarrow$ `APPROACH` $\rightarrow$ `DESCENT` $\rightarrow$ `GRASP` $\rightarrow$ `LIFT` $\rightarrow$ `MOVE_TO_BIN` $\rightarrow$ `RELEASE` $\rightarrow$ `STANDBY`.
-4. **Independent 3-Bin Sorting:**
-   - Position 3 dedicated sorting containers (`Bin_Red`, `Bin_Yellow`, `Bin_Blue`) corresponding to randomly spawned cube colors.
-5. **Empirical Benchmark & QA Verification:**
-   - Automatically log experimental data to `experiments/week04/trials.csv`.
-   - Demonstrate 100% operational reliability over dozens of consecutive trials.
+### 1. 100% Commitment Fulfillment Status:
+1. **Trajectory Execution:** Streamed `/joint_states` at 50 Hz to 6 ArticulationBodies with zero sagging and smooth tracking. (**100% DONE**)
+2. **Grasping Mechanism:** Implemented Attach/Parenting logic in `GripperController.cs` with instant latching upon command. (**100% DONE**)
+3. **Closed-Loop State Machine:** Constructed 7-step autonomous sequencer (`task_state_machine.py`) with zero human intervention. (**100% DONE**)
+4. **3-Bin Sorting System:** Deployed Red (Left), Yellow (Right), and Blue (Rear) bins with dedicated non-singular trajectories. (**100% DONE**)
+
+### 2. Pre-Milestone 1 High-Value Enhancements:
+- **Kinematic Optimization:** Locked wrist strictly downward ($q_4 = 90.0^\circ$) & implemented pure base SCARA sweep, cutting cycle time by 65%.
+- **Realistic PhysX Deceleration:** Replaced artificial freezing with pure friction coasting (`StopConveyor()`) halting cubes at $X \approx 0.00\text{ m}$ ($\pm 3\text{ mm}$).
+- **Continuous Multi-Item Flow:** Upgraded Spawner to maintain 2-3 items on conveyor simultaneously with safe 38cm spacing.
+- **Empirical QA Logging:** Integrated automated CSV logger recording 70 consecutive trials with 100% reliability for Milestone 1 defense.
 
 ---
 
@@ -209,15 +208,22 @@ python3 src/uc8_robot_sorting/scripts/task_state_machine.py
 
 ---
 
-## SLIDE 11: MILESTONE 2 ROADMAP (NEXT STEPS)
+## SLIDE 11: WEEK 05 ACTION PLAN: STABILIZATION, BUG FIXING & MILESTONE 1 POLISH
 
-1. **Dynamic Conveyor Tracking (Pick-on-the-Fly):**
-   - Conveyor runs continuously without stopping when cubes reach pick zone.
-   - Real-time linear extrapolation: $X(t) = X_0 + v \cdot \Delta t$.
-   - Velocity synchronization between end-effector and moving belt.
-2. **Real-Time Dynamic Obstacle Avoidance:**
-   - Injecting random static and moving obstacles into the robot's workspace.
-   - Camera/distance sensors update MoveIt collision PlanningScene in real time.
-   - Automatic dynamic replanning when planned trajectory is obstructed.
-3. **Web-based HMI Monitoring Dashboard:**
-   - Real-time display of sorted count, cycle throughput, and operational metrics.
+### 1. Bug Fixing & System Stabilization:
+- **Exception & Timeout Guards:** Add fail-safe recovery routines if MoveIt planning times out or perception drops frames.
+- **Motion Boundary Guard:** Test edge cases in Cartesian descent limits to eliminate any micro-jitter near the conveyor boundary.
+- **Latching Reliability Audit:** Verify 100% stable cube attachment under accelerated multi-item conveyor feeding.
+- **Marathon Stress Testing:** Run long-duration tests (100+ cycles) to ensure zero memory leaks, socket drops, or Unity PhysX degradation.
+
+### 2. Code Polish & Workcell Refinements:
+- **Configuration Decoupling:** Refactor all hardcoded magic numbers into clean ROS parameter YAML files.
+- **Launcher Polish:** Ensure `run_workcell.sh` starts and stops gracefully across all terminal environments (VSCode, SSH, standard CLI).
+- **Visual Presentation Polish:** Finalize camera FOV transitions, lighting balance, and visual bin labels for the faculty demo.
+- **Codebase Cleanliness:** Audit all Python and C# scripts for strict documentation, error handling, and clean logging.
+
+### 3. Milestone 1 Deliverables Package (`docs/deliverables/m1/`):
+- **Submission Folder Preparation:** Populate `docs/deliverables/m1/` with verified test logs, architectural diagrams, and report.
+- **Repository Tag Freeze:** Create Git tag `m1-verified` locking code, simulation assets, and launch files.
+- **Demonstration Video Evidence:** Produce multi-camera HD demonstration videos (`[1] Isometric`, `[2] Blue Bin`, `[3] Close-Up`).
+- **Pre-defense Checklist:** Audit local machine environment against `DEMO_REQUIREMENTS.md` before faculty evaluation.

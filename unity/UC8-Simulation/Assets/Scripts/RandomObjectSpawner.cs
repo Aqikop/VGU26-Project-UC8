@@ -3,63 +3,79 @@ using UnityEngine;
 
 /// <summary>
 /// Sinh ngẫu nhiên các khối hộp (Đỏ, Xanh, Vàng) ở đầu băng chuyền.
-/// Kiểm soát chặt chẽ nhịp độ: DUY NHẤT 1 KHỐI HỘP trên băng chuyền tại một thời điểm.
-/// Tuyệt đối không sinh dồn dập, chỉ sinh khối mới khi khối cũ đã được gắp và phân loại.
+/// Duy trì dòng chảy liên tục: Ít nhất 2 vật thể luôn hiện diện trên băng tải (2 - 3 khối).
+/// Tự động kiểm soát khoảng cách an toàn (minSpacingDistance) để các khối hộp không va chạm hay chồng lên nhau.
 /// Dự án: UC8 - Robotic Arm Conveyor Pick-and-Place
-/// Tuần: Week 04 (R4 - Strict Single-Item Flow)
+/// Tuần: Week 04 (Continuous Multi-Item Flow)
 /// </summary>
 public class RandomObjectSpawner : MonoBehaviour
 {
     [Header("Cube Dimensions (m)")]
     [SerializeField] private float cubeSize = 0.06f; // 6cm
 
-    [Header("Minimum Spawn Cooldown (s)")]
-    [SerializeField] private float minSpawnCooldown = 1.0f;
+    [Header("Continuous Flow Configuration")]
+    [Tooltip("Target minimum simultaneous objects on conveyor belt")]
+    [SerializeField] private int minTargetObjects = 2;
+
+    [Tooltip("Maximum simultaneous objects allowed on conveyor belt")]
+    [SerializeField] private int maxObjectsOnBelt = 3;
+
+    [Tooltip("Minimum distance (m) required between consecutive cubes to avoid stacking")]
+    [SerializeField] private float minSpacingDistance = 0.38f;
+
+    [Tooltip("Minimum cooldown (s) between consecutive spawns")]
+    [SerializeField] private float minSpawnCooldown = 1.4f;
 
     private int currentSpawnCount = 0;
     private float lastSpawnTime = -999f;
-    private bool isSpawningScheduled = false;
+    private ConveyorController conveyor;
+
+    private void Awake()
+    {
+        conveyor = FindObjectOfType<ConveyorController>();
+        // Ensure values allow continuous multi-item flow
+        if (minSpawnCooldown > 1.5f) minSpawnCooldown = 1.4f;
+        if (maxObjectsOnBelt < 2) maxObjectsOnBelt = 3;
+    }
 
     private void Start()
     {
-        // Sinh đúng 1 khối hộp đầu tiên khi vừa bấm Play
-        StartCoroutine(SpawnInitialObject());
-
-        // Chạy watchdog an toàn: nếu trên băng chuyền không có hộp nào thì sinh đúng 1 hộp
-        StartCoroutine(WatchdogLoop());
+        // Chạy vòng lặp duy trì dòng chảy liên tục (Continuous Flow Watchdog)
+        StartCoroutine(ContinuousFlowLoop());
     }
 
-    private IEnumerator SpawnInitialObject()
+    private IEnumerator ContinuousFlowLoop()
     {
+        // Chờ 0.5s sau khi bấm Play để hệ thống ổn định
         yield return new WaitForSeconds(0.5f);
-        TrySpawnObject();
-    }
 
-    private IEnumerator WatchdogLoop()
-    {
         while (true)
         {
-            yield return new WaitForSeconds(3.0f);
-
-            // Nếu trên băng chuyền hoàn toàn sạch bóng và không có lịch hẹn sinh
-            if (!HasActiveObjectOnBelt() && !isSpawningScheduled)
+            // Nếu băng chuyền đang chạy và số lượng vật thể trên băng tải chưa đạt chỉ tiêu (2 - 3 hộp)
+            if (conveyor == null || conveyor.IsRunning)
             {
-                TrySpawnObject();
+                if (GetActiveObjectsOnBeltCount() < maxObjectsOnBelt)
+                {
+                    TrySpawnObject();
+                }
             }
+
+            yield return new WaitForSeconds(0.35f);
         }
     }
 
     /// <summary>
-    /// Kiểm tra xem có khối hộp nào thực sự đang nằm trên mặt băng chuyền hay không
-    /// (khối hộp đang được robot kẹp, hoặc đã vào thùng sẽ không tính là trên băng chuyền)
+    /// Đếm chính xác số lượng khối hộp thực sự đang nằm trên mặt băng chuyền
+    /// (không tính các hộp đã gắp lên tay robot hoặc đã rơi vào thùng phân loại)
     /// </summary>
-    public bool HasActiveObjectOnBelt()
+    public int GetActiveObjectsOnBeltCount()
     {
+        int count = 0;
         SortableObject[] allObjects = FindObjectsOfType<SortableObject>();
         foreach (SortableObject obj in allObjects)
         {
             if (obj == null) continue;
-            // Nếu đã được phân loại vào thùng -> Không còn trên băng tải
+            // Nếu đã được phân loại vào thùng -> Đã rời khỏi băng tải
             if (obj.isSorted) continue;
             // Nếu đang được tay kẹp giữ (đã SetParent vào tool0) -> Đã rời khỏi băng tải
             if (obj.transform.parent != null) continue;
@@ -68,38 +84,70 @@ public class RandomObjectSpawner : MonoBehaviour
             // Nếu hộp rơi khỏi bàn -> Bỏ qua
             if (obj.transform.position.y < -0.2f) continue;
 
-            return true;
+            count++;
         }
-        return false;
+        return count;
     }
 
     /// <summary>
-    /// Được gọi bởi PickZoneSensor hoặc GripperController khi cánh tay robot đã gắp và nhấc hộp đi
+    /// Tương thích ngược với các script cũ
     /// </summary>
-    public void TriggerNextSpawn(float delay = 1.0f)
+    public bool HasActiveObjectOnBelt()
     {
-        isSpawningScheduled = true;
-        StopCoroutine(nameof(SpawnAfterDelayRoutine));
+        return GetActiveObjectsOnBeltCount() > 0;
+    }
+
+    /// <summary>
+    /// Kiểm tra xem vị trí đầu băng chuyền (Spawn Area) đã thông thoáng chưa
+    /// </summary>
+    public bool IsSpawnAreaClear()
+    {
+        SortableObject[] allObjects = FindObjectsOfType<SortableObject>();
+        foreach (SortableObject obj in allObjects)
+        {
+            if (obj == null || obj.isSorted || obj.transform.parent != null) continue;
+
+            // Kiểm tra khoảng cách theo trục di chuyển băng chuyền (trục X) và trục Z
+            float distX = Mathf.Abs(obj.transform.position.x - transform.position.x);
+            float distZ = Mathf.Abs(obj.transform.position.z - transform.position.z);
+            if (distX < minSpacingDistance && distZ < 0.25f)
+            {
+                return false; // Còn khối hộp quá gần điểm spawn
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Được gọi bởi GripperController khi robot nhả hộp vào thùng để chuẩn bị cho nhịp tiếp theo
+    /// </summary>
+    public void TriggerNextSpawn(float delay = 0.5f)
+    {
         StartCoroutine(SpawnAfterDelayRoutine(delay));
     }
 
     private IEnumerator SpawnAfterDelayRoutine(float delay)
     {
         yield return new WaitForSeconds(delay);
-        isSpawningScheduled = false;
         TrySpawnObject();
     }
 
     public void TrySpawnObject()
     {
-        // Kiểm tra thời gian hồi chiêu
+        // 1. Kiểm tra thời gian hồi chiêu tối thiểu
         if (Time.time - lastSpawnTime < minSpawnCooldown)
         {
             return;
         }
 
-        // Nếu trên băng tải ĐÃ CÓ hộp chưa phân loại, tuyệt đối không sinh thêm
-        if (HasActiveObjectOnBelt())
+        // 2. Không vượt quá giới hạn tối đa trên băng tải (mặc định 3 hộp)
+        if (GetActiveObjectsOnBeltCount() >= maxObjectsOnBelt)
+        {
+            return;
+        }
+
+        // 3. Đảm bảo vị trí đầu băng chuyền không bị cản trở bởi hộp trước đó
+        if (!IsSpawnAreaClear())
         {
             return;
         }
@@ -111,18 +159,18 @@ public class RandomObjectSpawner : MonoBehaviour
     {
         lastSpawnTime = Time.time;
 
-        // 1. Tạo một Cube 3D trực tiếp từ Unity Engine
+        // 1. Tạo Cube 3D
         GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         newCube.name = $"Cube_{++currentSpawnCount}";
         newCube.transform.position = transform.position;
         newCube.transform.localScale = Vector3.one * cubeSize;
 
-        // 2. Thêm Rigidbody để tương tác vật lý trôi trên băng chuyền
+        // 2. Thêm Rigidbody để tương tác vật lý trôi mượt mà trên băng tải
         Rigidbody rb = newCube.AddComponent<Rigidbody>();
         rb.mass = 0.2f;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
-        // Triệt tiêu độ nảy (Zero-Bounce) để hộp rơi êm ru vào thùng, không nảy tưng tưng
+        // Triệt tiêu độ nảy (Zero-Bounce)
         PhysicMaterial noBounceMat = new PhysicMaterial("NoBounceMat")
         {
             bounciness = 0f,
@@ -137,10 +185,10 @@ public class RandomObjectSpawner : MonoBehaviour
             boxCol.material = noBounceMat;
         }
 
-        // 3. Gắn component logic SortableObject
+        // 3. Gắn SortableObject
         SortableObject sortable = newCube.AddComponent<SortableObject>();
 
-        // 4. Phân bố ngẫu nhiên 3 màu chuẩn: Red, Blue, Yellow
+        // 4. Phân bố ngẫu nhiên 3 màu: Red, Blue, Yellow
         float rand = Random.value;
         Color cubeColor;
         SortableObject.ColorType type;
@@ -170,6 +218,10 @@ public class RandomObjectSpawner : MonoBehaviour
         }
 
         sortable.SetObjectType(type);
-        Debug.Log($"[Spawner] Spawned single cube: {newCube.name} ({type}) at {transform.position}");
+
+        // Tự hủy sau 90s để chống rò rỉ bộ nhớ
+        Destroy(newCube, 90.0f);
+
+        Debug.Log($"[Spawner] Spawned {newCube.name} ({type}). Active cubes on conveyor: {GetActiveObjectsOnBeltCount()}/{maxObjectsOnBelt}");
     }
 }

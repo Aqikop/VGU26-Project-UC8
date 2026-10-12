@@ -30,13 +30,32 @@ class TaskStateMachine:
 
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
-        self.group = moveit_commander.MoveGroupCommander("manipulator")
 
-        # Safety configuration
-        self.group.set_planning_time(5.0)
-        self.group.set_num_planning_attempts(10)
-        self.group.set_max_velocity_scaling_factor(0.8)
-        self.group.set_max_acceleration_scaling_factor(0.7)
+        rospy.loginfo("[*] Connecting to MoveIt MoveGroup ('manipulator')...")
+        self.group = None
+        for attempt in range(1, 16):
+            try:
+                self.group = moveit_commander.MoveGroupCommander("manipulator")
+                rospy.loginfo("[*] MoveGroup ('manipulator') connected successfully.")
+                break
+            except RuntimeError as e:
+                rospy.loginfo(f"[*] Waiting for /move_group action server... (attempt {attempt}/15)")
+                time.sleep(2.0)
+
+        if self.group is None:
+            rospy.logerr("[-] Timed out waiting for MoveGroup after 30 seconds!")
+            sys.exit(1)
+
+        # Speed scaling factor (Multiplier > 1.0 increases robot motion speed)
+        # Default: 1.8x speed boost (configurable via ROS param ~speed_multiplier)
+        self.speed_multiplier = rospy.get_param("~speed_multiplier", 1.8)
+        rospy.loginfo(f"[*] Arm Speed Multiplier: {self.speed_multiplier:.1f}x")
+
+        # Safety configuration - max limits enabled for speed scaling
+        self.group.set_planning_time(3.0)
+        self.group.set_num_planning_attempts(5)
+        self.group.set_max_velocity_scaling_factor(1.0)
+        self.group.set_max_acceleration_scaling_factor(1.0)
         self.group.allow_replanning(True)
 
         self.planning_frame = self.group.get_planning_frame()
@@ -155,25 +174,67 @@ class TaskStateMachine:
         self.scene.add_box("bin_blue", bin_blue_pose, size=(0.38, 0.38, 0.10))
         time.sleep(0.5)
 
-    def go_to_ready_pose(self):
-        rospy.loginfo("[MoveIt] Moving robot to STANDBY pose (Elbow-Up, hovering over pick station)...")
-        self.group.set_joint_value_target(self.standby_joints)
+    def scale_trajectory_speed(self, traj, factor):
+        """
+        Scales a RobotTrajectory by factor (> 1.0 = faster, < 1.0 = slower).
+        Modifies time_from_start, velocities, and accelerations for all trajectory points.
+        """
+        if factor <= 0 or factor == 1.0 or traj is None:
+            return traj
+        for point in traj.joint_trajectory.points:
+            point.time_from_start = rospy.Duration.from_sec(point.time_from_start.to_sec() / factor)
+            if point.velocities:
+                point.velocities = [v * factor for v in point.velocities]
+            if point.accelerations:
+                point.accelerations = [a * (factor * factor) for a in point.accelerations]
+        return traj
+
+    def move_to_joints(self, target_joints):
+        """Plan and execute joint trajectory with speed scaling"""
+        try:
+            self.group.set_joint_value_target(target_joints)
+            res = self.group.plan()
+            if isinstance(res, tuple):
+                success, plan = res[0], res[1]
+            else:
+                plan = res
+                success = len(plan.joint_trajectory.points) > 0
+
+            if success and len(plan.joint_trajectory.points) > 0:
+                scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
+                return self.group.execute(scaled_plan, wait=True)
+        except Exception as e:
+            rospy.logwarn(f"[Joint Motion] Fallback to direct go due to: {e}")
+
+        # Safe fallback
+        self.group.set_joint_value_target(target_joints)
         return self.group.go(wait=True)
 
+    def go_to_ready_pose(self):
+        rospy.loginfo("[MoveIt] Moving robot to STANDBY pose (Elbow-Up, hovering over pick station)...")
+        return self.move_to_joints(self.standby_joints)
+
     def move_cartesian_line(self, target_pose):
-        """Standard Cartesian linear motion (strictly vertical, no drift)"""
+        """Standard Cartesian linear motion (strictly vertical, no drift) with speed scaling"""
         try:
             waypoints = [target_pose]
             # Signature in Noetic C++ wrapper: (waypoints, double eef_step, bool avoid_collisions)
             plan, fraction = self.group.compute_cartesian_path(waypoints, 0.01, True)
             if fraction > 0.8:
-                return self.group.execute(plan, wait=True)
+                scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
+                return self.group.execute(scaled_plan, wait=True)
         except Exception as e:
             rospy.logwarn(f"[Cartesian Path] Fallback to standard Pose Target due to: {e}")
 
         # Absolute safe fallback
         self.group.set_pose_target(target_pose)
-        return self.group.go(wait=True)
+        res = self.group.plan()
+        if isinstance(res, tuple):
+            plan = res[1]
+        else:
+            plan = res
+        scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
+        return self.group.execute(scaled_plan, wait=True)
 
     def init_csv(self):
         if not os.path.exists(self.csv_path):
@@ -260,7 +321,7 @@ class TaskStateMachine:
             fail_stage = "GRASP"
             rospy.loginfo("[STATE: GRASP] Sending grasp command to Unity...")
             self.gripper_pub.publish(Bool(data=True))
-            time.sleep(0.4)
+            time.sleep(0.2)
             grasp_success = True
 
             # -------------------------------------------------------------
@@ -278,8 +339,7 @@ class TaskStateMachine:
             target_joints = self.bin_joints.get(object_type, self.bin_joints["Yellow"])
             rospy.loginfo(f"[STATE: MOVE_TO_BIN] Sweeping arm to {object_type} Bin via optimal joint trajectory...")
 
-            self.group.set_joint_value_target(target_joints)
-            if not self.group.go(wait=True):
+            if not self.move_to_joints(target_joints):
                 raise RuntimeError("Failed to move to destination sorting bin!")
 
             # -------------------------------------------------------------
@@ -288,7 +348,7 @@ class TaskStateMachine:
             fail_stage = "RELEASE"
             rospy.loginfo("[STATE: RELEASE] Releasing object into bin...")
             self.gripper_pub.publish(Bool(data=False))
-            time.sleep(0.4)
+            time.sleep(0.2)
             place_success = True
 
             # -------------------------------------------------------------

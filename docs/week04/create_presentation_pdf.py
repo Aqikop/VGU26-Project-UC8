@@ -200,10 +200,10 @@ def build_pdf(output_path):
         [Spacer(1, 6)],
         [Paragraph("ROBOTIC ARM CONVEYOR PICK-AND-PLACE<br/>WITH OBSTACLE AVOIDANCE", title_style)],
         [Spacer(1, 8)],
-        [Paragraph("WEEK 04 PROGRESS REPORT — MILESTONE 1 VERIFICATION (R4)", subtitle_style)],
+        [Paragraph("WEEK 04 PROGRESS REPORT — PREPARATION & VERIFICATION FOR MILESTONE 1 (WEEK 05)", subtitle_style)],
         [Spacer(1, 14)],
         [Paragraph("<font color='#CBD5E1'><b>Use Case 08 (UC8):</b> Closed-Loop Static Sorting Workcell with 3 Independent Bins<br/>"
-                   "<b>Simulation:</b> UR10e (6-DOF Manipulator) & Industrial Conveyor Belt | <b>Platform:</b> Unity 2022.3 LTS + ROS Noetic (MoveIt)</font>",
+                   "<b>Current Sprint:</b> Week 04 Technical Execution & Fulfilling Week 03 Commitments | <b>Evaluation:</b> Milestone 1 in Week 05</font>",
                    ParagraphStyle("CoverDesc", fontName="DejaVu", fontSize=9.5, leading=14, textColor=colors.HexColor("#E2E8F0"), alignment=1))],
         [Spacer(1, 14)],
         [Paragraph("<font color='#94A3B8'>Student Engineering Team — Workstation: kduy-5560 — October 2026</font>",
@@ -269,40 +269,40 @@ def build_pdf(output_path):
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 2: WEEK 3 RECAP & BASELINE BOUNDARY
+    # SLIDE 2: WEEK 3 RECAP & COMMITMENTS SET OUT
     # =========================================================================
-    story.extend(make_header("Context & Starting Point", "Week 03 Recap & Transition Boundary"))
+    story.extend(make_header("Foundation & Context", "Week 03 Recap & Commitments Set Out for Week 04"))
 
     w3_achieved = [
-        Paragraph("<b>WEEK 03 VERIFIED BASELINE</b>", h3_style),
+        Paragraph("<b>1. WEEK 03 BASELINE ACHIEVEMENTS</b>", h3_style),
         Spacer(1, 6),
-        Paragraph("• <b>ROS-Unity Network Bridge:</b> Seamless socket communication on port 10000 via <code>ROS-TCP-Endpoint</code>.", bullet_style),
+        Paragraph("• <b>ROS-Unity Network Bridge:</b> Seamless socket streaming on port 10000 via <code>ROS-TCP-Endpoint</code>.", bullet_style),
         Spacer(1, 3),
-        Paragraph("• <b>Coordinate Transformation:</b> Correct coordinate mapping from Unity Left-Handed to ROS FLU Right-Handed: (X_ros = Z_unity, Y_ros = -X_unity, Z_ros = Y_unity).", bullet_style),
+        Paragraph("• <b>Coordinate Transformation:</b> Standardized coordinate mapping from Unity Left-Handed to ROS FLU Right-Handed: (X_ros = Z_unity, Y_ros = -X_unity, Z_ros = Y_unity).", bullet_style),
         Spacer(1, 3),
         Paragraph("• <b>Object Perception:</b> Streaming cube 3D pose to <code>/detected_object_pose</code> and color classification to <code>/detected_object_type</code>.", bullet_style),
         Spacer(1, 3),
-        Paragraph("• <b>MoveIt Pre-grasp Planning:</b> Node <code>moveit_pregrasp_planner.py</code> solved IK trajectories hovering +15cm above object on RViz.", bullet_style)
+        Paragraph("• <b>MoveIt Pre-grasp Planning:</b> Solved theoretical IK trajectories hovering +15cm above object on RViz.", bullet_style)
     ]
 
     w3_boundary = [
-        Paragraph("<b>WEEK 03 BOUNDARY & LIMITATIONS</b>", ParagraphStyle("RedH3", fontName="DejaVu-Bold", fontSize=10.5, leading=13.5, textColor=colors.HexColor("#DC2626"))),
+        Paragraph("<b>2. COMMITMENTS SET OUT FOR WEEK 04</b>", ParagraphStyle("CommitmentH3", fontName="DejaVu-Bold", fontSize=10.5, leading=13.5, textColor=PRIMARY)),
         Spacer(1, 6),
-        Paragraph("• <b>Plan-Only Limitation:</b> MoveIt only computed theoretical motion plans; UR10e in Unity did not execute physical motion.", bullet_style),
+        Paragraph("• <b>Commitment 1 (Trajectory Execution):</b> Break through 'plan-only' mode; stream real-time <code>/joint_states</code> to move physical UR10e in Unity.", bullet_style),
         Spacer(1, 3),
-        Paragraph("• <b>No Grasping Mechanism:</b> Unable to physically attach or release target objects.", bullet_style),
+        Paragraph("• <b>Commitment 2 (Grasping Mechanism):</b> Implement dynamic Attach/Parenting logic in <code>GripperController.cs</code> to grab cubes physically.", bullet_style),
         Spacer(1, 3),
-        Paragraph("• <b>No Task State Machine:</b> Lacked an automated closed-loop sequencing engine from perception to sorting.", bullet_style),
+        Paragraph("• <b>Commitment 3 (Task State Machine):</b> Develop autonomous 7-step sequencer connecting perception, motion, and release.", bullet_style),
         Spacer(1, 3),
-        Paragraph("• <b>Suboptimal Workcell Layout:</b> Sorting bins placed next to conveyor led to arm self-collisions and kinematic singularities.", bullet_style)
+        Paragraph("• <b>Commitment 4 (3-Bin Sorting):</b> Deploy dedicated Red, Yellow, Blue bins with non-singular collision-free placements.", bullet_style)
     ]
 
     table_w3 = Table([[w3_achieved, w3_boundary]], colWidths=[385, 385])
     table_w3.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), colors.HexColor("#FEF2F2")),
+        ('BACKGROUND', (1,0), (1,0), colors.HexColor("#EFF6FF")),
         ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
-        ('BOX', (1,0), (1,0), 1, colors.HexColor("#FECACA")),
+        ('BOX', (1,0), (1,0), 1, colors.HexColor("#BFDBFE")),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
@@ -310,8 +310,8 @@ def build_pdf(output_path):
     story.append(Spacer(1, 12))
 
     w3_note = Table([[Paragraph(
-        "<b>Transition Takeaway:</b> Week 3 conquered <i>Perception</i> and <i>Communication</i>. "
-        "Week 4 targets the complete closed loop of <i>Action, Manipulation, and Kinematic Robustness</i>.",
+        "<b>Milestone Context:</b> Milestone 1 is scheduled for official evaluation in <b>Week 05</b>. "
+        "Fulfilling 100% of Week 03 commitments in Week 04 is the prerequisite to ensure full readiness.",
         callout_style
     )]], colWidths=[770])
     w3_note.setStyle(TableStyle([
@@ -846,32 +846,34 @@ def build_pdf(output_path):
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 12: MILESTONE 2 ROADMAP (NEXT STEPS)
+    # SLIDE 12: WEEK 05 ACTION PLAN: STABILIZATION, BUG FIXING & MILESTONE 1 POLISH
     # =========================================================================
-    story.extend(make_header("Development Roadmap", "Milestone 2 Development Roadmap (Weeks 5 - 8)"))
+    story.extend(make_header("Week 05 Plan & Milestone 1 Deliverables", "Week 05 Action Plan: Stabilization, Bug Fixing & Milestone 1 Polish"))
 
     next_box1 = [
-        Paragraph("<b>1. DYNAMIC CONVEYOR TRACKING (PICK-ON-THE-FLY)</b>", h3_style),
+        Paragraph("<b>1. BUG FIXING & STABILIZATION</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Scope:</b> Conveyor runs continuously without stopping when cubes reach pick zone.", bullet_style),
-        Paragraph("• <b>Kinematics Algorithm:</b> Real-time linear extrapolation: <code>X(t) = X_0 + v * Δt</code>.", bullet_style),
-        Paragraph("• <b>Velocity Synchronization:</b> MoveIt matches end-effector horizontal velocity with belt speed to grasp dynamic cubes seamlessly.", bullet_style)
+        Paragraph("• <b>Exception & Timeout Guards:</b> Fail-safe recovery if MoveIt planning times out or perception drops frames.", bullet_style),
+        Paragraph("• <b>Motion Boundary Guard:</b> Test Cartesian limits to eliminate any micro-jitter near conveyor boundary.", bullet_style),
+        Paragraph("• <b>Latching Reliability Audit:</b> Ensure 100% stable cube attachment under high-speed multi-item feeding.", bullet_style),
+        Paragraph("• <b>Marathon Stress Testing:</b> Run long-duration tests (100+ cycles) ensuring zero memory leaks or socket drops.", bullet_style)
     ]
 
     next_box2 = [
-        Paragraph("<b>2. REAL-TIME DYNAMIC OBSTACLE AVOIDANCE</b>", h3_style),
+        Paragraph("<b>2. CODE POLISH & MILESTONE 1 PACKAGE</b>", h3_style),
         Spacer(1, 4),
-        Paragraph("• <b>Scope:</b> Injecting random static and moving obstacles into the robot's workspace.", bullet_style),
-        Paragraph("• <b>PlanningScene Streaming:</b> Camera/distance sensors update MoveIt collision octomap / meshes in real time.", bullet_style),
-        Paragraph("• <b>Dynamic Replanning:</b> When planned trajectory is obstructed, MoveIt automatically recalculates a safe detour path.", bullet_style)
+        Paragraph("• <b>Configuration Decoupling:</b> Refactor all hardcoded constants into clean ROS parameter YAML files.", bullet_style),
+        Paragraph("• <b>Launcher Polish:</b> Ensure <code>run_workcell.sh</code> starts and stops cleanly across all terminal environments.", bullet_style),
+        Paragraph("• <b>Deliverables Folder:</b> Populate <code>docs/deliverables/m1/</code> with verified test logs, report, and tag freeze.", bullet_style),
+        Paragraph("• <b>Video Demonstrations:</b> HD recordings showcasing <code>[1] Isometric</code>, <code>[2] Blue Bin</code>, and <code>[3] Close-Up</code>.", bullet_style)
     ]
 
     t_next = Table([[next_box1, next_box2]], colWidths=[385, 385])
     t_next.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), BG_CARD),
-        ('BACKGROUND', (1,0), (1,0), BG_LIGHT),
+        ('BACKGROUND', (1,0), (1,0), colors.HexColor("#EFF6FF")),
         ('BOX', (0,0), (0,0), 1, BORDER_COLOR),
-        ('BOX', (1,0), (1,0), 1, BORDER_COLOR),
+        ('BOX', (1,0), (1,0), 1, colors.HexColor("#BFDBFE")),
         ('PADDING', (0,0), (-1,-1), 12),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ]))
