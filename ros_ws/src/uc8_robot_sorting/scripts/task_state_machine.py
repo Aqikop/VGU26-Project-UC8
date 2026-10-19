@@ -52,8 +52,8 @@ class TaskStateMachine:
         rospy.loginfo(f"[*] Arm Speed Multiplier: {self.speed_multiplier:.1f}x")
 
         # Safety configuration - max limits enabled for speed scaling
-        self.group.set_planning_time(3.0)
-        self.group.set_num_planning_attempts(5)
+        self.group.set_planning_time(5.0)
+        self.group.set_num_planning_attempts(10)
         self.group.set_max_velocity_scaling_factor(1.0)
         self.group.set_max_acceleration_scaling_factor(1.0)
         self.group.allow_replanning(True)
@@ -173,6 +173,18 @@ class TaskStateMachine:
         bin_blue_pose.pose.position.z = 0.04
         bin_blue_pose.pose.orientation.w = 1.0
         self.scene.add_box("bin_blue", bin_blue_pose, size=(0.38, 0.38, 0.10))
+
+        # 4. Static Obstacle Barrier (Milestone 2 - Requirement R8 Obstacle Avoidance)
+        # Positioned at X = -0.38m, Y = +0.28m, Z = 0.18m with size (0.12, 0.30, 0.36)
+        # Intercepts direct low-altitude sweep to Red Bin, forcing OMPL to calculate a curved arching avoidance trajectory
+        barrier_pose = PoseStamped()
+        barrier_pose.header.frame_id = self.planning_frame
+        barrier_pose.pose.position.x = -0.38
+        barrier_pose.pose.position.y = 0.28
+        barrier_pose.pose.position.z = 0.18
+        barrier_pose.pose.orientation.w = 1.0
+        self.scene.add_box("static_barrier", barrier_pose, size=(0.12, 0.30, 0.36))
+        rospy.loginfo("[MoveIt] Added static_barrier (R8 Obstacle Avoidance) at X=-0.38m, Y=+0.28m, Z=0.18m, size=(0.12, 0.30, 0.36)")
         time.sleep(0.5)
 
     def scale_trajectory_speed(self, traj, factor):
@@ -191,10 +203,13 @@ class TaskStateMachine:
         return traj
 
     def move_to_joints(self, target_joints):
-        """Plan and execute joint trajectory with speed scaling"""
+        """Plan and execute joint trajectory with collision avoidance and speed scaling"""
         try:
+            t_plan_start = time.time()
             self.group.set_joint_value_target(target_joints)
             res = self.group.plan()
+            t_plan_ms = (time.time() - t_plan_start) * 1000.0
+
             if isinstance(res, tuple):
                 success, plan = res[0], res[1]
             else:
@@ -202,8 +217,11 @@ class TaskStateMachine:
                 success = len(plan.joint_trajectory.points) > 0
 
             if success and len(plan.joint_trajectory.points) > 0:
+                rospy.loginfo(f"[MoveIt Planner] RRTConnect planned collision-free trajectory with {len(plan.joint_trajectory.points)} points in {t_plan_ms:.1f}ms")
                 scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
                 return self.group.execute(scaled_plan, wait=True)
+            else:
+                rospy.logwarn(f"[MoveIt Planner] Planning failed after {t_plan_ms:.1f}ms (target unreachable or collision detected)!")
         except Exception as e:
             rospy.logwarn(f"[Joint Motion] Fallback to direct go due to: {e}")
 
@@ -317,13 +335,23 @@ class TaskStateMachine:
                 raise RuntimeError("Failed to reach Grasp pose!")
 
             # -------------------------------------------------------------
-            # STEP 3: GRASP (Trigger attach logic in Unity)
+            # STEP 3: GRASP (Trigger attach logic in Unity & PlanningScene)
             # -------------------------------------------------------------
             fail_stage = "GRASP"
             rospy.loginfo("[STATE: GRASP] Sending grasp command to Unity...")
             self.gripper_pub.publish(Bool(data=True))
             time.sleep(0.2)
             grasp_success = True
+
+            # Attach payload cube in MoveIt PlanningScene so obstacle avoidance includes payload geometry
+            try:
+                cube_pose = PoseStamped()
+                cube_pose.header.frame_id = self.eef_link
+                cube_pose.pose.position.z = 0.03
+                cube_pose.pose.orientation.w = 1.0
+                self.scene.attach_box(self.eef_link, "grasped_cube", cube_pose, size=(0.06, 0.06, 0.06))
+            except Exception as e:
+                pass
 
             # -------------------------------------------------------------
             # STEP 4: LIFT (Cartesian linear vertical lift to safe height)
@@ -351,6 +379,13 @@ class TaskStateMachine:
             self.gripper_pub.publish(Bool(data=False))
             time.sleep(0.2)
             place_success = True
+
+            # Detach and remove payload cube from MoveIt PlanningScene
+            try:
+                self.scene.remove_attached_object(self.eef_link, "grasped_cube")
+                self.scene.remove_world_object("grasped_cube")
+            except Exception as e:
+                pass
 
             # -------------------------------------------------------------
             # STEP 7: READY (Return to standby pose over conveyor)

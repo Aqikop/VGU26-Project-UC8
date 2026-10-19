@@ -125,10 +125,38 @@ public class UR10eController : MonoBehaviour
             binBlue.transform.localScale = new Vector3(1.35f, 1.25f, 1.35f);
         }
 
+        // Tự động tạo và đồng bộ vật cản tĩnh (Static Obstacle Barrier - Requirement R8)
+        EnsureStaticBarrier();
+
         // Tự động tạo và cập nhật các quả cầu Waypoint Visual Markers tại vị trí mới
         EnsureWaypointMarkers();
 
-        Debug.Log("[UR10eController] Workcell layout and Waypoint visual markers synchronized (Option 1)!");
+        Debug.Log("[UR10eController] Workcell layout, Static Barrier Wall (R8), and Waypoint visual markers synchronized (Option 1)!");
+    }
+
+    private void EnsureStaticBarrier()
+    {
+        GameObject barrier = GameObject.Find("Static_Barrier_Wall");
+        if (barrier == null)
+        {
+            barrier = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            barrier.name = "Static_Barrier_Wall";
+
+            Material mat = new Material(Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse"));
+            mat.color = new Color(0.95f, 0.55f, 0.05f, 1.0f); // Safety Amber Orange
+            mat.EnableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", new Color(0.35f, 0.20f, 0.02f));
+            MeshRenderer mr = barrier.GetComponent<MeshRenderer>();
+            if (mr != null) mr.material = mat;
+        }
+
+        // Tọa độ Unity: (-0.28m, 0.18m, -0.38m) khớp 100% với ROS base_link (X=-0.38m, Y=0.28m, Z=0.18m)
+        barrier.transform.position = new Vector3(-0.28f, 0.18f, -0.38f);
+        barrier.transform.localScale = new Vector3(0.30f, 0.36f, 0.12f);
+        barrier.transform.rotation = Quaternion.identity;
+
+        BoxCollider col = barrier.GetComponent<BoxCollider>();
+        if (col != null) col.isTrigger = false;
     }
 
     private void EnsureWaypointMarkers()
