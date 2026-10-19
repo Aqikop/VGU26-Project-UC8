@@ -490,3 +490,6 @@ trial_id,timestamp,object_type,grasp_success,place_success,cycle_time_s,failure_
 3,2026-10-19 18:24:36,Blue,True,True,8.70,
 4,2026-10-19 18:24:45,Blue,True,True,8.74,
 5,2026-10-19 18:24:54,Blue,True,True,8.71,
+1,2026-10-19 18:54:53,Blue,True,True,10.62,
+1,2026-10-19 18:55:54,Blue,True,True,21.35,
+2,2026-10-19 18:56:19,Blue,True,True,24.23,

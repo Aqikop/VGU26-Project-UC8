@@ -307,7 +307,7 @@ public class UR10eController : MonoBehaviour
             post.name = $"Post_{i + 1}";
             post.transform.SetParent(shieldRoot.transform, false);
             post.transform.localPosition = new Vector3(postX[i], 0f, 0f);
-            post.transform.localScale = new Vector3(0.025f, 0.44f, 0.035f);
+            post.transform.localScale = new Vector3(0.025f, 0.30f, 0.035f);
             post.GetComponent<MeshRenderer>().material = aluminumMat;
             DestroyImmediate(post.GetComponent<Collider>());
 
@@ -315,7 +315,7 @@ public class UR10eController : MonoBehaviour
             GameObject foot = GameObject.CreatePrimitive(PrimitiveType.Cube);
             foot.name = $"Foot_{i + 1}";
             foot.transform.SetParent(shieldRoot.transform, false);
-            foot.transform.localPosition = new Vector3(postX[i], -0.215f, 0f);
+            foot.transform.localPosition = new Vector3(postX[i], -0.145f, 0f);
             foot.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
             foot.GetComponent<MeshRenderer>().material = blackMat;
             DestroyImmediate(foot.GetComponent<Collider>());
@@ -325,7 +325,7 @@ public class UR10eController : MonoBehaviour
         GameObject topRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
         topRail.name = "Top_Rail";
         topRail.transform.SetParent(shieldRoot.transform, false);
-        topRail.transform.localPosition = new Vector3(0f, 0.21f, 0f);
+        topRail.transform.localPosition = new Vector3(0f, 0.14f, 0f);
         topRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
         topRail.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(topRail.GetComponent<Collider>());
@@ -334,7 +334,7 @@ public class UR10eController : MonoBehaviour
         GameObject bottomRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
         bottomRail.name = "Bottom_Rail";
         bottomRail.transform.SetParent(shieldRoot.transform, false);
-        bottomRail.transform.localPosition = new Vector3(0f, -0.21f, 0f);
+        bottomRail.transform.localPosition = new Vector3(0f, -0.14f, 0f);
         bottomRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
         bottomRail.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(bottomRail.GetComponent<Collider>());
@@ -350,7 +350,7 @@ public class UR10eController : MonoBehaviour
             glassPanel.name = paneNames[p];
             glassPanel.transform.SetParent(shieldRoot.transform, false);
             glassPanel.transform.localPosition = new Vector3(paneCentersX[p], 0f, 0f);
-            glassPanel.transform.localScale = new Vector3(paneWidths[p], 0.40f, 0.008f);
+            glassPanel.transform.localScale = new Vector3(paneWidths[p], 0.26f, 0.008f);
             glassPanel.GetComponent<MeshRenderer>().material = glassMat;
             DestroyImmediate(glassPanel.GetComponent<Collider>());
 
@@ -364,14 +364,14 @@ public class UR10eController : MonoBehaviour
             DestroyImmediate(stripe.GetComponent<Collider>());
         }
 
-        // E. BoxCollider bao bọc toàn bộ hệ thống vách chắn mica (Rộng 1.64m, Cao 0.44m, Dày 0.08m)
+        // E. BoxCollider bao bọc toàn bộ hệ thống vách chắn mica (Rộng 1.64m, Cao 0.30m, Dày 0.08m)
         BoxCollider col = shieldRoot.AddComponent<BoxCollider>();
         col.center = Vector3.zero;
-        col.size = new Vector3(1.64f, 0.44f, 0.08f);
+        col.size = new Vector3(1.64f, 0.30f, 0.08f);
         col.isTrigger = false;
 
-        // Tọa độ Unity: (0m, 0.22m, -0.38m) trải dài từ trước Thùng Đỏ (X=-0.82m) tới sau Thùng Vàng (X=+0.82m)
-        shieldRoot.transform.position = new Vector3(0f, 0.22f, -0.38f);
+        // Tọa độ Unity: (0m, 0.15m, -0.38m) độ cao 30cm chuẩn để robot vươn gắp phôi trơn tru không chạm cùi chỏ
+        shieldRoot.transform.position = new Vector3(0f, 0.15f, -0.38f);
         shieldRoot.transform.rotation = Quaternion.identity;
     }
 
