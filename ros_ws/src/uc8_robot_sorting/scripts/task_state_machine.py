@@ -90,14 +90,15 @@ class TaskStateMachine:
             "Yellow": Point(x=-0.10, y=-0.55, z=0.20)
         }
         # Angular-Orthogonal Step Trajectory Configuration:
-        # Leg 1: Pure horizontal rotation (Joint 0 only) to obstacle threshold angle
+        # Portal edges: left edge at +0.05 rad, right edge at +0.55 rad (Conveyor pick is at +0.29 rad)
+        # Leg 1: Pure horizontal rotation (Joint 0 only) to safe portal boundary angle
         # Leg 2: Pure vertical elevator lift along Z to clearance apex
         # Leg 3: Pure horizontal rotation (Joint 0 only) at apex height to destination bin angle
         # Leg 4: Pure vertical elevator descent along Z into destination bin
         self.theta_thresh = {
-            "Red":    -0.35, # In front of left mica shield
-            "Yellow":  0.95, # In front of right mica shield
-            "Blue":   -0.70  # In front of UR control box
+            "Red":    0.05, # In front of left mica shield (stays 100% inside open portal)
+            "Yellow": 0.55, # In front of right mica shield (stays 100% inside open portal)
+            "Blue":   0.05  # Left portal boundary before flying higher over UR control box
         }
         self.apex_z = {
             "Red":    0.52, # Above 0.36m mica shield
@@ -452,30 +453,19 @@ class TaskStateMachine:
             place_success = True
 
             # -------------------------------------------------------------
-            # STEP 7: READY (Orthogonal Return: Lift -> Horizontal -> Lower -> Standby)
+            # STEP 7: READY (Clean Return: Lift out of bin -> Smooth sweep back to Standby)
             # -------------------------------------------------------------
             fail_stage = "READY"
-            rospy.loginfo("[STATE: READY] Orthogonal step return to Standby (Pure Horizontal & Vertical)...")
-            # 7a. Nâng thẳng đứng lên lại cao độ Apex trên thùng
+            rospy.loginfo("[STATE: READY] Elevating out of bin and sweeping directly back to Standby...")
+            # 7a. Nâng thẳng đứng lên lại cao độ an toàn (Apex) trên thùng để thoát khỏi lòng thùng
             curr_p = self.group.get_current_pose().pose
             up_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, z_apex), orientation=down_orient)
             if not self.move_cartesian_line(up_pose):
                 self.group.set_pose_target(up_pose)
                 self.group.go(wait=True)
 
-            # 7b. Xoay ngang lùi về lại góc ngưỡng trước vật cản (Joint 0 only)
-            j_ret = list(self.group.get_current_joint_values())
-            j_ret[0] = th_thresh
-            self.move_to_joints(j_ret)
-
-            # 7c. Hạ thẳng đứng xuống cao độ thấp (Z=0.21m)
-            curr_p = self.group.get_current_pose().pose
-            down_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, 0.21), orientation=down_orient)
-            if not self.move_cartesian_line(down_pose):
-                self.group.set_pose_target(down_pose)
-                self.group.go(wait=True)
-
-            # 7d. Xoay ngang về lại Standby
+            # 7b. Xoay ngang trực tiếp ở trên cao về lại vị trí Standby trên băng chuyền
+            # Tuyệt đối không hạ thấp xuống băng chuyền rồi lại nhấc lên giật cục!
             self.go_to_ready_pose()
 
             fail_stage = None
