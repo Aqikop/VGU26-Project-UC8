@@ -265,121 +265,113 @@ public class UR10eController : MonoBehaviour
         if (oldWall != null) DestroyImmediate(oldWall);
 
         GameObject shieldRoot = GameObject.Find("Acrylic_Safety_Shield");
-        if (shieldRoot == null)
+        if (shieldRoot != null) DestroyImmediate(shieldRoot);
+
+        shieldRoot = new GameObject("Acrylic_Safety_Shield");
+
+        Shader stdShader = Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse");
+
+        // Material: Khung nhôm định hình xám kim loại công nghiệp (Anodized Aluminum Frame)
+        Material aluminumMat = new Material(stdShader);
+        aluminumMat.color = new Color(0.28f, 0.30f, 0.34f);
+        if (aluminumMat.HasProperty("_Metallic")) aluminumMat.SetFloat("_Metallic", 0.75f);
+        if (aluminumMat.HasProperty("_Glossiness")) aluminumMat.SetFloat("_Glossiness", 0.65f);
+
+        // Material: Chân đế kim loại bắt bu-lông màu đen nhám (Base Flange)
+        Material blackMat = new Material(stdShader);
+        blackMat.color = new Color(0.12f, 0.13f, 0.15f);
+
+        // Material: Tấm chắn Mica / Polycarbonate trong suốt (Transparent Acrylic Glass)
+        Material glassMat = new Material(stdShader);
+        glassMat.color = new Color(0.85f, 0.93f, 1.0f, 0.35f); // Mica trong suốt ánh xanh nhẹ
+        glassMat.SetFloat("_Mode", 3); // Transparent mode
+        glassMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        glassMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        glassMat.SetInt("_ZWrite", 0);
+        glassMat.DisableKeyword("_ALPHATEST_ON");
+        glassMat.DisableKeyword("_ALPHABLEND_ON");
+        glassMat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+        glassMat.renderQueue = 3000;
+        if (glassMat.HasProperty("_Glossiness")) glassMat.SetFloat("_Glossiness", 0.95f);
+        if (glassMat.HasProperty("_Metallic")) glassMat.SetFloat("_Metallic", 0.1f);
+
+        // Material: Vạch an toàn cảnh báo vàng công nghiệp (Safety Yellow Warning Stripe)
+        Material yellowMat = new Material(stdShader);
+        yellowMat.color = new Color(0.96f, 0.75f, 0.05f);
+
+        // A. 4 Cột nhôm định hình đứng gia cố chịu lực (2 cột biên + 2 cột trung gian chia 3 khoang)
+        float[] postX = { -0.80f, -0.27f, 0.27f, 0.80f };
+        for (int i = 0; i < postX.Length; i++)
         {
-            shieldRoot = new GameObject("Acrylic_Safety_Shield");
+            GameObject post = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            post.name = $"Post_{i + 1}";
+            post.transform.SetParent(shieldRoot.transform, false);
+            post.transform.localPosition = new Vector3(postX[i], 0f, 0f);
+            post.transform.localScale = new Vector3(0.025f, 0.44f, 0.035f);
+            post.GetComponent<MeshRenderer>().material = aluminumMat;
+            DestroyImmediate(post.GetComponent<Collider>());
 
-            Shader stdShader = Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse");
+            // Chân đế bắt bu-lông xuống mặt bàn
+            GameObject foot = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            foot.name = $"Foot_{i + 1}";
+            foot.transform.SetParent(shieldRoot.transform, false);
+            foot.transform.localPosition = new Vector3(postX[i], -0.215f, 0f);
+            foot.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
+            foot.GetComponent<MeshRenderer>().material = blackMat;
+            DestroyImmediate(foot.GetComponent<Collider>());
+        }
 
-            // Material: Khung nhôm định hình xám kim loại công nghiệp (Anodized Aluminum Frame)
-            Material aluminumMat = new Material(stdShader);
-            aluminumMat.color = new Color(0.28f, 0.30f, 0.34f);
-            if (aluminumMat.HasProperty("_Metallic")) aluminumMat.SetFloat("_Metallic", 0.75f);
-            if (aluminumMat.HasProperty("_Glossiness")) aluminumMat.SetFloat("_Glossiness", 0.65f);
+        // B. Thanh nhôm ngang trên cùng (Top Rail - Dài 1.64m suốt từ Thùng Đỏ sang Thùng Vàng)
+        GameObject topRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        topRail.name = "Top_Rail";
+        topRail.transform.SetParent(shieldRoot.transform, false);
+        topRail.transform.localPosition = new Vector3(0f, 0.21f, 0f);
+        topRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
+        topRail.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(topRail.GetComponent<Collider>());
 
-            // Material: Chân đế kim loại bắt bu-lông màu đen nhám (Base Flange)
-            Material blackMat = new Material(stdShader);
-            blackMat.color = new Color(0.12f, 0.13f, 0.15f);
+        // C. Thanh nhôm ngang đáy (Bottom Rail - Dài 1.64m sát mặt bàn)
+        GameObject bottomRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bottomRail.name = "Bottom_Rail";
+        bottomRail.transform.SetParent(shieldRoot.transform, false);
+        bottomRail.transform.localPosition = new Vector3(0f, -0.21f, 0f);
+        bottomRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
+        bottomRail.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(bottomRail.GetComponent<Collider>());
 
-            // Material: Tấm chắn Mica / Polycarbonate trong suốt (Transparent Acrylic Glass)
-            Material glassMat = new Material(stdShader);
-            glassMat.color = new Color(0.85f, 0.93f, 1.0f, 0.35f); // Mica trong suốt ánh xanh nhẹ
-            glassMat.SetFloat("_Mode", 3); // Transparent mode
-            glassMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            glassMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            glassMat.SetInt("_ZWrite", 0);
-            glassMat.DisableKeyword("_ALPHATEST_ON");
-            glassMat.DisableKeyword("_ALPHABLEND_ON");
-            glassMat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
-            glassMat.renderQueue = 3000;
-            if (glassMat.HasProperty("_Glossiness")) glassMat.SetFloat("_Glossiness", 0.95f);
-            if (glassMat.HasProperty("_Metallic")) glassMat.SetFloat("_Metallic", 0.1f);
+        // D. 3 Tấm kính Mica trong suốt ghép trong 3 khoang (Trước Thùng Đỏ, Khoang Giữa, Trước Thùng Vàng)
+        float[] paneCentersX = { -0.535f, 0.0f, 0.535f };
+        float[] paneWidths = { 0.505f, 0.515f, 0.505f };
+        string[] paneNames = { "Mica_Panel_RedBin", "Mica_Panel_CenterPick", "Mica_Panel_YellowBin" };
 
-            // Material: Vạch an toàn cảnh báo vàng công nghiệp (Safety Yellow Warning Stripe)
-            Material yellowMat = new Material(stdShader);
-            yellowMat.color = new Color(0.96f, 0.75f, 0.05f);
-
-            // A. Cột nhôm định hình đứng bên trái (Left Post)
-            GameObject postLeft = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            postLeft.name = "Post_Left";
-            postLeft.transform.SetParent(shieldRoot.transform, false);
-            postLeft.transform.localPosition = new Vector3(-0.165f, 0f, 0f);
-            postLeft.transform.localScale = new Vector3(0.025f, 0.38f, 0.035f);
-            postLeft.GetComponent<MeshRenderer>().material = aluminumMat;
-            DestroyImmediate(postLeft.GetComponent<Collider>());
-
-            // B. Cột nhôm định hình đứng bên phải (Right Post)
-            GameObject postRight = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            postRight.name = "Post_Right";
-            postRight.transform.SetParent(shieldRoot.transform, false);
-            postRight.transform.localPosition = new Vector3(0.165f, 0f, 0f);
-            postRight.transform.localScale = new Vector3(0.025f, 0.38f, 0.035f);
-            postRight.GetComponent<MeshRenderer>().material = aluminumMat;
-            DestroyImmediate(postRight.GetComponent<Collider>());
-
-            // C. Thanh nhôm ngang trên cùng (Top Rail)
-            GameObject topRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            topRail.name = "Top_Rail";
-            topRail.transform.SetParent(shieldRoot.transform, false);
-            topRail.transform.localPosition = new Vector3(0f, 0.18f, 0f);
-            topRail.transform.localScale = new Vector3(0.355f, 0.02f, 0.035f);
-            topRail.GetComponent<MeshRenderer>().material = aluminumMat;
-            DestroyImmediate(topRail.GetComponent<Collider>());
-
-            // D. Thanh nhôm ngang đáy (Bottom Rail)
-            GameObject bottomRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            bottomRail.name = "Bottom_Rail";
-            bottomRail.transform.SetParent(shieldRoot.transform, false);
-            bottomRail.transform.localPosition = new Vector3(0f, -0.18f, 0f);
-            bottomRail.transform.localScale = new Vector3(0.355f, 0.02f, 0.035f);
-            bottomRail.GetComponent<MeshRenderer>().material = aluminumMat;
-            DestroyImmediate(bottomRail.GetComponent<Collider>());
-
-            // E. Chân đế trái bắt bu-lông xuống bàn (Foot Bracket Left)
-            GameObject footLeft = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            footLeft.name = "Foot_Left";
-            footLeft.transform.SetParent(shieldRoot.transform, false);
-            footLeft.transform.localPosition = new Vector3(-0.165f, -0.185f, 0f);
-            footLeft.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
-            footLeft.GetComponent<MeshRenderer>().material = blackMat;
-            DestroyImmediate(footLeft.GetComponent<Collider>());
-
-            // F. Chân đế phải bắt bu-lông xuống bàn (Foot Bracket Right)
-            GameObject footRight = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            footRight.name = "Foot_Right";
-            footRight.transform.SetParent(shieldRoot.transform, false);
-            footRight.transform.localPosition = new Vector3(0.165f, -0.185f, 0f);
-            footRight.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
-            footRight.GetComponent<MeshRenderer>().material = blackMat;
-            DestroyImmediate(footRight.GetComponent<Collider>());
-
-            // G. Tấm kính Mica trong suốt chống văng phôi (Clear Acrylic Mesh Shield Panel)
+        for (int p = 0; p < 3; p++)
+        {
             GameObject glassPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            glassPanel.name = "Mica_Glass_Panel";
+            glassPanel.name = paneNames[p];
             glassPanel.transform.SetParent(shieldRoot.transform, false);
-            glassPanel.transform.localPosition = new Vector3(0f, 0f, 0f);
-            glassPanel.transform.localScale = new Vector3(0.31f, 0.34f, 0.008f);
+            glassPanel.transform.localPosition = new Vector3(paneCentersX[p], 0f, 0f);
+            glassPanel.transform.localScale = new Vector3(paneWidths[p], 0.40f, 0.008f);
             glassPanel.GetComponent<MeshRenderer>().material = glassMat;
             DestroyImmediate(glassPanel.GetComponent<Collider>());
 
-            // H. Dải tem phản quang cảnh báo an toàn màu vàng chạy ngang giữa tấm mica
-            GameObject warningStripe = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            warningStripe.name = "Warning_Stripe";
-            warningStripe.transform.SetParent(shieldRoot.transform, false);
-            warningStripe.transform.localPosition = new Vector3(0f, 0f, 0f);
-            warningStripe.transform.localScale = new Vector3(0.31f, 0.025f, 0.010f);
-            warningStripe.GetComponent<MeshRenderer>().material = yellowMat;
-            DestroyImmediate(warningStripe.GetComponent<Collider>());
-
-            // I. BoxCollider bao bọc toàn bộ tấm lưới chắn mica
-            BoxCollider col = shieldRoot.AddComponent<BoxCollider>();
-            col.center = Vector3.zero;
-            col.size = new Vector3(0.35f, 0.38f, 0.08f);
-            col.isTrigger = false;
+            // Dải tem cảnh báo an toàn màu vàng chạy ngang giữa mỗi tấm mica
+            GameObject stripe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stripe.name = $"Warning_Stripe_{p + 1}";
+            stripe.transform.SetParent(shieldRoot.transform, false);
+            stripe.transform.localPosition = new Vector3(paneCentersX[p], 0f, 0f);
+            stripe.transform.localScale = new Vector3(paneWidths[p], 0.025f, 0.010f);
+            stripe.GetComponent<MeshRenderer>().material = yellowMat;
+            DestroyImmediate(stripe.GetComponent<Collider>());
         }
 
-        // Tọa độ Unity: (-0.28m, 0.19m, -0.38m) nằm chặn giữa băng tải và Thùng Đỏ, khớp 100% với ROS (X=-0.38m, Y=0.28m, Z=0.19m)
-        shieldRoot.transform.position = new Vector3(-0.28f, 0.19f, -0.38f);
+        // E. BoxCollider bao bọc toàn bộ hệ thống vách chắn mica (Rộng 1.64m, Cao 0.44m, Dày 0.08m)
+        BoxCollider col = shieldRoot.AddComponent<BoxCollider>();
+        col.center = Vector3.zero;
+        col.size = new Vector3(1.64f, 0.44f, 0.08f);
+        col.isTrigger = false;
+
+        // Tọa độ Unity: (0m, 0.22m, -0.38m) trải dài từ trước Thùng Đỏ (X=-0.82m) tới sau Thùng Vàng (X=+0.82m)
+        shieldRoot.transform.position = new Vector3(0f, 0.22f, -0.38f);
         shieldRoot.transform.rotation = Quaternion.identity;
     }
 

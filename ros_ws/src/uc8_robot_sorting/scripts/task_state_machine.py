@@ -187,16 +187,17 @@ class TaskStateMachine:
         rospy.loginfo("[MoveIt] Added ur_control_box (R8 Realistic Obstacle) at X=+0.35m, Y=+0.48m, Z=0.19m, size=(0.24, 0.32, 0.42)")
 
         # 5. Acrylic Safety Shield Partition (Requirement R8 - Realistic Obstacle Avoidance)
-        # Sits between Conveyor/Pick Station and Red Bin at X = -0.38m, Y = +0.28m, Z = 0.19m
-        # Size (0.08, 0.35, 0.38) (thickness 8cm, width 35cm, height 38cm), forcing MoveIt OMPL to calculate an arching collision-free path
+        # Sits continuously across conveyor front from Red Bin to Yellow Bin at X = -0.38m, Y = 0.0m, Z = 0.22m
+        # Size (0.08, 1.64, 0.44) (thickness 8cm, length 164cm, height 44cm)
+        # Forces MoveIt OMPL to calculate an arching high-clearance collision-free trajectory for all sorting actions
         shield_pose = PoseStamped()
         shield_pose.header.frame_id = self.planning_frame
         shield_pose.pose.position.x = -0.38
-        shield_pose.pose.position.y = 0.28
-        shield_pose.pose.position.z = 0.19
+        shield_pose.pose.position.y = 0.00
+        shield_pose.pose.position.z = 0.22
         shield_pose.pose.orientation.w = 1.0
-        self.scene.add_box("acrylic_safety_shield", shield_pose, size=(0.08, 0.35, 0.38))
-        rospy.loginfo("[MoveIt] Added acrylic_safety_shield (R8 Realistic Obstacle) at X=-0.38m, Y=+0.28m, Z=0.19m, size=(0.08, 0.35, 0.38)")
+        self.scene.add_box("acrylic_safety_shield", shield_pose, size=(0.08, 1.64, 0.44))
+        rospy.loginfo("[MoveIt] Added acrylic_safety_shield (R8 Realistic Obstacle) at X=-0.38m, Y=0.00m, Z=0.22m, size=(0.08, 1.64, 0.44)")
         time.sleep(0.5)
 
     def scale_trajectory_speed(self, traj, factor):
