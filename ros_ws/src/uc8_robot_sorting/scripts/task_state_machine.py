@@ -453,10 +453,10 @@ class TaskStateMachine:
             place_success = True
 
             # -------------------------------------------------------------
-            # STEP 7: READY (Clean Return: Lift out of bin -> Smooth sweep back to Standby)
+            # STEP 7: READY (Pure Orthogonal Return: Vertical Lift -> Apex Rotation -> Standby Descent)
             # -------------------------------------------------------------
             fail_stage = "READY"
-            rospy.loginfo("[STATE: READY] Elevating out of bin and sweeping directly back to Standby...")
+            rospy.loginfo("[STATE: READY] Orthogonal return: Elevator lift out of bin -> Pure horizontal sweep -> Standby descent...")
             # 7a. Nâng thẳng đứng lên lại cao độ an toàn (Apex) trên thùng để thoát khỏi lòng thùng
             curr_p = self.group.get_current_pose().pose
             up_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, z_apex), orientation=down_orient)
@@ -464,9 +464,16 @@ class TaskStateMachine:
                 self.group.set_pose_target(up_pose)
                 self.group.go(wait=True)
 
-            # 7b. Xoay ngang trực tiếp ở trên cao về lại vị trí Standby trên băng chuyền
-            # Tuyệt đối không hạ thấp xuống băng chuyền rồi lại nhấc lên giật cục!
-            self.go_to_ready_pose()
+            # 7b. Xoay ngang trên cao (Apex) về góc của Standby (Khóa cứng khớp 2-6, chỉ xoay Joint 0)
+            # 100% phẳng trên cao, tuyệt đối không cắt chéo hay uốn lượn!
+            rospy.loginfo(f"[STATE: READY] Horizontal sweep at apex to Standby angle (Joint 0: {self.standby_joints[0]:.2f} rad)...")
+            j_ret = list(self.group.get_current_joint_values())
+            j_ret[0] = self.standby_joints[0]
+            self.move_to_joints(j_ret)
+
+            # 7c. Hạ thẳng vào Standby pose (Joint 0 đã đúng vị trí, cánh tay hạ thẳng đứng nhẹ nhàng)
+            rospy.loginfo("[STATE: READY] Pure descent into Standby pose...")
+            self.move_to_joints(self.standby_joints)
 
             fail_stage = None
             cycle_time = time.time() - t_start
