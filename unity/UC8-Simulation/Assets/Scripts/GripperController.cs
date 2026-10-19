@@ -410,9 +410,9 @@ public class GripperController : MonoBehaviour
         Rigidbody rb = attachedObject.GetComponent<Rigidbody>();
         if (rb != null)
         {
+            rb.isKinematic = false;
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = false;
             rb.WakeUp();
         }
 

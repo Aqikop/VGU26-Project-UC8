@@ -331,11 +331,15 @@ class TaskStateMachine:
             # -------------------------------------------------------------
             fail_stage = "APPROACH"
             rospy.loginfo("[STATE: APPROACH] Rapid descent to Pre-grasp Pose (+15cm)...")
+            # Derive orientation directly from current Standby pose for 100% natural, pure vertical descent (zero wrist twist)
+            curr_pose = self.group.get_current_pose().pose
+            down_orient = curr_pose.orientation if (abs(curr_pose.orientation.w) > 0.001 or abs(curr_pose.orientation.x) > 0.001) else self.down_orientation
+
             pregrasp_pose = Pose()
             pregrasp_pose.position.x = object_pose.position.x
             pregrasp_pose.position.y = object_pose.position.y
             pregrasp_pose.position.z = object_pose.position.z + self.pregrasp_offset_z
-            pregrasp_pose.orientation = self.down_orientation
+            pregrasp_pose.orientation = down_orient
 
             if not self.move_cartesian_line(pregrasp_pose):
                 self.group.set_pose_target(pregrasp_pose)
@@ -351,7 +355,7 @@ class TaskStateMachine:
             grasp_pose.position.x = object_pose.position.x
             grasp_pose.position.y = object_pose.position.y
             grasp_pose.position.z = object_pose.position.z + self.grasp_offset_z
-            grasp_pose.orientation = self.down_orientation
+            grasp_pose.orientation = down_orient
 
             if not self.move_cartesian_line(grasp_pose):
                 raise RuntimeError("Failed to reach Grasp pose!")
