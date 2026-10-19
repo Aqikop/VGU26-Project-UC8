@@ -307,7 +307,7 @@ public class UR10eController : MonoBehaviour
             post.name = $"Post_{i + 1}";
             post.transform.SetParent(shieldRoot.transform, false);
             post.transform.localPosition = new Vector3(postX[i], 0f, 0f);
-            post.transform.localScale = new Vector3(0.025f, 0.24f, 0.035f);
+            post.transform.localScale = new Vector3(0.025f, 0.36f, 0.035f);
             post.GetComponent<MeshRenderer>().material = aluminumMat;
             DestroyImmediate(post.GetComponent<Collider>());
 
@@ -315,7 +315,7 @@ public class UR10eController : MonoBehaviour
             GameObject foot = GameObject.CreatePrimitive(PrimitiveType.Cube);
             foot.name = $"Foot_{i + 1}";
             foot.transform.SetParent(shieldRoot.transform, false);
-            foot.transform.localPosition = new Vector3(postX[i], -0.115f, 0f);
+            foot.transform.localPosition = new Vector3(postX[i], -0.175f, 0f);
             foot.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
             foot.GetComponent<MeshRenderer>().material = blackMat;
             DestroyImmediate(foot.GetComponent<Collider>());
@@ -328,7 +328,7 @@ public class UR10eController : MonoBehaviour
         GameObject topRailL = GameObject.CreatePrimitive(PrimitiveType.Cube);
         topRailL.name = "TopRail_Left";
         topRailL.transform.SetParent(wingLeft.transform, false);
-        topRailL.transform.localPosition = new Vector3(-0.51f, 0.11f, 0f);
+        topRailL.transform.localPosition = new Vector3(-0.51f, 0.17f, 0f);
         topRailL.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
         topRailL.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(topRailL.GetComponent<Collider>());
@@ -336,7 +336,7 @@ public class UR10eController : MonoBehaviour
         GameObject bottomRailL = GameObject.CreatePrimitive(PrimitiveType.Cube);
         bottomRailL.name = "BottomRail_Left";
         bottomRailL.transform.SetParent(wingLeft.transform, false);
-        bottomRailL.transform.localPosition = new Vector3(-0.51f, -0.11f, 0f);
+        bottomRailL.transform.localPosition = new Vector3(-0.51f, -0.17f, 0f);
         bottomRailL.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
         bottomRailL.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(bottomRailL.GetComponent<Collider>());
@@ -345,7 +345,7 @@ public class UR10eController : MonoBehaviour
         glassL.name = "Glass_Left";
         glassL.transform.SetParent(wingLeft.transform, false);
         glassL.transform.localPosition = new Vector3(-0.51f, 0f, 0f);
-        glassL.transform.localScale = new Vector3(0.55f, 0.20f, 0.008f);
+        glassL.transform.localScale = new Vector3(0.55f, 0.32f, 0.008f);
         glassL.GetComponent<MeshRenderer>().material = glassMat;
         DestroyImmediate(glassL.GetComponent<Collider>());
 
@@ -357,10 +357,10 @@ public class UR10eController : MonoBehaviour
         stripeL.GetComponent<MeshRenderer>().material = yellowMat;
         DestroyImmediate(stripeL.GetComponent<Collider>());
 
-        // BoxCollider cánh trái chắn trước Thùng Đỏ (Bảo hộ thùng đỏ, bắt buộc robot quét ở cao độ an toàn)
+        // BoxCollider cánh trái chắn trước Thùng Đỏ (Bảo hộ thùng đỏ, robot vồng qua đỉnh mica)
         BoxCollider colL = wingLeft.AddComponent<BoxCollider>();
         colL.center = new Vector3(-0.51f, 0f, 0f);
-        colL.size = new Vector3(0.58f, 0.24f, 0.08f);
+        colL.size = new Vector3(0.58f, 0.36f, 0.08f);
         colL.isTrigger = false;
 
         // C. CÁNH PHẢI (Bảo hộ trước Thùng Vàng - Right Protective Wing): từ X = +0.22m đến X = +0.80m
@@ -370,7 +370,7 @@ public class UR10eController : MonoBehaviour
         GameObject topRailR = GameObject.CreatePrimitive(PrimitiveType.Cube);
         topRailR.name = "TopRail_Right";
         topRailR.transform.SetParent(wingRight.transform, false);
-        topRailR.transform.localPosition = new Vector3(0.51f, 0.11f, 0f);
+        topRailR.transform.localPosition = new Vector3(0.51f, 0.17f, 0f);
         topRailR.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
         topRailR.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(topRailR.GetComponent<Collider>());
@@ -378,7 +378,7 @@ public class UR10eController : MonoBehaviour
         GameObject bottomRailR = GameObject.CreatePrimitive(PrimitiveType.Cube);
         bottomRailR.name = "BottomRail_Right";
         bottomRailR.transform.SetParent(wingRight.transform, false);
-        bottomRailR.transform.localPosition = new Vector3(0.51f, -0.11f, 0f);
+        bottomRailR.transform.localPosition = new Vector3(0.51f, -0.17f, 0f);
         bottomRailR.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
         bottomRailR.GetComponent<MeshRenderer>().material = aluminumMat;
         DestroyImmediate(bottomRailR.GetComponent<Collider>());
@@ -387,7 +387,7 @@ public class UR10eController : MonoBehaviour
         glassR.name = "Glass_Right";
         glassR.transform.SetParent(wingRight.transform, false);
         glassR.transform.localPosition = new Vector3(0.51f, 0f, 0f);
-        glassR.transform.localScale = new Vector3(0.55f, 0.20f, 0.008f);
+        glassR.transform.localScale = new Vector3(0.55f, 0.32f, 0.008f);
         glassR.GetComponent<MeshRenderer>().material = glassMat;
         DestroyImmediate(glassR.GetComponent<Collider>());
 
@@ -402,11 +402,11 @@ public class UR10eController : MonoBehaviour
         // BoxCollider cánh phải chắn trước Thùng Vàng
         BoxCollider colR = wingRight.AddComponent<BoxCollider>();
         colR.center = new Vector3(0.51f, 0f, 0f);
-        colR.size = new Vector3(0.58f, 0.24f, 0.08f);
+        colR.size = new Vector3(0.58f, 0.36f, 0.08f);
         colR.isTrigger = false;
 
-        // Tọa độ Unity: (0m, 0.12m, -0.38m) -> Chiều cao 0.24m (đỉnh ở Y = 0.24m)
-        shieldRoot.transform.position = new Vector3(0f, 0.12f, -0.38f);
+        // Tọa độ Unity: (0m, 0.18m, -0.38m) -> Chiều cao 0.36m (đỉnh ở Y = 0.36m)
+        shieldRoot.transform.position = new Vector3(0f, 0.18f, -0.38f);
         shieldRoot.transform.rotation = Quaternion.identity;
     }
 
