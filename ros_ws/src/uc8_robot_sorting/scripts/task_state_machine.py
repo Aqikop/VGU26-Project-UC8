@@ -89,14 +89,25 @@ class TaskStateMachine:
             "Blue":   Point(x= 0.50, y= 0.00, z=0.20),
             "Yellow": Point(x=-0.10, y=-0.55, z=0.20)
         }
-        # Dynamic Obstacle Fly-Over Clearance Configuration:
-        # - Red: Lifts over left mica shield (top Z=0.36m) at apex Z=0.52m
-        # - Yellow: Lifts over right mica shield (top Z=0.36m) at apex Z=0.52m
-        # - Blue: Lifts over tall UR control box (top Z=0.40m) significantly higher at apex Z=0.60m
-        self.bin_apex_coords = {
-            "Red":    Point(x=-0.28, y= 0.35, z=0.52),
-            "Yellow": Point(x=-0.28, y=-0.35, z=0.52),
-            "Blue":   Point(x= 0.25, y= 0.30, z=0.60)
+        # Orthogonal Manhattan Step Trajectory Configuration (Pure Horizontal -> Pure Vertical -> Pure Horizontal):
+        # Leg 1: Rotate horizontally at low altitude (Z=0.21m) to obstacle threshold
+        # Leg 2: Pure vertical step-up to clearance apex (Red/Yellow Z=0.52m, Blue Z=0.60m)
+        # Leg 3: Rotate horizontally at apex height to hover directly over destination bin
+        # Leg 4: Pure vertical descent into bin (Z=0.25m)
+        self.step_threshold_coords = {
+            "Red":    Point(x=-0.38, y= 0.15, z=0.21),
+            "Yellow": Point(x=-0.38, y=-0.15, z=0.21),
+            "Blue":   Point(x=-0.15, y= 0.25, z=0.21)
+        }
+        self.step_apex_coords = {
+            "Red":    Point(x=-0.38, y= 0.15, z=0.52),
+            "Yellow": Point(x=-0.38, y=-0.15, z=0.52),
+            "Blue":   Point(x=-0.15, y= 0.25, z=0.60)
+        }
+        self.step_hover_coords = {
+            "Red":    Point(x=-0.10, y= 0.55, z=0.52),
+            "Yellow": Point(x=-0.10, y=-0.55, z=0.52),
+            "Blue":   Point(x= 0.50, y= 0.00, z=0.60)
         }
         self.bin_drop_coords = {
             "Red":    Point(x=-0.10, y= 0.55, z=0.25),
@@ -402,42 +413,53 @@ class TaskStateMachine:
                 raise RuntimeError("Error lifting target object!")
 
             # -------------------------------------------------------------
-            # STEP 5: FLY_OVER_OBSTACLE & MOVE_TO_BIN
+            # STEP 5: ORTHOGONAL STEP TRAJECTORY (Pure Horizontal -> Pure Vertical -> Pure Horizontal)
             # -------------------------------------------------------------
             fail_stage = "MOVE_TO_BIN"
-            apex_pt = self.bin_apex_coords.get(object_type, self.bin_apex_coords["Yellow"])
+            thresh_pt = self.step_threshold_coords.get(object_type, self.step_threshold_coords["Yellow"])
+            apex_pt = self.step_apex_coords.get(object_type, self.step_apex_coords["Yellow"])
+            hover_pt = self.step_hover_coords.get(object_type, self.step_hover_coords["Yellow"])
             drop_pt = self.bin_drop_coords.get(object_type, self.bin_drop_coords["Yellow"])
 
-            apex_pose = Pose()
-            apex_pose.position = apex_pt
-            apex_pose.orientation = down_orient
+            thresh_pose = Pose(position=thresh_pt, orientation=down_orient)
+            apex_pose = Pose(position=apex_pt, orientation=down_orient)
+            hover_pose = Pose(position=hover_pt, orientation=down_orient)
+            drop_pose = Pose(position=drop_pt, orientation=down_orient)
 
-            drop_pose = Pose()
-            drop_pose.position = drop_pt
-            drop_pose.orientation = down_orient
+            # 5a. CHẶNG 1: Xoay ngang ở cao độ thấp (Z=0.21m) tới trước mép vật cản
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 1: Pure horizontal rotation at low altitude (Z=0.21m) to obstacle threshold...")
+            if not self.move_cartesian_line(thresh_pose):
+                self.group.set_pose_target(thresh_pose)
+                if not self.group.go(wait=True):
+                    raise RuntimeError("Failed Leg 1 horizontal transit!")
 
-            # 5a. Ascend to obstacle clearance apex:
-            # - Mica Safety Shield for Red & Yellow (Apex Z=0.52m)
-            # - Tall UR Control Box for Blue (Apex Z=0.60m, significantly higher)
+            # 5b. CHẶNG 2: Đưa lên thẳng đứng (Delta X=0, Delta Y=0, Delta Z > 0)
             if object_type == "Blue":
-                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Encountering UR Control Box -> Elevating arm higher to Z={apex_pt.z:.2f}m...")
+                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical step-up higher to Z={apex_pt.z:.2f}m to clear UR Control Box...")
             else:
-                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Encountering Mica Safety Shield -> Elevating arm to Z={apex_pt.z:.2f}m...")
+                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical step-up to Z={apex_pt.z:.2f}m to clear Mica Safety Shield...")
 
             if not self.move_cartesian_line(apex_pose):
                 self.group.set_pose_target(apex_pose)
                 if not self.group.go(wait=True):
-                    raise RuntimeError("Failed to reach obstacle clearance apex!")
+                    raise RuntimeError("Failed Leg 2 vertical step-up!")
 
-            # 5b. Descend from apex into destination sorting bin
-            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Descending from apex into {object_type} Bin (Z={drop_pt.z:.2f}m)...")
+            # 5c. CHẶNG 3: Tiếp tục xoay ngang ở trên cao (Z=Apex) tới ngay trên thùng đích
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 3: Pure horizontal rotation at apex (Z={apex_pt.z:.2f}m) to above {object_type} Bin...")
+            if not self.move_cartesian_line(hover_pose):
+                self.group.set_pose_target(hover_pose)
+                if not self.group.go(wait=True):
+                    raise RuntimeError(f"Failed Leg 3 horizontal sweep above {object_type} Bin!")
+
+            # 5d. CHẶNG 4: Hạ thẳng đứng xuống thùng chứa (Delta X=0, Delta Y=0, Delta Z < 0)
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 4: Pure vertical descent into {object_type} Bin (Z={drop_pt.z:.2f}m)...")
             if not self.move_cartesian_line(drop_pose):
                 self.group.set_pose_target(drop_pose)
                 if not self.group.go(wait=True):
                     # Fallback to joint configuration if pose target fails
                     target_joints = self.bin_joints.get(object_type, self.bin_joints["Yellow"])
                     if not self.move_to_joints(target_joints):
-                        raise RuntimeError(f"Failed to reach {object_type} Bin!")
+                        raise RuntimeError(f"Failed Leg 4 descent into {object_type} Bin!")
 
             # -------------------------------------------------------------
             # STEP 6: RELEASE (Open gripper to drop object into bin)
@@ -456,13 +478,26 @@ class TaskStateMachine:
                 pass
 
             # -------------------------------------------------------------
-            # STEP 7: READY (Climb back to apex over obstacle, then return to Standby)
+            # STEP 7: READY (Orthogonal Return: Lift -> Horizontal -> Lower -> Standby)
             # -------------------------------------------------------------
             fail_stage = "READY"
-            rospy.loginfo("[STATE: READY] Retracting over obstacle and returning to Standby...")
+            rospy.loginfo("[STATE: READY] Orthogonal step return to Standby (Zero diagonals)...")
+            # 7a. Nhấc thẳng đứng lên lại cao độ Apex trên thùng
+            if not self.move_cartesian_line(hover_pose):
+                self.group.set_pose_target(hover_pose)
+                self.group.go(wait=True)
+
+            # 7b. Xoay ngang lùi về điểm Apex trước vật cản
             if not self.move_cartesian_line(apex_pose):
                 self.group.set_pose_target(apex_pose)
                 self.group.go(wait=True)
+
+            # 7c. Hạ thẳng đứng xuống cao độ thấp
+            if not self.move_cartesian_line(thresh_pose):
+                self.group.set_pose_target(thresh_pose)
+                self.group.go(wait=True)
+
+            # 7d. Xoay ngang về lại Standby
             self.go_to_ready_pose()
 
             fail_stage = None
