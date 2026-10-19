@@ -89,31 +89,23 @@ class TaskStateMachine:
             "Blue":   Point(x= 0.50, y= 0.00, z=0.20),
             "Yellow": Point(x=-0.10, y=-0.55, z=0.20)
         }
-        # Orthogonal Manhattan Step Trajectory Configuration (Pure Horizontal -> Pure Vertical -> Pure Horizontal):
-        # Leg 1: Rotate horizontally at low altitude (Z=0.21m) to obstacle threshold
-        # Leg 2: Pure vertical step-up to clearance apex (Red/Yellow Z=0.52m, Blue Z=0.60m)
-        # Leg 3: Rotate horizontally at apex height to hover directly over destination bin
-        # Leg 4: Pure vertical descent into bin (Z=0.25m)
-        self.step_threshold_coords = {
-            "Red":    Point(x=-0.38, y= 0.15, z=0.21),
-            "Yellow": Point(x=-0.38, y=-0.15, z=0.21),
-            "Blue":   Point(x=-0.15, y= 0.25, z=0.21)
+        # Angular-Orthogonal Step Trajectory Configuration:
+        # Leg 1: Pure horizontal rotation (Joint 0 only) to obstacle threshold angle
+        # Leg 2: Pure vertical elevator lift along Z to clearance apex
+        # Leg 3: Pure horizontal rotation (Joint 0 only) at apex height to destination bin angle
+        # Leg 4: Pure vertical elevator descent along Z into destination bin
+        self.theta_thresh = {
+            "Red":    -0.35, # In front of left mica shield
+            "Yellow":  0.95, # In front of right mica shield
+            "Blue":   -0.70  # In front of UR control box
         }
-        self.step_apex_coords = {
-            "Red":    Point(x=-0.38, y= 0.15, z=0.52),
-            "Yellow": Point(x=-0.38, y=-0.15, z=0.52),
-            "Blue":   Point(x=-0.15, y= 0.25, z=0.60)
+        self.apex_z = {
+            "Red":    0.52, # Above 0.36m mica shield
+            "Yellow": 0.52, # Above 0.36m mica shield
+            "Blue":   0.60  # Above 0.40m UR control box
         }
-        self.step_hover_coords = {
-            "Red":    Point(x=-0.10, y= 0.55, z=0.52),
-            "Yellow": Point(x=-0.10, y=-0.55, z=0.52),
-            "Blue":   Point(x= 0.50, y= 0.00, z=0.60)
-        }
-        self.bin_drop_coords = {
-            "Red":    Point(x=-0.10, y= 0.55, z=0.25),
-            "Yellow": Point(x=-0.10, y=-0.55, z=0.25),
-            "Blue":   Point(x= 0.50, y= 0.00, z=0.25)
-        }
+        self.bin_drop_z = 0.25 # Clean drop height inside bin
+
         # Optimal non-singular joint configurations for the 3 sorting bins:
         # Arm profile remains constant, ONLY shoulder_pan_joint rotates like a crane
         self.bin_joints = {
@@ -386,23 +378,13 @@ class TaskStateMachine:
                 raise RuntimeError("Failed to reach Grasp pose!")
 
             # -------------------------------------------------------------
-            # STEP 3: GRASP (Trigger attach logic in Unity & PlanningScene)
+            # STEP 3: GRASP (Trigger attach logic in Unity)
             # -------------------------------------------------------------
             fail_stage = "GRASP"
             rospy.loginfo("[STATE: GRASP] Sending grasp command to Unity...")
             self.gripper_pub.publish(Bool(data=True))
             time.sleep(0.2)
             grasp_success = True
-
-            # Attach payload cube in MoveIt PlanningScene so obstacle avoidance includes payload geometry
-            try:
-                cube_pose = PoseStamped()
-                cube_pose.header.frame_id = self.eef_link
-                cube_pose.pose.position.z = 0.03
-                cube_pose.pose.orientation.w = 1.0
-                self.scene.attach_box(self.eef_link, "grasped_cube", cube_pose, size=(0.06, 0.06, 0.06))
-            except Exception as e:
-                pass
 
             # -------------------------------------------------------------
             # STEP 4: LIFT (Natural vertical lift as before obstacles)
@@ -416,50 +398,49 @@ class TaskStateMachine:
             # STEP 5: ORTHOGONAL STEP TRAJECTORY (Pure Horizontal -> Pure Vertical -> Pure Horizontal)
             # -------------------------------------------------------------
             fail_stage = "MOVE_TO_BIN"
-            thresh_pt = self.step_threshold_coords.get(object_type, self.step_threshold_coords["Yellow"])
-            apex_pt = self.step_apex_coords.get(object_type, self.step_apex_coords["Yellow"])
-            hover_pt = self.step_hover_coords.get(object_type, self.step_hover_coords["Yellow"])
-            drop_pt = self.bin_drop_coords.get(object_type, self.bin_drop_coords["Yellow"])
+            th_thresh = self.theta_thresh.get(object_type, self.theta_thresh["Yellow"])
+            z_apex = self.apex_z.get(object_type, self.apex_z["Yellow"])
+            target_bin_joint0 = self.bin_joints.get(object_type, self.bin_joints["Yellow"])[0]
 
-            thresh_pose = Pose(position=thresh_pt, orientation=down_orient)
-            apex_pose = Pose(position=apex_pt, orientation=down_orient)
-            hover_pose = Pose(position=hover_pt, orientation=down_orient)
-            drop_pose = Pose(position=drop_pt, orientation=down_orient)
+            # 5a. CHẶNG 1: XOAY NGANG LẦN 1 (Quay duy nhất Trục đế Joint 0 quanh tâm tới ngưỡng trước vật cản)
+            # Khớp 2-6 khóa cứng 100% -> cánh tay quay ngang phẳng hoàn hảo, không uốn éo cùi chỏ!
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 1: Pure horizontal rotation (Joint 0: {th_thresh:.2f} rad) at low altitude...")
+            j_step1 = list(self.group.get_current_joint_values())
+            j_step1[0] = th_thresh
+            if not self.move_to_joints(j_step1):
+                raise RuntimeError("Failed Leg 1 horizontal rotation!")
 
-            # 5a. CHẶNG 1: Xoay ngang ở cao độ thấp (Z=0.21m) tới trước mép vật cản
-            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 1: Pure horizontal rotation at low altitude (Z=0.21m) to obstacle threshold...")
-            if not self.move_cartesian_line(thresh_pose):
-                self.group.set_pose_target(thresh_pose)
-                if not self.group.go(wait=True):
-                    raise RuntimeError("Failed Leg 1 horizontal transit!")
-
-            # 5b. CHẶNG 2: Đưa lên thẳng đứng (Delta X=0, Delta Y=0, Delta Z > 0)
+            # 5b. CHẶNG 2: ĐƯA LÊN THẲNG ĐỨNG (Nâng trục Z như thang máy vượt đỉnh vật cản)
+            # X, Y giữ nguyên 100% (Delta X=0, Delta Y=0) -> hoàn toàn thẳng đứng, không xiên xẹo!
             if object_type == "Blue":
-                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical step-up higher to Z={apex_pt.z:.2f}m to clear UR Control Box...")
+                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical lift higher to Z={z_apex:.2f}m to clear UR Control Box...")
             else:
-                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical step-up to Z={apex_pt.z:.2f}m to clear Mica Safety Shield...")
+                rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 2: Pure vertical lift to Z={z_apex:.2f}m to clear Mica Safety Shield...")
 
-            if not self.move_cartesian_line(apex_pose):
-                self.group.set_pose_target(apex_pose)
+            curr_p = self.group.get_current_pose().pose
+            up_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, z_apex), orientation=down_orient)
+            if not self.move_cartesian_line(up_pose):
+                self.group.set_pose_target(up_pose)
                 if not self.group.go(wait=True):
                     raise RuntimeError("Failed Leg 2 vertical step-up!")
 
-            # 5c. CHẶNG 3: Tiếp tục xoay ngang ở trên cao (Z=Apex) tới ngay trên thùng đích
-            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 3: Pure horizontal rotation at apex (Z={apex_pt.z:.2f}m) to above {object_type} Bin...")
-            if not self.move_cartesian_line(hover_pose):
-                self.group.set_pose_target(hover_pose)
-                if not self.group.go(wait=True):
-                    raise RuntimeError(f"Failed Leg 3 horizontal sweep above {object_type} Bin!")
+            # 5c. CHẶNG 3: TIẾP TỤC XOAY NGANG LẦN 2 (Quay duy nhất Trục đế Joint 0 ở trên cao sang thùng đích)
+            # Giữ nguyên cao độ đỉnh Z=Apex, khớp 2-6 khóa cứng -> 100% phẳng trên cao!
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 3: Pure horizontal rotation at apex to {object_type} Bin (Joint 0: {target_bin_joint0:.2f} rad)...")
+            j_step3 = list(self.group.get_current_joint_values())
+            j_step3[0] = target_bin_joint0
+            if not self.move_to_joints(j_step3):
+                raise RuntimeError(f"Failed Leg 3 horizontal sweep above {object_type} Bin!")
 
-            # 5d. CHẶNG 4: Hạ thẳng đứng xuống thùng chứa (Delta X=0, Delta Y=0, Delta Z < 0)
-            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 4: Pure vertical descent into {object_type} Bin (Z={drop_pt.z:.2f}m)...")
-            if not self.move_cartesian_line(drop_pose):
-                self.group.set_pose_target(drop_pose)
+            # 5d. CHẶNG 4: HẠ THẲNG ĐỨNG XUỐNG THÙNG (Hạ trục Z như thang máy vào thùng)
+            # X, Y giữ nguyên 100% ngay trên tâm thùng -> thẳng đứng tuyệt đối!
+            rospy.loginfo(f"[STATE: MOVE_TO_BIN] Leg 4: Pure vertical descent into {object_type} Bin (Z={self.bin_drop_z:.2f}m)...")
+            curr_p = self.group.get_current_pose().pose
+            down_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, self.bin_drop_z), orientation=down_orient)
+            if not self.move_cartesian_line(down_pose):
+                self.group.set_pose_target(down_pose)
                 if not self.group.go(wait=True):
-                    # Fallback to joint configuration if pose target fails
-                    target_joints = self.bin_joints.get(object_type, self.bin_joints["Yellow"])
-                    if not self.move_to_joints(target_joints):
-                        raise RuntimeError(f"Failed Leg 4 descent into {object_type} Bin!")
+                    raise RuntimeError(f"Failed Leg 4 descent into {object_type} Bin!")
 
             # -------------------------------------------------------------
             # STEP 6: RELEASE (Open gripper to drop object into bin)
@@ -470,31 +451,28 @@ class TaskStateMachine:
             time.sleep(0.2)
             place_success = True
 
-            # Detach and remove payload cube from MoveIt PlanningScene
-            try:
-                self.scene.remove_attached_object(self.eef_link, "grasped_cube")
-                self.scene.remove_world_object("grasped_cube")
-            except Exception as e:
-                pass
-
             # -------------------------------------------------------------
             # STEP 7: READY (Orthogonal Return: Lift -> Horizontal -> Lower -> Standby)
             # -------------------------------------------------------------
             fail_stage = "READY"
-            rospy.loginfo("[STATE: READY] Orthogonal step return to Standby (Zero diagonals)...")
-            # 7a. Nhấc thẳng đứng lên lại cao độ Apex trên thùng
-            if not self.move_cartesian_line(hover_pose):
-                self.group.set_pose_target(hover_pose)
+            rospy.loginfo("[STATE: READY] Orthogonal step return to Standby (Pure Horizontal & Vertical)...")
+            # 7a. Nâng thẳng đứng lên lại cao độ Apex trên thùng
+            curr_p = self.group.get_current_pose().pose
+            up_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, z_apex), orientation=down_orient)
+            if not self.move_cartesian_line(up_pose):
+                self.group.set_pose_target(up_pose)
                 self.group.go(wait=True)
 
-            # 7b. Xoay ngang lùi về điểm Apex trước vật cản
-            if not self.move_cartesian_line(apex_pose):
-                self.group.set_pose_target(apex_pose)
-                self.group.go(wait=True)
+            # 7b. Xoay ngang lùi về lại góc ngưỡng trước vật cản (Joint 0 only)
+            j_ret = list(self.group.get_current_joint_values())
+            j_ret[0] = th_thresh
+            self.move_to_joints(j_ret)
 
-            # 7c. Hạ thẳng đứng xuống cao độ thấp
-            if not self.move_cartesian_line(thresh_pose):
-                self.group.set_pose_target(thresh_pose)
+            # 7c. Hạ thẳng đứng xuống cao độ thấp (Z=0.21m)
+            curr_p = self.group.get_current_pose().pose
+            down_pose = Pose(position=Point(curr_p.position.x, curr_p.position.y, 0.21), orientation=down_orient)
+            if not self.move_cartesian_line(down_pose):
+                self.group.set_pose_target(down_pose)
                 self.group.go(wait=True)
 
             # 7d. Xoay ngang về lại Standby
