@@ -175,16 +175,28 @@ class TaskStateMachine:
         self.scene.add_box("bin_blue", bin_blue_pose, size=(0.38, 0.38, 0.10))
 
         # 4. UR10e Industrial Control Box & Pendant (Requirement R8 - Realistic Obstacle Avoidance)
-        # Sits on table at X = -0.35m, Y = +0.28m, Z = 0.21m with size (0.24, 0.32, 0.42)
-        # Represents physical UR control cabinet & Teach Pendant stand, forcing OMPL to calculate a curved arching avoidance trajectory
+        # Sits on table at rear-left corner (between Red Bin and Blue Bin) at X = +0.35m, Y = +0.48m, Z = 0.19m
+        # Size (0.24, 0.32, 0.42), representing operator station and preventing direct rear swings
         control_box_pose = PoseStamped()
         control_box_pose.header.frame_id = self.planning_frame
-        control_box_pose.pose.position.x = -0.35
-        control_box_pose.pose.position.y = 0.28
-        control_box_pose.pose.position.z = 0.21
+        control_box_pose.pose.position.x = 0.35
+        control_box_pose.pose.position.y = 0.48
+        control_box_pose.pose.position.z = 0.19
         control_box_pose.pose.orientation.w = 1.0
         self.scene.add_box("ur_control_box", control_box_pose, size=(0.24, 0.32, 0.42))
-        rospy.loginfo("[MoveIt] Added ur_control_box (R8 Realistic Obstacle) at X=-0.35m, Y=+0.28m, Z=0.21m, size=(0.24, 0.32, 0.42)")
+        rospy.loginfo("[MoveIt] Added ur_control_box (R8 Realistic Obstacle) at X=+0.35m, Y=+0.48m, Z=0.19m, size=(0.24, 0.32, 0.42)")
+
+        # 5. Safety Light Curtain Column (Requirement R8 - Realistic Obstacle Avoidance)
+        # Sits between Conveyor/Pick Station and Red Bin at X = -0.38m, Y = +0.30m, Z = 0.18m
+        # Column size (0.10, 0.10, 0.36), forcing MoveIt OMPL to calculate an arching collision-free path when transferring cubes to Red Bin
+        curtain_pose = PoseStamped()
+        curtain_pose.header.frame_id = self.planning_frame
+        curtain_pose.pose.position.x = -0.38
+        curtain_pose.pose.position.y = 0.30
+        curtain_pose.pose.position.z = 0.18
+        curtain_pose.pose.orientation.w = 1.0
+        self.scene.add_box("safety_light_curtain", curtain_pose, size=(0.10, 0.10, 0.36))
+        rospy.loginfo("[MoveIt] Added safety_light_curtain (R8 Realistic Obstacle) at X=-0.38m, Y=+0.30m, Z=0.18m, size=(0.10, 0.10, 0.36)")
         time.sleep(0.5)
 
     def scale_trajectory_speed(self, traj, factor):

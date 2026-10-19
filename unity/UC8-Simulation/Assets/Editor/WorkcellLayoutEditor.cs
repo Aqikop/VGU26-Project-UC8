@@ -83,6 +83,9 @@ public class WorkcellLayoutEditor
 
         // Tự động tạo và đồng bộ Tủ điều khiển UR Control Box & Pendant (Requirement R8)
         EnsureURControlBox();
+
+        // Tự động tạo và đồng bộ Cột rèm quang an toàn Safety Light Curtain (Requirement R8)
+        EnsureSafetyLightCurtain();
         changed = true;
 
         // Tự động tạo và cập nhật các quả cầu Waypoint Visual Markers tại vị trí mới
@@ -91,7 +94,7 @@ public class WorkcellLayoutEditor
         if (changed)
         {
             EditorSceneManager.MarkAllScenesDirty();
-            Debug.Log("<color=green>[WorkcellLayout] Successfully applied Option 1 layout, UR Control Box & Pendant (R8), and updated Waypoint Visual Markers in Unity Scene!</color>");
+            Debug.Log("<color=green>[WorkcellLayout] Successfully applied Option 1 layout, UR Control Box, Safety Light Curtain (R8), and updated Waypoint Visual Markers in Unity Scene!</color>");
         }
     }
 
@@ -210,8 +213,97 @@ public class WorkcellLayoutEditor
         }
 
         Undo.RecordObject(boxRoot.transform, "Update UR_Control_Box Transform");
-        boxRoot.transform.position = new Vector3(-0.28f, 0.19f, -0.35f);
-        boxRoot.transform.rotation = Quaternion.identity;
+        boxRoot.transform.position = new Vector3(-0.48f, 0.19f, 0.35f);
+        boxRoot.transform.rotation = Quaternion.Euler(0f, 30f, 0f);
+    }
+
+    private static void EnsureSafetyLightCurtain()
+    {
+        GameObject curtainRoot = GameObject.Find("Safety_Light_Curtain");
+        if (curtainRoot == null)
+        {
+            curtainRoot = new GameObject("Safety_Light_Curtain");
+            Undo.RegisterCreatedObjectUndo(curtainRoot, "Create Safety_Light_Curtain");
+
+            Shader stdShader = Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse");
+
+            // Material: Thân nhôm vàng an toàn công nghiệp (Industrial Safety Amber/Yellow)
+            Material yellowMat = new Material(stdShader);
+            yellowMat.color = new Color(0.96f, 0.72f, 0.05f);
+            if (yellowMat.HasProperty("_Metallic")) yellowMat.SetFloat("_Metallic", 0.3f);
+            if (yellowMat.HasProperty("_Glossiness")) yellowMat.SetFloat("_Glossiness", 0.5f);
+
+            // Material: Chân đế kim loại & nắp chụp màu đen nhám (Matte Black)
+            Material blackMat = new Material(stdShader);
+            blackMat.color = new Color(0.12f, 0.13f, 0.15f);
+
+            // Material: Kính lọc quang học mặt trước (Dark Smoked Acrylic)
+            Material lensMat = new Material(stdShader);
+            lensMat.color = new Color(0.04f, 0.04f, 0.06f);
+            if (lensMat.HasProperty("_Glossiness")) lensMat.SetFloat("_Glossiness", 0.95f);
+
+            // Material: Dải LED cảm biến quang phát sáng (Optical Emitter Status)
+            Material emitterLedMat = new Material(stdShader);
+            emitterLedMat.color = new Color(1.0f, 0.2f, 0.2f);
+            emitterLedMat.EnableKeyword("_EMISSION");
+            emitterLedMat.SetColor("_EmissionColor", new Color(1.0f, 0.2f, 0.2f) * 0.7f);
+
+            // A. Thân cột nhôm định hình chính (Column: 7cm x 36cm x 7cm)
+            GameObject column = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            column.name = "Curtain_Column";
+            column.transform.SetParent(curtainRoot.transform, false);
+            column.transform.localPosition = Vector3.zero;
+            column.transform.localScale = new Vector3(0.07f, 0.36f, 0.07f);
+            column.GetComponent<MeshRenderer>().material = yellowMat;
+            Object.DestroyImmediate(column.GetComponent<Collider>());
+
+            // B. Chân đế bắt bu-lông xuống mặt bàn (Base Flange)
+            GameObject flange = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            flange.name = "Base_Flange";
+            flange.transform.SetParent(curtainRoot.transform, false);
+            flange.transform.localPosition = new Vector3(0f, -0.175f, 0f);
+            flange.transform.localScale = new Vector3(0.12f, 0.01f, 0.12f);
+            flange.GetComponent<MeshRenderer>().material = blackMat;
+            Object.DestroyImmediate(flange.GetComponent<Collider>());
+
+            // C. Nắp chụp đầu cột (Top Cap)
+            GameObject topCap = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            topCap.name = "Top_Cap";
+            topCap.transform.SetParent(curtainRoot.transform, false);
+            topCap.transform.localPosition = new Vector3(0f, 0.182f, 0f);
+            topCap.transform.localScale = new Vector3(0.075f, 0.012f, 0.075f);
+            topCap.GetComponent<MeshRenderer>().material = blackMat;
+            Object.DestroyImmediate(topCap.GetComponent<Collider>());
+
+            // D. Dải kính quang học mặt trước hướng về phía băng tải (Optical Lens Window)
+            GameObject lens = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            lens.name = "Optical_Lens_Window";
+            lens.transform.SetParent(curtainRoot.transform, false);
+            lens.transform.localPosition = new Vector3(0f, 0f, -0.036f);
+            lens.transform.localScale = new Vector3(0.045f, 0.32f, 0.005f);
+            lens.GetComponent<MeshRenderer>().material = lensMat;
+            Object.DestroyImmediate(lens.GetComponent<Collider>());
+
+            // E. Dải mắt LED cảm biến quang hồng ngoại (Status Emitter Strip)
+            GameObject emitter = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            emitter.name = "Emitter_Light_Strip";
+            emitter.transform.SetParent(curtainRoot.transform, false);
+            emitter.transform.localPosition = new Vector3(0f, 0f, -0.038f);
+            emitter.transform.localScale = new Vector3(0.015f, 0.28f, 0.004f);
+            emitter.GetComponent<MeshRenderer>().material = emitterLedMat;
+            Object.DestroyImmediate(emitter.GetComponent<Collider>());
+
+            // F. BoxCollider bao bọc toàn bộ cột cảm biến để phát hiện va chạm vật lý
+            BoxCollider col = curtainRoot.AddComponent<BoxCollider>();
+            col.center = Vector3.zero;
+            col.size = new Vector3(0.10f, 0.36f, 0.10f);
+            col.isTrigger = false;
+        }
+
+        Undo.RecordObject(curtainRoot.transform, "Update Safety_Light_Curtain Transform");
+        // Tọa độ Unity: (-0.30m, 0.18m, -0.38m) nằm giữa băng tải và Thùng Đỏ, khớp 100% với ROS (X=-0.38m, Y=0.30m, Z=0.18m)
+        curtainRoot.transform.position = new Vector3(-0.30f, 0.18f, -0.38f);
+        curtainRoot.transform.rotation = Quaternion.identity;
     }
 
     private static void EnsureWaypointMarkers()
