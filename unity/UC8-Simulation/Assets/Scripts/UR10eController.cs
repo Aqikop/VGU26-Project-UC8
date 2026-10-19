@@ -299,79 +299,124 @@ public class UR10eController : MonoBehaviour
         Material yellowMat = new Material(stdShader);
         yellowMat.color = new Color(0.96f, 0.75f, 0.05f);
 
-        // A. 4 Cột nhôm định hình đứng gia cố chịu lực (2 cột biên + 2 cột trung gian chia 3 khoang)
-        float[] postX = { -0.80f, -0.27f, 0.27f, 0.80f };
+        // A. 4 Cột nhôm định hình: 2 cột ngoài cùng và 2 cột tạo khung Cổng gắp phôi trung tâm (Pick Portal)
+        float[] postX = { -0.80f, -0.22f, 0.22f, 0.80f };
         for (int i = 0; i < postX.Length; i++)
         {
             GameObject post = GameObject.CreatePrimitive(PrimitiveType.Cube);
             post.name = $"Post_{i + 1}";
             post.transform.SetParent(shieldRoot.transform, false);
             post.transform.localPosition = new Vector3(postX[i], 0f, 0f);
-            post.transform.localScale = new Vector3(0.025f, 0.30f, 0.035f);
+            post.transform.localScale = new Vector3(0.025f, 0.36f, 0.035f);
             post.GetComponent<MeshRenderer>().material = aluminumMat;
             DestroyImmediate(post.GetComponent<Collider>());
 
-            // Chân đế bắt bu-lông xuống mặt bàn
+            // Chân đế bắt bu-lông xuống bàn
             GameObject foot = GameObject.CreatePrimitive(PrimitiveType.Cube);
             foot.name = $"Foot_{i + 1}";
             foot.transform.SetParent(shieldRoot.transform, false);
-            foot.transform.localPosition = new Vector3(postX[i], -0.145f, 0f);
+            foot.transform.localPosition = new Vector3(postX[i], -0.175f, 0f);
             foot.transform.localScale = new Vector3(0.055f, 0.01f, 0.08f);
             foot.GetComponent<MeshRenderer>().material = blackMat;
             DestroyImmediate(foot.GetComponent<Collider>());
         }
 
-        // B. Thanh nhôm ngang trên cùng (Top Rail - Dài 1.64m suốt từ Thùng Đỏ sang Thùng Vàng)
-        GameObject topRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        topRail.name = "Top_Rail";
-        topRail.transform.SetParent(shieldRoot.transform, false);
-        topRail.transform.localPosition = new Vector3(0f, 0.14f, 0f);
-        topRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
-        topRail.GetComponent<MeshRenderer>().material = aluminumMat;
-        DestroyImmediate(topRail.GetComponent<Collider>());
+        // B. CÁNH TRÁI (Bảo hộ trước Thùng Đỏ - Left Protective Wing): từ X = -0.80m đến X = -0.22m
+        GameObject wingLeft = new GameObject("Wing_Left_RedBin");
+        wingLeft.transform.SetParent(shieldRoot.transform, false);
 
-        // C. Thanh nhôm ngang đáy (Bottom Rail - Dài 1.64m sát mặt bàn)
-        GameObject bottomRail = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        bottomRail.name = "Bottom_Rail";
-        bottomRail.transform.SetParent(shieldRoot.transform, false);
-        bottomRail.transform.localPosition = new Vector3(0f, -0.14f, 0f);
-        bottomRail.transform.localScale = new Vector3(1.64f, 0.02f, 0.035f);
-        bottomRail.GetComponent<MeshRenderer>().material = aluminumMat;
-        DestroyImmediate(bottomRail.GetComponent<Collider>());
+        GameObject topRailL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        topRailL.name = "TopRail_Left";
+        topRailL.transform.SetParent(wingLeft.transform, false);
+        topRailL.transform.localPosition = new Vector3(-0.51f, 0.17f, 0f);
+        topRailL.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
+        topRailL.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(topRailL.GetComponent<Collider>());
 
-        // D. 3 Tấm kính Mica trong suốt ghép trong 3 khoang (Trước Thùng Đỏ, Khoang Giữa, Trước Thùng Vàng)
-        float[] paneCentersX = { -0.535f, 0.0f, 0.535f };
-        float[] paneWidths = { 0.505f, 0.515f, 0.505f };
-        string[] paneNames = { "Mica_Panel_RedBin", "Mica_Panel_CenterPick", "Mica_Panel_YellowBin" };
+        GameObject bottomRailL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bottomRailL.name = "BottomRail_Left";
+        bottomRailL.transform.SetParent(wingLeft.transform, false);
+        bottomRailL.transform.localPosition = new Vector3(-0.51f, -0.17f, 0f);
+        bottomRailL.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
+        bottomRailL.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(bottomRailL.GetComponent<Collider>());
 
-        for (int p = 0; p < 3; p++)
-        {
-            GameObject glassPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            glassPanel.name = paneNames[p];
-            glassPanel.transform.SetParent(shieldRoot.transform, false);
-            glassPanel.transform.localPosition = new Vector3(paneCentersX[p], 0f, 0f);
-            glassPanel.transform.localScale = new Vector3(paneWidths[p], 0.26f, 0.008f);
-            glassPanel.GetComponent<MeshRenderer>().material = glassMat;
-            DestroyImmediate(glassPanel.GetComponent<Collider>());
+        GameObject glassL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        glassL.name = "Glass_Left";
+        glassL.transform.SetParent(wingLeft.transform, false);
+        glassL.transform.localPosition = new Vector3(-0.51f, 0f, 0f);
+        glassL.transform.localScale = new Vector3(0.55f, 0.32f, 0.008f);
+        glassL.GetComponent<MeshRenderer>().material = glassMat;
+        DestroyImmediate(glassL.GetComponent<Collider>());
 
-            // Dải tem cảnh báo an toàn màu vàng chạy ngang giữa mỗi tấm mica
-            GameObject stripe = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            stripe.name = $"Warning_Stripe_{p + 1}";
-            stripe.transform.SetParent(shieldRoot.transform, false);
-            stripe.transform.localPosition = new Vector3(paneCentersX[p], 0f, 0f);
-            stripe.transform.localScale = new Vector3(paneWidths[p], 0.025f, 0.010f);
-            stripe.GetComponent<MeshRenderer>().material = yellowMat;
-            DestroyImmediate(stripe.GetComponent<Collider>());
-        }
+        GameObject stripeL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        stripeL.name = "Stripe_Left";
+        stripeL.transform.SetParent(wingLeft.transform, false);
+        stripeL.transform.localPosition = new Vector3(-0.51f, 0f, 0f);
+        stripeL.transform.localScale = new Vector3(0.55f, 0.025f, 0.010f);
+        stripeL.GetComponent<MeshRenderer>().material = yellowMat;
+        DestroyImmediate(stripeL.GetComponent<Collider>());
 
-        // E. BoxCollider bao bọc toàn bộ hệ thống vách chắn mica (Rộng 1.64m, Cao 0.30m, Dày 0.08m)
-        BoxCollider col = shieldRoot.AddComponent<BoxCollider>();
-        col.center = Vector3.zero;
-        col.size = new Vector3(1.64f, 0.30f, 0.08f);
-        col.isTrigger = false;
+        // BoxCollider cánh trái chắn trước Thùng Đỏ (Bắt buộc robot phải né khi bỏ phôi đỏ)
+        BoxCollider colL = wingLeft.AddComponent<BoxCollider>();
+        colL.center = new Vector3(-0.51f, 0f, 0f);
+        colL.size = new Vector3(0.58f, 0.36f, 0.08f);
+        colL.isTrigger = false;
 
-        // Tọa độ Unity: (0m, 0.15m, -0.38m) độ cao 30cm chuẩn để robot vươn gắp phôi trơn tru không chạm cùi chỏ
-        shieldRoot.transform.position = new Vector3(0f, 0.15f, -0.38f);
+        // C. CÁNH PHẢI (Bảo hộ trước Thùng Vàng - Right Protective Wing): từ X = +0.22m đến X = +0.80m
+        GameObject wingRight = new GameObject("Wing_Right_YellowBin");
+        wingRight.transform.SetParent(shieldRoot.transform, false);
+
+        GameObject topRailR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        topRailR.name = "TopRail_Right";
+        topRailR.transform.SetParent(wingRight.transform, false);
+        topRailR.transform.localPosition = new Vector3(0.51f, 0.17f, 0f);
+        topRailR.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
+        topRailR.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(topRailR.GetComponent<Collider>());
+
+        GameObject bottomRailR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bottomRailR.name = "BottomRail_Right";
+        bottomRailR.transform.SetParent(wingRight.transform, false);
+        bottomRailR.transform.localPosition = new Vector3(0.51f, -0.17f, 0f);
+        bottomRailR.transform.localScale = new Vector3(0.58f, 0.02f, 0.035f);
+        bottomRailR.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(bottomRailR.GetComponent<Collider>());
+
+        GameObject glassR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        glassR.name = "Glass_Right";
+        glassR.transform.SetParent(wingRight.transform, false);
+        glassR.transform.localPosition = new Vector3(0.51f, 0f, 0f);
+        glassR.transform.localScale = new Vector3(0.55f, 0.32f, 0.008f);
+        glassR.GetComponent<MeshRenderer>().material = glassMat;
+        DestroyImmediate(glassR.GetComponent<Collider>());
+
+        GameObject stripeR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        stripeR.name = "Stripe_Right";
+        stripeR.transform.SetParent(wingRight.transform, false);
+        stripeR.transform.localPosition = new Vector3(0.51f, 0f, 0f);
+        stripeR.transform.localScale = new Vector3(0.55f, 0.025f, 0.010f);
+        stripeR.GetComponent<MeshRenderer>().material = yellowMat;
+        DestroyImmediate(stripeR.GetComponent<Collider>());
+
+        // BoxCollider cánh phải chắn trước Thùng Vàng (Bắt buộc robot phải né khi bỏ phôi vàng)
+        BoxCollider colR = wingRight.AddComponent<BoxCollider>();
+        colR.center = new Vector3(0.51f, 0f, 0f);
+        colR.size = new Vector3(0.58f, 0.36f, 0.08f);
+        colR.isTrigger = false;
+
+        // D. CỔNG GẮP TRUNG TÂM (Robotic Pick Portal - X từ -0.22m đến +0.22m):
+        // Mở hoàn toàn không có collider, có thanh xà đỉnh vát trên cao ở Y = 0.22m kết nối toàn bộ hệ thống
+        GameObject portalHeader = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        portalHeader.name = "Pick_Portal_Header_Rail";
+        portalHeader.transform.SetParent(shieldRoot.transform, false);
+        portalHeader.transform.localPosition = new Vector3(0f, 0.22f, 0f);
+        portalHeader.transform.localScale = new Vector3(0.44f, 0.02f, 0.035f);
+        portalHeader.GetComponent<MeshRenderer>().material = aluminumMat;
+        DestroyImmediate(portalHeader.GetComponent<Collider>());
+
+        // Tọa độ Unity: (0m, 0.18m, -0.38m)
+        shieldRoot.transform.position = new Vector3(0f, 0.18f, -0.38f);
         shieldRoot.transform.rotation = Quaternion.identity;
     }
 
