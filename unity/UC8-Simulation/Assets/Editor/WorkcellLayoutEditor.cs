@@ -81,8 +81,8 @@ public class WorkcellLayoutEditor
             changed = true;
         }
 
-        // Tự động tạo và đồng bộ vật cản tĩnh (Static Obstacle Barrier - Requirement R8)
-        EnsureStaticBarrier();
+        // Tự động tạo và đồng bộ Tủ điều khiển UR Control Box & Pendant (Requirement R8)
+        EnsureURControlBox();
         changed = true;
 
         // Tự động tạo và cập nhật các quả cầu Waypoint Visual Markers tại vị trí mới
@@ -91,34 +91,127 @@ public class WorkcellLayoutEditor
         if (changed)
         {
             EditorSceneManager.MarkAllScenesDirty();
-            Debug.Log("<color=green>[WorkcellLayout] Successfully applied Option 1 layout, Static Barrier Wall (R8), and updated Waypoint Visual Markers in Unity Scene!</color>");
+            Debug.Log("<color=green>[WorkcellLayout] Successfully applied Option 1 layout, UR Control Box & Pendant (R8), and updated Waypoint Visual Markers in Unity Scene!</color>");
         }
     }
 
-    private static void EnsureStaticBarrier()
+    private static void EnsureURControlBox()
     {
-        GameObject barrier = GameObject.Find("Static_Barrier_Wall");
-        if (barrier == null)
-        {
-            barrier = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            barrier.name = "Static_Barrier_Wall";
-            Undo.RegisterCreatedObjectUndo(barrier, "Create Static_Barrier_Wall");
+        // Xóa vật thể cũ nếu có
+        GameObject oldWall = GameObject.Find("Static_Barrier_Wall");
+        if (oldWall != null) Undo.DestroyObjectImmediate(oldWall);
 
-            Material mat = new Material(Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse"));
-            mat.color = new Color(0.95f, 0.55f, 0.05f, 1.0f); // Safety Amber Orange
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", new Color(0.35f, 0.20f, 0.02f));
-            MeshRenderer mr = barrier.GetComponent<MeshRenderer>();
-            if (mr != null) mr.material = mat;
+        GameObject boxRoot = GameObject.Find("UR_Control_Box");
+        if (boxRoot == null)
+        {
+            boxRoot = new GameObject("UR_Control_Box");
+            Undo.RegisterCreatedObjectUndo(boxRoot, "Create UR_Control_Box");
+
+            // Base Shader
+            Shader stdShader = Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Diffuse");
+
+            // Material: Thân tủ kim loại công nghiệp (Industrial Slate Metallic)
+            Material cabinetMat = new Material(stdShader);
+            cabinetMat.color = new Color(0.18f, 0.20f, 0.24f);
+            if (cabinetMat.HasProperty("_Metallic")) cabinetMat.SetFloat("_Metallic", 0.7f);
+            if (cabinetMat.HasProperty("_Glossiness")) cabinetMat.SetFloat("_Glossiness", 0.6f);
+
+            // Material: Mặt trước panel nhôm xước (Brushed Aluminum)
+            Material panelMat = new Material(stdShader);
+            panelMat.color = new Color(0.38f, 0.42f, 0.48f);
+            if (panelMat.HasProperty("_Metallic")) panelMat.SetFloat("_Metallic", 0.5f);
+
+            // Material: Nút E-Stop vàng & đỏ
+            Material yellowMat = new Material(stdShader);
+            yellowMat.color = new Color(0.98f, 0.82f, 0.05f);
+            Material redMat = new Material(stdShader);
+            redMat.color = new Color(0.90f, 0.12f, 0.12f);
+
+            // Material: Đèn LED báo nguồn xanh lục phát sáng
+            Material greenLedMat = new Material(stdShader);
+            greenLedMat.color = new Color(0.1f, 0.95f, 0.3f);
+            greenLedMat.EnableKeyword("_EMISSION");
+            greenLedMat.SetColor("_EmissionColor", new Color(0.1f, 0.95f, 0.3f) * 0.8f);
+
+            // Material: Màn hình Teach Pendant (Dark Glass)
+            Material screenMat = new Material(stdShader);
+            screenMat.color = new Color(0.08f, 0.10f, 0.13f);
+            if (screenMat.HasProperty("_Glossiness")) screenMat.SetFloat("_Glossiness", 0.9f);
+
+            // A. Thân tủ chính (Cabinet Body: 32cm x 38cm x 24cm)
+            GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            body.name = "Cabinet_Body";
+            body.transform.SetParent(boxRoot.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0f, 0f);
+            body.transform.localScale = new Vector3(0.32f, 0.38f, 0.24f);
+            body.GetComponent<MeshRenderer>().material = cabinetMat;
+            Object.DestroyImmediate(body.GetComponent<Collider>());
+
+            // B. Mặt Panel trước (Front Panel Inset)
+            GameObject panel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            panel.name = "Front_Panel";
+            panel.transform.SetParent(boxRoot.transform, false);
+            panel.transform.localPosition = new Vector3(0f, 0f, -0.121f);
+            panel.transform.localScale = new Vector3(0.28f, 0.34f, 0.008f);
+            panel.GetComponent<MeshRenderer>().material = panelMat;
+            Object.DestroyImmediate(panel.GetComponent<Collider>());
+
+            // C. Nút dừng khẩn cấp E-Stop (Vòng vàng + Nấm đỏ)
+            GameObject eStopBase = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            eStopBase.name = "EStop_Base";
+            eStopBase.transform.SetParent(boxRoot.transform, false);
+            eStopBase.transform.localPosition = new Vector3(0.09f, 0.10f, -0.128f);
+            eStopBase.transform.localScale = new Vector3(0.045f, 0.005f, 0.045f);
+            eStopBase.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            eStopBase.GetComponent<MeshRenderer>().material = yellowMat;
+            Object.DestroyImmediate(eStopBase.GetComponent<Collider>());
+
+            GameObject eStopCap = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            eStopCap.name = "EStop_Mushroom";
+            eStopCap.transform.SetParent(boxRoot.transform, false);
+            eStopCap.transform.localPosition = new Vector3(0.09f, 0.10f, -0.138f);
+            eStopCap.transform.localScale = new Vector3(0.038f, 0.022f, 0.038f);
+            eStopCap.GetComponent<MeshRenderer>().material = redMat;
+            Object.DestroyImmediate(eStopCap.GetComponent<Collider>());
+
+            // D. Đèn LED báo trạng thái nguồn
+            GameObject led = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            led.name = "Power_LED";
+            led.transform.SetParent(boxRoot.transform, false);
+            led.transform.localPosition = new Vector3(-0.10f, 0.12f, -0.128f);
+            led.transform.localScale = new Vector3(0.014f, 0.014f, 0.014f);
+            led.GetComponent<MeshRenderer>().material = greenLedMat;
+            Object.DestroyImmediate(led.GetComponent<Collider>());
+
+            // E. Cột đỡ Teach Pendant (Pendant Stand)
+            GameObject pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            pole.name = "Pendant_Stand_Pole";
+            pole.transform.SetParent(boxRoot.transform, false);
+            pole.transform.localPosition = new Vector3(-0.11f, 0.22f, 0f);
+            pole.transform.localScale = new Vector3(0.018f, 0.08f, 0.018f);
+            pole.GetComponent<MeshRenderer>().material = cabinetMat;
+            Object.DestroyImmediate(pole.GetComponent<Collider>());
+
+            // F. Màn hình Teach Pendant (Tablet cảm ứng nghiêng 25 độ hướng ra ngoài)
+            GameObject pendant = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pendant.name = "Teach_Pendant_Screen";
+            pendant.transform.SetParent(boxRoot.transform, false);
+            pendant.transform.localPosition = new Vector3(-0.11f, 0.28f, -0.04f);
+            pendant.transform.localScale = new Vector3(0.20f, 0.14f, 0.016f);
+            pendant.transform.localRotation = Quaternion.Euler(-25f, 0f, 0f);
+            pendant.GetComponent<MeshRenderer>().material = screenMat;
+            Object.DestroyImmediate(pendant.GetComponent<Collider>());
+
+            // G. BoxCollider bao trọn toàn bộ tủ và màn hình
+            BoxCollider col = boxRoot.AddComponent<BoxCollider>();
+            col.center = new Vector3(0f, 0.02f, 0f);
+            col.size = new Vector3(0.32f, 0.42f, 0.24f);
+            col.isTrigger = false;
         }
 
-        Undo.RecordObject(barrier.transform, "Update Static_Barrier_Wall Transform");
-        barrier.transform.position = new Vector3(-0.28f, 0.18f, -0.38f);
-        barrier.transform.localScale = new Vector3(0.30f, 0.36f, 0.12f);
-        barrier.transform.rotation = Quaternion.identity;
-
-        BoxCollider col = barrier.GetComponent<BoxCollider>();
-        if (col != null) col.isTrigger = false;
+        Undo.RecordObject(boxRoot.transform, "Update UR_Control_Box Transform");
+        boxRoot.transform.position = new Vector3(-0.28f, 0.19f, -0.35f);
+        boxRoot.transform.rotation = Quaternion.identity;
     }
 
     private static void EnsureWaypointMarkers()

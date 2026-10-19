@@ -174,17 +174,17 @@ class TaskStateMachine:
         bin_blue_pose.pose.orientation.w = 1.0
         self.scene.add_box("bin_blue", bin_blue_pose, size=(0.38, 0.38, 0.10))
 
-        # 4. Static Obstacle Barrier (Milestone 2 - Requirement R8 Obstacle Avoidance)
-        # Positioned at X = -0.38m, Y = +0.28m, Z = 0.18m with size (0.12, 0.30, 0.36)
-        # Intercepts direct low-altitude sweep to Red Bin, forcing OMPL to calculate a curved arching avoidance trajectory
-        barrier_pose = PoseStamped()
-        barrier_pose.header.frame_id = self.planning_frame
-        barrier_pose.pose.position.x = -0.38
-        barrier_pose.pose.position.y = 0.28
-        barrier_pose.pose.position.z = 0.18
-        barrier_pose.pose.orientation.w = 1.0
-        self.scene.add_box("static_barrier", barrier_pose, size=(0.12, 0.30, 0.36))
-        rospy.loginfo("[MoveIt] Added static_barrier (R8 Obstacle Avoidance) at X=-0.38m, Y=+0.28m, Z=0.18m, size=(0.12, 0.30, 0.36)")
+        # 4. UR10e Industrial Control Box & Pendant (Requirement R8 - Realistic Obstacle Avoidance)
+        # Sits on table at X = -0.35m, Y = +0.28m, Z = 0.21m with size (0.24, 0.32, 0.42)
+        # Represents physical UR control cabinet & Teach Pendant stand, forcing OMPL to calculate a curved arching avoidance trajectory
+        control_box_pose = PoseStamped()
+        control_box_pose.header.frame_id = self.planning_frame
+        control_box_pose.pose.position.x = -0.35
+        control_box_pose.pose.position.y = 0.28
+        control_box_pose.pose.position.z = 0.21
+        control_box_pose.pose.orientation.w = 1.0
+        self.scene.add_box("ur_control_box", control_box_pose, size=(0.24, 0.32, 0.42))
+        rospy.loginfo("[MoveIt] Added ur_control_box (R8 Realistic Obstacle) at X=-0.35m, Y=+0.28m, Z=0.21m, size=(0.24, 0.32, 0.42)")
         time.sleep(0.5)
 
     def scale_trajectory_speed(self, traj, factor):
