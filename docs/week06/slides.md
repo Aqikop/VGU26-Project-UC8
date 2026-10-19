@@ -87,7 +87,7 @@
   - **RRT*:** Asymptotically optimal tree rewiring; guarantees shortest joint paths but requires significantly higher computation time.
   - **PRM / PRM*:** Probabilistic Roadmaps; constructs precomputed network graphs in static environments for multi-query reuse.
 - **The Cartesian Dilemma of Sampling-Based Planners:**
-  - Because sampling occurs randomly in $C\text{-space}$, the resulting trajectory optimizes joint distance rather than Cartesian regularity, manifesting as **slanted 3D cuts and joint wobbles** ("đường chéo méo mó") that risk clipping obstacle corners.
+  - Because sampling occurs randomly in $C\text{-space}$, the resulting trajectory optimizes joint distance rather than Cartesian regularity, manifesting as **slanted 3D cuts and joint wobbles** ("wobbly slanted trajectories") that risk clipping obstacle corners.
 
 ### 2. The Manhattan Hybrid Trajectory Solution:
 - We engineered a **Hybrid Architecture** combining deterministic geometric control with sampling-based safety:
@@ -134,13 +134,13 @@
 
 ## SLIDE 08: SYMMETRICAL MANHATTAN RETURN SEQUENCER
 ### 1. Problem with Uncontrolled Return Paths:
-- When returning from bin drop to Standby, calling a single joint target from apex resulted in MoveIt computing an awkward diagonal spline cutting across the workcell ("sau khi thả vật trả về idle nó di chuyển rất kì").
-- Additionally, dipping down to $Z = 0.21\,\text{m}$ before returning to Standby ($Z = 0.42\,\text{m}$) caused a double-elevator oscillation.
+- When returning from bin drop to Standby, calling a single joint target from apex forced MoveIt to calculate an awkward 3D diagonal curve cutting across the workcell and dipping down to $Z = 0.21\,\text{m}$ before popping up to $Z = 0.42\,\text{m}$.
+- This created erratic, unpredictable motions and double-elevator oscillations.
 
 ### 2. The 3-Stage Orthogonal Return Architecture (STEP 7: READY):
-- **Stage 7a (Elevator Lift):** Nâng thẳng đứng từ trong lòng thùng lên lại cao độ Apex ($Z_{\text{apex}} = 0.52\,\text{m}$ hoặc $0.60\,\text{m}$) để thoát hoàn toàn khỏi thành thùng chứa.
-- **Stage 7b (Apex Crane Sweep):** Xoay ngang duy nhất Trục đế Joint 0 trên cao về góc hướng mặt vào băng chuyền (`Joint 0 = +0.29 rad`, các khớp 2–6 khóa cứng). 100% phẳng trên cao, không cắt chéo.
-- **Stage 7c (Standby Descent):** Hạ thẳng đứng vào đúng tư thế Standby ($Z = 0.42\,\text{m}$). Joint 0 đã đúng vị trí, cánh tay hạ nhẹ nhàng, sẵn sàng cho khối tiếp theo.
+- **Stage 7a (Elevator Lift):** Pure vertical ascent out of bin interior back to Clearance Apex ($Z_{\text{apex}} = 0.52\,\text{m}$ or $0.60\,\text{m}$) to completely clear the bin rim ($\Delta X = 0, \Delta Y = 0$).
+- **Stage 7b (Apex Crane Sweep):** Pure 1-DOF Joint 0 base crane rotation at Apex height to face the conveyor (`Joint 0 = +0.29 rad`, joints 2–6 locked rigid). 100% planar horizontal sweep, zero diagonal drift.
+- **Stage 7c (Standby Descent):** Pure vertical descent into Standby pose ($Z = 0.42\,\text{m}$). Joint 0 is already aligned; the arm settles gently and is immediately ready for the next incoming object.
 
 ---
 

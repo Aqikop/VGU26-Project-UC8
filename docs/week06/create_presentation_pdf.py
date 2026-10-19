@@ -334,7 +334,7 @@ def build_pdf(output_path):
         "Why pure sampling-based planners produce slanted, wobbly curves in industrial workcells:",
         [
             "<b>• OMPL Backend Algorithms:</b> MoveIt utilizes Open Motion Planning Library (OMPL) in C-space (R^6): RRTConnect (bidirectional fast search), RRT* (asymptotically optimal length), and PRM/PRM* (precomputed roadmap graphs).",
-            "<b>• The C-space Sampling Dilemma:</b> Because OMPL explores via random joint-space sampling, the shortest joint path manifests in 3D Cartesian space as erratic, slanted diagonal cuts ('duong cheo meo mo') that risk clipping obstacle corners."
+            "<b>• The C-space Sampling Dilemma:</b> Because OMPL explores via random joint-space sampling, the shortest joint path manifests in 3D Cartesian space as erratic, slanted diagonal cuts ('wobbly slanted trajectories') that risk clipping obstacle corners."
         ], width=760
     )
     story.append(top_c5)
@@ -440,8 +440,8 @@ def build_pdf(output_path):
     # =========================================================================
     story.extend(make_header("Motion Symmetry & Aesthetics", "Symmetrical Manhattan Return Sequencer (Zero Diagonals)"))
     top_c8 = make_card(
-        "Addressing User Feedback on Return Paths",
-        "Eliminating awkward diagonal splines and double-elevator oscillations:",
+        "The Issue: Awkward Diagonal Splines on Return",
+        "Eliminating erratic joint-space curves and double-elevator dipping:",
         [
             "When returning from bin drop to Standby, calling a single joint target from apex forced MoveIt to calculate an awkward 3D diagonal curve cutting across the workcell and dipping down to Z=0.21m before popping up to Z=0.42m."
         ], width=760
@@ -450,19 +450,19 @@ def build_pdf(output_path):
     story.append(Spacer(1, 8))
 
     r1 = make_card("Stage 7a: Elevator Lift Out", "Vertical ascent out of bin", [
-        "• Nâng thẳng đứng từ trong thùng lên lại cao độ Apex (Z=0.52m / 0.60m)",
-        "• Thoát hoàn toàn khỏi thành thùng chứa",
-        "• Delta X = 0, Delta Y = 0"
+        "• Pure vertical lift out of bin to Apex height (Z = 0.52m / 0.60m)",
+        "• Completely clears bin rim and interior",
+        "• Delta X = 0, Delta Y = 0 (Pure Z translation)"
     ], width=248)
     r2 = make_card("Stage 7b: Apex Horizontal Sweep", "High-altitude base crane rotation", [
-        "• Xoay ngang duy nhất Trục đế Joint 0 trên cao về góc đối diện băng chuyền (Joint 0 = +0.29 rad)",
-        "• Khóa cứng các khớp 2-6",
-        "• 100% phẳng trên cao, không cắt chéo"
+        "• Pure 1-DOF Joint 0 base rotation at Apex to face conveyor (Joint 0 = +0.29 rad)",
+        "• Joints 1-5 locked rigid; perfectly flat plane",
+        "• 100% planar sweep, zero diagonal drift"
     ], width=248)
     r3 = make_card("Stage 7c: Standby Descent", "Pure vertical descent to Standby", [
-        "• Hạ thẳng vào vị trí Standby (Z = 0.42m)",
-        "• Joint 0 đã đúng vị trí, cánh tay hạ nhẹ nhàng",
-        "• Ready ngay lập tức cho khối tiếp theo"
+        "• Descends straight into Standby pose (Z = 0.42m)",
+        "• Joint 0 already aligned; smooth, gentle settling",
+        "• Immediately ready for the next incoming object"
     ], width=248)
     story.append(Table([[r1, r2, r3]], colWidths=[256, 256, 256]))
     story.append(PageBreak())

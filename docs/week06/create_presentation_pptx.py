@@ -329,7 +329,7 @@ def main():
 
     tf_c5_top = create_card(s5, Inches(0.8), Inches(1.65), Inches(11.733), Inches(1.3), "MoveIt OMPL Landscape vs. Cartesian Rectilinear Motion", "Why pure sampling-based planners produce slanted, wobbly curves in industrial workcells:")
     add_bullet(tf_c5_top, "• OMPL Backend Algorithms:", "MoveIt utilizes Open Motion Planning Library (OMPL) in C-space (R^6): RRTConnect (bidirectional fast search), RRT* (asymptotically optimal length), and PRM/PRM* (precomputed roadmap graphs).")
-    add_bullet(tf_c5_top, "• The C-space Sampling Dilemma:", "Because OMPL explores via random joint-space sampling, the shortest joint path manifests in 3D Cartesian space as erratic, slanted diagonal cuts ('duong cheo meo mo') that risk clipping obstacle corners.")
+    add_bullet(tf_c5_top, "• The C-space Sampling Dilemma:", "Because OMPL explores via random joint-space sampling, the shortest joint path manifests in 3D Cartesian space as erratic, slanted diagonal cuts ('wobbly slanted trajectories') that risk clipping obstacle corners.")
 
     legs = [
         ("Leg 1: Pure Horizontal Sweep", "Low altitude inside portal (Z=0.21m)", "Joint 0 rotates (+0.29 -> theta_thresh)\nJoints 1-5 locked rigid (1-DOF SCARA)\nZero elbow twisting or dipping"),
@@ -394,13 +394,13 @@ def main():
     set_shape_flat(bg8, COLOR_LIGHT_BG)
     add_header(s8, "Motion Symmetry & Aesthetics", "Symmetrical Manhattan Return Sequencer (Zero Diagonals)", "08 / 12")
 
-    tf_c8_top = create_card(s8, Inches(0.8), Inches(1.65), Inches(11.733), Inches(1.2), "The Issue: Awkward Diagonal Splines on Return", "Addressing user feedback ('sau khi thả vật trả về idle nó di chuyển rất kì'):")
+    tf_c8_top = create_card(s8, Inches(0.8), Inches(1.65), Inches(11.733), Inches(1.2), "The Issue: Awkward Diagonal Splines on Return", "Eliminating erratic joint-space curves and double-elevator dipping:")
     add_bullet(tf_c8_top, "• Unconstrained RRT Returns:", "Calling a single Standby target from inside the bin forced MoveIt to calculate an awkward 3D diagonal curve cutting across the workcell and dipping down to Z=0.21m before popping up to Z=0.42m.")
 
     ret_stages = [
-        ("Stage 7a: Elevator Lift Out", "Vertical ascent out of bin", "• Nâng thẳng đứng từ trong thùng lên lại cao độ Apex (Z=0.52m / 0.60m)\n• Thoát hoàn toàn khỏi thành thùng chứa\n• Delta X = 0, Delta Y = 0"),
-        ("Stage 7b: Apex Horizontal Sweep", "High-altitude base crane rotation", "• Xoay ngang duy nhất Trục đế Joint 0 trên cao về góc đối diện băng chuyền (Joint 0 = +0.29 rad)\n• Khóa cứng các khớp 2-6\n• 100% phẳng trên cao, không cắt chéo"),
-        ("Stage 7c: Standby Descent", "Pure vertical descent to Standby", "• Hạ thẳng vào vị trí Standby (Z = 0.42m)\n• Joint 0 đã đúng vị trí, cánh tay hạ nhẹ nhàng\n• Ready ngay lập tức cho khối tiếp theo")
+        ("Stage 7a: Elevator Lift Out", "Vertical ascent out of bin", "• Pure vertical lift out of bin to Apex height (Z = 0.52m / 0.60m)\n• Completely clears bin rim and interior\n• Delta X = 0, Delta Y = 0 (Pure Z translation)"),
+        ("Stage 7b: Apex Horizontal Sweep", "High-altitude base crane rotation", "• Pure 1-DOF Joint 0 base rotation at Apex to face conveyor (Joint 0 = +0.29 rad)\n• Joints 1-5 locked rigid; perfectly flat plane\n• 100% planar sweep, zero diagonal drift"),
+        ("Stage 7c: Standby Descent", "Pure vertical descent to Standby", "• Descends straight into Standby pose (Z = 0.42m)\n• Joint 0 already aligned; smooth, gentle settling\n• Immediately ready for the next incoming object")
     ]
     for i, (r_title, r_sub, r_body) in enumerate(ret_stages):
         tf_ret = create_card(s8, Inches(0.8 + i * 4.0), Inches(3.05), Inches(3.733), Inches(3.8), r_title, r_sub)
