@@ -353,7 +353,7 @@ public class WorkcellLayoutEditor
         glassR.transform.localPosition = new Vector3(0.51f, 0f, 0f);
         glassR.transform.localScale = new Vector3(0.55f, 0.32f, 0.008f);
         glassR.GetComponent<MeshRenderer>().material = glassMat;
-        DestroyImmediate(glassR.GetComponent<Collider>());
+        Object.DestroyImmediate(glassR.GetComponent<Collider>());
 
         GameObject stripeR = GameObject.CreatePrimitive(PrimitiveType.Cube);
         stripeR.name = "Stripe_Right";
@@ -361,7 +361,7 @@ public class WorkcellLayoutEditor
         stripeR.transform.localPosition = new Vector3(0.51f, 0f, 0f);
         stripeR.transform.localScale = new Vector3(0.55f, 0.025f, 0.010f);
         stripeR.GetComponent<MeshRenderer>().material = yellowMat;
-        DestroyImmediate(stripeR.GetComponent<Collider>());
+        Object.DestroyImmediate(stripeR.GetComponent<Collider>());
 
         // BoxCollider cánh phải chắn trước Thùng Vàng (Bắt buộc robot phải né khi bỏ phôi vàng)
         BoxCollider colR = wingRight.AddComponent<BoxCollider>();

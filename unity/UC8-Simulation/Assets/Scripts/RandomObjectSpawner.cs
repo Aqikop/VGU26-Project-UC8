@@ -16,6 +16,7 @@ public class RandomObjectSpawner : MonoBehaviour
     [Header("Continuous Flow Configuration")]
     [Tooltip("Target minimum simultaneous objects on conveyor belt")]
     [SerializeField] private int minTargetObjects = 2;
+    public int MinTargetObjects => minTargetObjects;
 
     [Tooltip("Maximum simultaneous objects allowed on conveyor belt")]
     [SerializeField] private int maxObjectsOnBelt = 3;
