@@ -1,0 +1,7 @@
+trial_row,timestamp,object_type,physical_in_correct_bin,checked_by,method
+552,2026-10-24 17:01:52,Yellow,True,khoimanh,visual
+553,2026-10-24 17:02:08,Red,True,khoimanh,visual
+554,2026-10-24 17:02:23,Red,True,khoimanh,visual
+555,2026-10-24 17:04:59,Yellow,True,khoimanh,visual
+556,2026-10-24 17:05:15,Red,True,khoimanh,visual
+557,2026-10-24 17:05:30,Red,True,khoimanh,visual
