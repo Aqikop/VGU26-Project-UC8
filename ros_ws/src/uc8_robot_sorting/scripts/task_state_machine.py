@@ -117,7 +117,8 @@ class TaskStateMachine:
 
         # Experiment logging
         self.trial_counter = 0
-        self.csv_path = "/home/kduy/RoboticProject/project_blueprint/experiments/week04/trials.csv"
+        REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))
+        self.csv_path = os.path.join(REPO_ROOT, "experiments", "week04", "trials.csv")
         os.makedirs(os.path.dirname(self.csv_path), exist_ok=True)
         self.init_csv()
 
