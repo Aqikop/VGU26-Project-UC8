@@ -44,3 +44,20 @@
 | **Bỏ qua ma sát / Attach** | Script Attach/Detach theo trigger | Cập nhật `AttachedCollisionObject` | Không ảnh hưởng | Bỏ qua các ca trượt do PhysX |
 | **Khối lập phương (Cubes)** | Model đơn giản, collider Box | Bounding box chuẩn xác | Thuật toán HSV + Bounding Box | Dễ thiết lập ground truth |
 | **Continuous Picking (R9)** | Giữ belt chạy liên tục | Lập quỹ đạo đón đầu thời gian thực | Track ID và đo vận tốc $v$ | Cần đo sai số dự báo $\Delta p$ |
+
+---
+
+## 3. Deviation Log (as-built vs. plan) — added 2026-10-24, Week 6 close-out
+
+All items are **pending instructor acknowledgement**. Only the instructor approves scope changes.
+
+| ID | Planned | As built | Why / plan | Status |
+|---|---|---|---|---|
+| D1 | W6 = R5 (seeded spawner, belt status, 5-min run). R8 in W9-10 | Static guarding (shields, control box, Manhattan trajectories) built in W6; most R5 items not done | R5 closed in the follow-up sprint (seed done in code; belt status + 5-min run + `environment.csv` still open) | Open |
+| D2 | R8: wall blocks direct path; OMPL (RRT-Connect, BiTRRT, PRM*) finds the detour; benchmark table; no-path handling | Hand-scripted 4-leg "Manhattan" fly-over with hardcoded apex heights (0.52 m / 0.60 m) + default RRTConnect for hops | Keep Manhattan as the *baseline row*; add OMPL benchmark (>=50 plans per planner per goal) and no-path hold before M2 (W10) | Open |
+| D3 | Red/Blue objects (Q5) | Red/Blue/Yellow, 3 bins | Needs instructor sign-off; R6 detector must handle 3 hue ranges | Open |
+| D4 | `interfaces.md`: `PoseStamped` + `uc8_msgs` types | As built: `/detected_object_pose` (`Pose`, no header), `/detected_object_type` (`String`), `/ur10e/gripper_command` (`Bool`) | Migrate to `PoseStamped` with frame/timestamp when the camera node is built (W7-8); `uc8_msgs` deferred | Open |
+| D5 | Success = cube lifted / in bin (guide W4) | `grasp_success` / `place_success` in `trials.csv` are set when the command is *sent*, not from object-state feedback | Add Unity gripper/object status feedback; until then label results "command-complete" | Open |
+| D6 | Q4: MoveIt `AttachedCollisionObject` while holding | No attach call found in `task_state_machine.py` | Add attach/detach around GRASP/RELEASE before M2 | Open |
+| D7 | M2 at Session 10 | W6 slides said "Milestone 2 Defense (Weeks 07-08)" | Corrected to Session 10 | Closed |
+| D8 | Reported results traceable to logs | W6 slides claimed 100% over 500+ trials, ISO 9283 pose accuracy, <120 ms collision rejection | `trials.csv`: 532/550 (96.7%); ISO-9283 and latency figures were never measured. Slides/report corrected | Closed |

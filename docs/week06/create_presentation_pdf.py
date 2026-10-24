@@ -278,11 +278,11 @@ def build_pdf(output_path):
         "Week 06 Delivered Engineering Results",
         "100% Fulfillment across all target deliverables:",
         [
-            "<b>1. Dual Acrylic Shields Installed:</b> 0.36m Polycarbonate wings deployed flanking conveyor with open 0.44m center pick portal. <b>[100% DONE]</b>",
-            "<b>2. UR Control Station Added:</b> 0.42m tall industrial operator console blocking low-altitude rear swings towards Blue bin. <b>[100% DONE]</b>",
-            "<b>3. Pure Manhattan Trajectory:</b> Engineered 4-leg orthogonal stepped path: 1-DOF base crane rotation + pure vertical elevator lift. <b>[100% DONE]</b>",
-            "<b>4. Symmetrical Return Sequencer:</b> 3-Stage return path directly into Standby pose, eliminating diagonal dips. <b>[100% DONE]</b>",
-            "<b>5. Flawless Empirical Record:</b> Over 500 cumulative logged trials with 100% grasp/place success rate and zero collisions. <b>[100% DONE]</b>"
+            "<b>1. Dual Acrylic Shields Installed:</b> 0.36m Polycarbonate wings deployed flanking conveyor with open 0.44m center pick portal. <b>[DONE]</b>",
+            "<b>2. UR Control Station Added:</b> 0.42m tall industrial operator console blocking low-altitude rear swings towards Blue bin. <b>[DONE]</b>",
+            "<b>3. Pure Manhattan Trajectory:</b> Engineered 4-leg orthogonal stepped path: 1-DOF base crane rotation + pure vertical elevator lift. <b>[DONE]</b>",
+            "<b>4. Symmetrical Return Sequencer:</b> 3-Stage return path directly into Standby pose, eliminating diagonal dips. <b>[DONE]</b>",
+            "<b>5. Empirical Record:</b> 550 logged trials, 532 completed (96.7%); success flags are command-based; collisions not yet logged. <b>[DONE]</b>"
         ], width=380
     )
     story.append(Table([[c3_1, c3_2]], colWidths=[388, 388]))
@@ -402,7 +402,7 @@ def build_pdf(output_path):
         "Zero lateral drift precision:",
         [
             "<b>• compute_cartesian_path():</b> Executed with eef_step = 0.01m and avoid_collisions = True. Verified strictly vertical elevator paths (Delta X, Delta Y <= 1mm).",
-            "<b>• Fallback Architecture:</b> Pose target planner fallback activated if linear interpolation fraction < 0.80, guaranteeing 100% execution resilience."
+            "<b>• Fallback Architecture:</b> A Cartesian move runs only if >= 95% of the path is achievable; otherwise the arm holds and the trial fails (no silent fallback)."
         ], width=380
     )
     story.append(Table([[c6_1, c6_2]], colWidths=[388, 388]))
@@ -478,7 +478,7 @@ def build_pdf(output_path):
             "<b>• PlanningScene Representation:</b> Static obstacles loaded via moveit_msgs/CollisionObject as primitive shapes (Box, Cylinder) or 3D CAD meshes (STL/DAE).",
             "<b>• Broadphase (Coarse Filtering):</b> Uses Bounding Volume Hierarchies (BVH / AABB) to discard distant link-obstacle pairs in O(log N) time.",
             "<b>• Narrowphase (Exact Distance Computation):</b> Applies Gilbert-Johnson-Keerthi (GJK) and Expanding Polytope Algorithm (EPA) on Convex Hulls to calculate exact Signed Distances.",
-            "<b>• Sub-120ms Real-Time Abort:</b> If signed distance <= 0, FCL flags contact and aborts plan in < 122ms, preventing catastrophic physical robot strikes."
+            "<b>• Collision-Based Plan Rejection:</b> If signed distance <= 0, FCL flags contact and aborts the plan (latency not yet measured), preventing catastrophic physical robot strikes."
         ], width=380
     )
     c9_2 = make_card(
@@ -501,12 +501,12 @@ def build_pdf(output_path):
     story.extend(make_header("Standardized Evaluation", "Evaluation Benchmark: ISO 9283 Criteria & Precision vs Speed"))
     t10_data = [
         [Paragraph("<b>ISO 9283 Evaluation Criterion</b>", table_header_style), Paragraph("<b>Definition & Parameter</b>", table_header_style), Paragraph("<b>UR10e Factory Nominal</b>", table_header_style), Paragraph("<b>Week 06 Achieved Metric</b>", table_header_style), Paragraph("<b>Evaluation Result</b>", table_header_style)],
-        [Paragraph("Pose Repeatability (RP_l)", table_cell_bold), Paragraph("Clustering of grasp/drop poses", table_cell_style), Paragraph("+/- 0.05 mm", table_cell_style), Paragraph("RP_l <= 1.2 mm", table_cell_bold), Paragraph("Compliant (PASS)", table_cell_bold)],
-        [Paragraph("Pose Accuracy (AP_p)", table_cell_bold), Paragraph("Deviation from target centroid", table_cell_style), Paragraph("< 2.0 mm", table_cell_style), Paragraph("AP_p <= 1.5 mm", table_cell_bold), Paragraph("Compliant (PASS)", table_cell_bold)],
-        [Paragraph("Path Repeatability (RT_p)", table_cell_bold), Paragraph("Lateral drift during elevator Z", table_cell_style), Paragraph("< 2.0 mm", table_cell_style), Paragraph("RT_p <= 1.0 mm (Z pure)", table_cell_bold), Paragraph("Compliant (PASS)", table_cell_bold)],
-        [Paragraph("Grasp & Place Reliability", table_cell_bold), Paragraph("End-effector contact success", table_cell_style), Paragraph(">= 90.0%", table_cell_style), Paragraph("100.0% (500+ trials)", table_cell_bold), Paragraph("Flawless (PASS)", table_cell_bold)],
-        [Paragraph("Obstacle Collision Rate", table_cell_bold), Paragraph("FCL contact violations", table_cell_style), Paragraph("0 Collisions", table_cell_style), Paragraph("0 Collisions Logged", table_cell_bold), Paragraph("100% Free (PASS)", table_cell_bold)],
-        [Paragraph("Mean Cycle Time (tv)", table_cell_bold), Paragraph("Pick -> Transit -> Release -> Return", table_cell_style), Paragraph("< 30.0 s", table_cell_style), Paragraph("20.4 s - 22.8 s", table_cell_bold), Paragraph("Comfortable (PASS)", table_cell_bold)]
+        [Paragraph("Pose Repeatability (RP_l)", table_cell_bold), Paragraph("Clustering of grasp/drop poses", table_cell_style), Paragraph("+/- 0.05 mm", table_cell_style), Paragraph("not measured", table_cell_bold), Paragraph("Open", table_cell_bold)],
+        [Paragraph("Pose Accuracy (AP_p)", table_cell_bold), Paragraph("Deviation from target centroid", table_cell_style), Paragraph("< 2.0 mm", table_cell_style), Paragraph("not measured", table_cell_bold), Paragraph("Open", table_cell_bold)],
+        [Paragraph("Path Repeatability (RT_p)", table_cell_bold), Paragraph("Lateral drift during elevator Z", table_cell_style), Paragraph("< 2.0 mm", table_cell_style), Paragraph("not measured", table_cell_bold), Paragraph("Open", table_cell_bold)],
+        [Paragraph("Grasp & Place Reliability", table_cell_bold), Paragraph("End-effector contact success", table_cell_style), Paragraph(">= 90.0%", table_cell_style), Paragraph("96.7% (532/550)", table_cell_bold), Paragraph("Meets >=90% (command-based)", table_cell_bold)],
+        [Paragraph("Obstacle Collision Rate", table_cell_bold), Paragraph("FCL contact violations", table_cell_style), Paragraph("0 Collisions", table_cell_style), Paragraph("not logged", table_cell_bold), Paragraph("Open", table_cell_bold)],
+        [Paragraph("Mean Cycle Time (tv)", table_cell_bold), Paragraph("Pick -> Transit -> Release -> Return", table_cell_style), Paragraph("< 30.0 s", table_cell_style), Paragraph("13.5 s - 15.6 s", table_cell_bold), Paragraph("Meets < 30 s", table_cell_bold)]
     ]
     t10 = Table(t10_data, colWidths=[160, 140, 140, 160, 177])
     t10.setStyle(TableStyle([
@@ -524,7 +524,7 @@ def build_pdf(output_path):
         "Precision vs. Speed Engineering Focus",
         "Current trade-off posture and transition to Week 07 optimization:",
         [
-            "<b>• Current Stance (Precision First):</b> Prioritized 100% grasp accuracy, orthogonal wrist alignment (down_orientation), zero cube slippage, and deterministic obstacle clearance over raw transit speed.",
+            "<b>• Current Stance (Precision First):</b> Prioritized grasp accuracy, orthogonal wrist alignment (down_orientation), zero cube slippage, and deterministic obstacle clearance over raw transit speed.",
             "<b>• Upcoming Stance (Speed Optimization - Week 07):</b> With precision guaranteed under ISO 9283, Week 07 will implement parabolic corner blending between Manhattan legs to compress cycle time from ~21s down to ~15s without degrading repeatability."
         ], width=760
     )
@@ -569,7 +569,7 @@ def build_pdf(output_path):
             "<b>• Full Machine Safety Compliance (R8):</b> Realistic 0.36m acrylic machine guarding with ergonomic 0.44m pick portal and 0.42m rear control station.",
             "<b>• Pure Manhattan Orthogonal Motion:</b> Completely eliminated erratic diagonal 3D splines in favor of predictable, stepped horizontal-vertical-horizontal trajectories.",
             "<b>• Kinematic Precision & Bug Elimination:</b> Resolved Blue bin collision threshold and Unity kinematic velocity warnings.",
-            "<b>• Benchmark Verification:</b> 500+ consecutive trials with 100% success rate and zero collisions across all 3 bins."
+            "<b>• Benchmark Verification:</b> 550 logged trials, 532 completed (96.7%); collisions not yet logged."
         ], width=380
     )
     c12_2 = make_card(
@@ -577,7 +577,7 @@ def build_pdf(output_path):
         "Faculty committee demonstration & feedback:",
         [
             "<b>• Live Demonstration:</b> Real-time demonstration of Manhattan stepped sorting across Red, Yellow, and Blue bins.",
-            "<b>• Milestone 2 Readiness:</b> Workcell architecture is 100% prepared for computer vision migration and velocity profile smoothing in Week 07.",
+            "<b>• Milestone 2 Readiness:</b> Workcell architecture is the base for computer vision migration and velocity profile smoothing in Week 07.",
             "<b>• Faculty Feedback:</b> Inviting suggestions and recommendations from the supervisory committee.",
             "<b>• Thank You:</b> Thank you for your guidance and support throughout Use Case 08 development!"
         ], width=380
@@ -589,7 +589,7 @@ def build_pdf(output_path):
 
 
 if __name__ == "__main__":
-    out_dir = "/home/kduy/RoboticProject/project_blueprint/docs/week06"
+    out_dir = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(out_dir, exist_ok=True)
     out_pdf = os.path.join(out_dir, "UC8_Week06_Presentation.pdf")
     build_pdf(out_pdf)

@@ -258,7 +258,7 @@ def main():
 
     headers_s2 = ["#", "Presentation Module", "Core Technical Focus & Engineering Scope"]
     data_s2 = [
-        ["01", "Executive Progress Summary", "Commitments from Week 05 vs. Week 06 Deliverables (100% Milestone Fulfillment)"],
+        ["01", "Executive Progress Summary", "Commitments from Week 05 vs. Week 06 Deliverables (Delivered vs. Partial)"],
         ["02", "Industrial Machine Guarding (R8)", "Dual Acrylic Wings (0.36m), Open Robotic Pick Portal, & UR Control Box (0.42m)"],
         ["03", "Motion Planning Algorithms", "MoveIt OMPL (RRTConnect, RRT*, PRM) vs. The Manhattan Hybrid Paradigm"],
         ["04", "Multi-Tier Clearance Profiling", "Dynamic clearance altitudes: Flanking Wings (Z=0.52m) vs. Rear Control Station (Z=0.60m)"],
@@ -287,11 +287,11 @@ def main():
     add_bullet(tf_c1, "5. Performance Benchmarks:", "Log continuous sorting trials to prove robustness under obstacle-constrained environments.")
 
     tf_c2 = create_card(s3, Inches(6.8), Inches(1.65), Inches(5.733), Inches(5.2), "Week 06 Delivered Engineering Results", "100% Fulfillment across all target deliverables:")
-    add_bullet(tf_c2, "1. Dual Acrylic Shields Installed:", "0.36m Polycarbonate wings deployed flanking conveyor with open 0.44m center pick portal. [100% DONE]")
-    add_bullet(tf_c2, "2. UR Control Station Added:", "0.42m tall industrial operator console blocking low-altitude rear swings towards Blue bin. [100% DONE]")
-    add_bullet(tf_c2, "3. Pure Manhattan Trajectory:", "Engineered 4-leg orthogonal stepped path: 1-DOF base crane rotation + pure vertical elevator lift. [100% DONE]")
-    add_bullet(tf_c2, "4. Symmetrical Return Sequencer:", "3-Stage return path directly into Standby pose, eliminating diagonal dips. [100% DONE]")
-    add_bullet(tf_c2, "5. Flawless Empirical Record:", "Over 500 cumulative logged trials with 100% grasp/place success rate and zero collisions. [100% DONE]")
+    add_bullet(tf_c2, "1. Dual Acrylic Shields Installed:", "0.36m Polycarbonate wings deployed flanking conveyor with open 0.44m center pick portal. [DONE]")
+    add_bullet(tf_c2, "2. UR Control Station Added:", "0.42m tall industrial operator console blocking low-altitude rear swings towards Blue bin. [DONE]")
+    add_bullet(tf_c2, "3. Pure Manhattan Trajectory:", "Engineered 4-leg orthogonal stepped path: 1-DOF base crane rotation + pure vertical elevator lift. [DONE]")
+    add_bullet(tf_c2, "4. Symmetrical Return Sequencer:", "3-Stage return path directly into Standby pose, eliminating diagonal dips. [DONE]")
+    add_bullet(tf_c2, "5. Empirical Record:", "550 logged trials, 532 completed (96.7%); success flags are command-based; collisions not yet logged. [DONE]")
 
     # =========================================================================
     # SLIDE 04: INDUSTRIAL MACHINE GUARDING & PICK PORTAL ARCHITECTURE (R8)
@@ -364,7 +364,7 @@ def main():
 
     tf_c6_2 = create_card(s6, Inches(6.8), Inches(4.1), Inches(5.733), Inches(2.75), "Cartesian Linear Interpolation", "Zero lateral drift precision:")
     add_bullet(tf_c6_2, "• compute_cartesian_path():", "Executed with eef_step = 0.01m and avoid_collisions = True. Verified strictly vertical elevator paths (Delta X, Delta Y <= 1mm).")
-    add_bullet(tf_c6_2, "• Fallback Architecture:", "Pose target planner fallback activated if linear interpolation fraction < 0.80, guaranteeing 100% execution resilience.")
+    add_bullet(tf_c6_2, "• Fallback Architecture:", "A Cartesian move runs only if >= 95% of the path is achievable; otherwise the arm holds and the trial fails (no silent fallback).")
 
     # =========================================================================
     # SLIDE 07: KINEMATIC & COLLISION ROOT-CAUSE DEBUGGING (CASE STUDY)
@@ -419,7 +419,7 @@ def main():
     add_bullet(tf_c9_1, "• PlanningScene Representation:", "Static obstacles loaded via moveit_msgs/CollisionObject as primitive shapes (Box, Cylinder) or 3D CAD meshes (STL/DAE).")
     add_bullet(tf_c9_1, "• Broadphase (Coarse Filtering):", "Uses Bounding Volume Hierarchies (BVH / AABB) to discard distant link-obstacle pairs in O(log N) time.")
     add_bullet(tf_c9_1, "• Narrowphase (Exact Distance Computation):", "Executes the Gilbert-Johnson-Keerthi (GJK) algorithm and Expanding Polytope Algorithm (EPA) on Convex Hulls to calculate exact Signed Distances.")
-    add_bullet(tf_c9_1, "• Sub-120ms Real-Time Abort:", "If signed distance <= 0, FCL flags contact and aborts plan in < 122ms, preventing catastrophic physical robot strikes.")
+    add_bullet(tf_c9_1, "• Collision-Based Plan Rejection:", "If signed distance <= 0, FCL flags contact and aborts the plan (latency not yet measured), preventing catastrophic physical robot strikes.")
 
     tf_c9_2 = create_card(s9, Inches(6.8), Inches(1.65), Inches(5.733), Inches(5.2), "Workcell Digital Twin Synchronization", "1:1 Real-time scene representation & joint execution:")
     add_bullet(tf_c9_2, "• 1. Table:", "Size (2.0, 4.0, 0.10)m at Z = -0.07m preventing table crashes.")
@@ -438,17 +438,17 @@ def main():
 
     headers_s10 = ["ISO 9283 Evaluation Criterion", "Definition & Parameter", "UR10e Factory Nominal", "Week 06 Achieved Metric", "Evaluation Result"]
     data_s10 = [
-        ["Pose Repeatability (RP_l)", "Clustering of grasp/drop poses", "+/- 0.05 mm", "RP_l <= 1.2 mm", "Compliant (PASS)"],
-        ["Pose Accuracy (AP_p)", "Deviation from target centroid", "< 2.0 mm", "AP_p <= 1.5 mm", "Compliant (PASS)"],
-        ["Path Repeatability (RT_p)", "Lateral drift during elevator Z", "< 2.0 mm", "RT_p <= 1.0 mm (Z pure)", "Compliant (PASS)"],
-        ["Grasp & Place Reliability", "End-effector contact success", ">= 90.0%", "100.0% (500+ trials)", "Flawless (PASS)"],
-        ["Obstacle Collision Rate", "FCL contact violations", "0 Collisions", "0 Collisions Logged", "100% Free (PASS)"],
-        ["Mean Cycle Time (tv)", "Pick -> Transit -> Release -> Return", "< 30.0 s", "20.4 s - 22.8 s", "Comfortable (PASS)"]
+        ["Pose Repeatability (RP_l)", "Clustering of grasp/drop poses", "+/- 0.05 mm", "not measured", "Open"],
+        ["Pose Accuracy (AP_p)", "Deviation from target centroid", "< 2.0 mm", "not measured", "Open"],
+        ["Path Repeatability (RT_p)", "Lateral drift during elevator Z", "< 2.0 mm", "not measured", "Open"],
+        ["Grasp & Place Reliability", "End-effector contact success", ">= 90.0%", "96.7% (532/550)", "Meets >=90% (command-based)"],
+        ["Obstacle Collision Rate", "FCL contact violations", "0 Collisions", "not logged", "Open"],
+        ["Mean Cycle Time (tv)", "Pick -> Transit -> Release -> Return", "< 30.0 s", "13.5 s - 15.6 s", "Meets < 30 s"]
     ]
     build_table(s10, Inches(0.8), Inches(1.65), Inches(11.733), Inches(3.0), headers_s10, data_s10, [Inches(2.5), Inches(2.7), Inches(1.8), Inches(2.4), Inches(2.333)])
 
     tf_c10 = create_card(s10, Inches(0.8), Inches(4.9), Inches(11.733), Inches(1.95), "Precision vs. Speed Engineering Focus", "Current trade-off posture and transition to Week 07 optimization:")
-    add_bullet(tf_c10, "• Current Stance (Precision First):", "Prioritized 100% grasp accuracy, orthogonal wrist alignment (down_orientation), zero cube slippage, and deterministic obstacle clearance over raw transit speed.")
+    add_bullet(tf_c10, "• Current Stance (Precision First):", "Prioritized grasp accuracy, orthogonal wrist alignment (down_orientation), zero cube slippage, and deterministic obstacle clearance over raw transit speed.")
     add_bullet(tf_c10, "• Upcoming Stance (Speed Optimization - Week 07):", "With precision guaranteed under ISO 9283, Week 07 will implement parabolic corner blending between Manhattan legs to compress cycle time from ~21s down to ~15s without degrading repeatability.")
 
     # =========================================================================
@@ -483,16 +483,16 @@ def main():
     add_bullet(tf_c12_1, "• Full Machine Safety Compliance (R8):", "Realistic 0.36m acrylic machine guarding with ergonomic 0.44m pick portal and 0.42m rear control station.")
     add_bullet(tf_c12_1, "• Pure Manhattan Orthogonal Motion:", "Completely eliminated erratic diagonal 3D splines in favor of predictable, stepped horizontal-vertical-horizontal trajectories.")
     add_bullet(tf_c12_1, "• Kinematic Precision & Bug Elimination:", "Resolved Blue bin collision threshold and Unity kinematic velocity warnings.")
-    add_bullet(tf_c12_1, "• Benchmark Verification:", "500+ consecutive trials with 100% success rate and zero collisions across all 3 bins.")
+    add_bullet(tf_c12_1, "• Benchmark Verification:", "550 logged trials, 532 completed (96.7%); collisions not yet logged.")
 
     tf_c12_2 = create_card(s12, Inches(6.8), Inches(1.65), Inches(5.733), Inches(5.2), "Open Floor for Discussion", "Faculty committee demonstration & feedback:")
     add_bullet(tf_c12_2, "• Live Demonstration:", "Real-time demonstration of Manhattan stepped sorting across Red, Yellow, and Blue bins.")
-    add_bullet(tf_c12_2, "• Milestone 2 Readiness:", "Workcell architecture is 100% prepared for computer vision migration and velocity profile smoothing in Week 07.")
+    add_bullet(tf_c12_2, "• Milestone 2 Readiness:", "Workcell architecture is the base for computer vision migration and velocity profile smoothing in Week 07.")
     add_bullet(tf_c12_2, "• Faculty Feedback:", "Inviting suggestions and recommendations from the supervisory committee.")
     add_bullet(tf_c12_2, "• Thank You:", "Thank you for your guidance and support throughout Use Case 08 development!")
 
     # Output file
-    out_dir = "/home/kduy/RoboticProject/project_blueprint/docs/week06"
+    out_dir = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(out_dir, exist_ok=True)
     out_pptx = os.path.join(out_dir, "UC8_Week06_Presentation.pptx")
     prs.save(out_pptx)

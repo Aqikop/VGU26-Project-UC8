@@ -243,57 +243,44 @@ class TaskStateMachine:
         return traj
 
     def move_to_joints(self, target_joints):
-        """Plan and execute joint trajectory with collision avoidance and speed scaling"""
-        try:
-            t_plan_start = time.time()
-            self.group.set_joint_value_target(target_joints)
-            res = self.group.plan()
-            t_plan_ms = (time.time() - t_plan_start) * 1000.0
-
-            if isinstance(res, tuple):
-                success, plan = res[0], res[1]
-            else:
-                plan = res
-                success = len(plan.joint_trajectory.points) > 0
-
-            if success and len(plan.joint_trajectory.points) > 0:
-                rospy.loginfo(f"[MoveIt Planner] RRTConnect planned collision-free trajectory with {len(plan.joint_trajectory.points)} points in {t_plan_ms:.1f}ms")
-                scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
-                return self.group.execute(scaled_plan, wait=True)
-            else:
-                rospy.logwarn(f"[MoveIt Planner] Planning failed after {t_plan_ms:.1f}ms (target unreachable or collision detected)!")
-        except Exception as e:
-            rospy.logwarn(f"[Joint Motion] Fallback to direct go due to: {e}")
-
-        # Safe fallback
-        self.group.set_joint_value_target(target_joints)
-        return self.group.go(wait=True)
+        """Plan and execute a joint-space move. Bounded retries; on failure hold and return False."""
+        attempts = int(rospy.get_param("~plan_attempts", 2))
+        for k in range(1, attempts + 1):
+            try:
+                t0 = time.time()
+                self.group.set_joint_value_target(target_joints)
+                res = self.group.plan()
+                plan = res[1] if isinstance(res, tuple) else res
+                ok = res[0] if isinstance(res, tuple) else len(plan.joint_trajectory.points) > 0
+                t_ms = (time.time() - t0) * 1000.0
+                if ok and len(plan.joint_trajectory.points) > 0:
+                    rospy.loginfo(f"[MoveIt Planner] planned {len(plan.joint_trajectory.points)} pts in {t_ms:.1f}ms (attempt {k}/{attempts})")
+                    return self.group.execute(self.scale_trajectory_speed(plan, self.speed_multiplier), wait=True)
+                rospy.logwarn(f"[MoveIt Planner] NO PLAN after {t_ms:.1f}ms (attempt {k}/{attempts})")
+            except Exception as e:
+                rospy.logwarn(f"[MoveIt Planner] exception on attempt {k}/{attempts}: {e}")
+        self.group.stop()
+        self.group.clear_pose_targets()
+        rospy.logerr("[MoveIt Planner] joint move FAILED after all attempts -> holding, caller must abort the task")
+        return False
 
     def go_to_ready_pose(self):
         rospy.loginfo("[MoveIt] Moving robot to STANDBY pose (Elbow-Up, hovering over pick station)...")
         return self.move_to_joints(self.standby_joints)
 
     def move_cartesian_line(self, target_pose):
-        """Standard Cartesian linear motion (strictly vertical, no drift) with speed scaling"""
+        """Straight-line move. Executes only if >= ~cartesian_min_fraction of the path is achievable; else hold and return False."""
+        min_frac = float(rospy.get_param("~cartesian_min_fraction", 0.95))
         try:
-            waypoints = [target_pose]
-            # Signature in Noetic C++ wrapper: (waypoints, double eef_step, bool avoid_collisions)
-            plan, fraction = self.group.compute_cartesian_path(waypoints, 0.01, True)
-            if fraction > 0.8:
-                scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
-                return self.group.execute(scaled_plan, wait=True)
+            plan, fraction = self.group.compute_cartesian_path([target_pose], 0.01, True)
+            if fraction >= min_frac and len(plan.joint_trajectory.points) > 0:
+                return self.group.execute(self.scale_trajectory_speed(plan, self.speed_multiplier), wait=True)
+            rospy.logwarn(f"[Cartesian Path] only {fraction*100:.0f}% achievable (< {min_frac*100:.0f}%) -> not executing")
         except Exception as e:
-            rospy.logwarn(f"[Cartesian Path] Fallback to standard Pose Target due to: {e}")
-
-        # Absolute safe fallback
-        self.group.set_pose_target(target_pose)
-        res = self.group.plan()
-        if isinstance(res, tuple):
-            plan = res[1]
-        else:
-            plan = res
-        scaled_plan = self.scale_trajectory_speed(plan, self.speed_multiplier)
-        return self.group.execute(scaled_plan, wait=True)
+            rospy.logwarn(f"[Cartesian Path] exception: {e}")
+        self.group.stop()
+        self.group.clear_pose_targets()
+        return False
 
     def init_csv(self):
         if not os.path.exists(self.csv_path):

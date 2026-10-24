@@ -8,7 +8,7 @@
 - **Hardware/Simulation Platform:** Universal Robots UR10e (6-DOF) + 3.6m Conveyor Belt + 3 Sorting Bins + Dual Industrial Machine Guards + UR Control Station
 - **Software Stack:** Unity 2022.3 LTS (PhysX 4.x / ArticulationBody) + ROS Noetic (MoveIt Motion Planning Framework) + ROS-TCP-Endpoint
 - **Current Milestone:** Week 06 Progress Review & Technical Validation (Requirement R8 Implementation)
-- **Target Milestone:** Milestone 2 Defense (Weeks 07–08)
+- **Target Milestone:** Milestone 2 (Session 10 / Week 10)
 
 ---
 
@@ -18,14 +18,14 @@
 | :---: | :--- | :--- |
 | **01** | **Title Cover** | UC8 Week 06 Progress Presentation & Technical Defense |
 | **02** | **Presentation Agenda** | Overview of the 12 presentation slides |
-| **03** | **Executive Progress Summary** | Week 05 Commitments vs. Week 06 Deliverables (100% Completion) |
+| **03** | **Executive Progress Summary** | Week 05 Commitments vs. Week 06 Deliverables (Delivered vs. Partial) |
 | **04** | **Industrial Machine Guarding (R8)** | Dual Acrylic Wings ($0.36\text{m}$), Open Center Pick Portal, & UR Control Box ($0.42\text{m}$) |
 | **05** | **Manhattan Orthogonal Trajectory** | 4-Leg Orthogonal stepped path: Pure horizontal rotation + pure vertical translation |
 | **06** | **Multi-Tier Clearance Profiling** | Flanking Wings ($Z=0.52\text{m}$) vs. Rear Control Box Fly-Over ($Z=0.60\text{m}$) |
 | **07** | **Kinematic & Collision Debugging** | Blue Bin Root-Cause Analysis, Boundary Angle $+0.05\,\text{rad}$, & Zero-Sink Parenting |
 | **08** | **Symmetrical Manhattan Return** | 3-Stage return path: Elevator lift out of bin $\to$ apex sweep $\to$ Standby descent |
 | **09** | **Closed-Loop System Architecture** | MoveIt PlanningScene collision sync & 50 Hz `/joint_states` execution |
-| **10** | **Empirical Benchmarks (QA)** | Statistical analysis of 500+ logged trials: 100% success rate, zero collisions |
+| **10** | **Empirical Benchmarks (QA)** | 550 logged trials: 532 completed (96.7%); flags are command-based |
 | **11** | **Plan for Next Week (Week 07)** | Milestone 2 Sprint: Camera vision (RGB-D), corner blending, continuous multi-item flow |
 | **12** | **Summary & Faculty Q&A** | Project status sign-off, engineering conclusions, and committee discussion |
 
@@ -47,7 +47,7 @@
 4. **Collision Avoidance & Multi-Tier Profiling:** Safe clearance heights over flanking wings vs. rear control station.
 5. **Deep Root-Cause Debugging:** Kinematic resolution of the Blue bin threshold and kinematic velocity warnings.
 6. **Symmetrical Manhattan Return:** Elegant 3-stage return trajectory directly into Standby pose.
-7. **Quality Assurance & Statistical Benchmarking:** 500+ trials logged in `trials.csv` with 100% sorting reliability.
+7. **Quality Assurance & Statistical Benchmarking:** 550 trials logged in `trials.csv`; 532 completed (96.7%), see pre/post-fix split in the Week 6 report.
 8. **Plan for Next Week (Week 07) & Milestone 2 Roadmap:** Concrete deliverables for perception, trajectory blending, and automated testing.
 
 ---
@@ -60,11 +60,11 @@
 - **Commitment 4 (Empirical Verification):** Verify automated sorting across all 3 destination bins under collision constraints.
 
 ### 2. Week 06 Deliverables & Fulfillment:
-- **Dual Acrylic Safety Shield Wings ($0.36\text{m}$):** Installed flanking the conveyor in Unity and MoveIt. (**100% DONE**)
-- **UR Industrial Control Station ($0.42\text{m}$):** Positioned at rear-left table corner to obstruct direct rear swings. (**100% DONE**)
-- **Pure Manhattan Orthogonal Trajectory:** Replaced diagonal RRT with 4-leg stepped orthogonal motion. (**100% DONE**)
-- **Symmetrical 3-Stage Return Sequencer:** Clean elevator lift and apex sweep eliminating diagonal return paths. (**100% DONE**)
-- **Benchmark Performance:** Over 500 cumulative trials logged with 100% grasp/place success rate. (**100% DONE**)
+- **Dual Acrylic Safety Shield Wings ($0.36\text{m}$):** Installed flanking the conveyor in Unity and MoveIt. (**DONE**)
+- **UR Industrial Control Station ($0.42\text{m}$):** Positioned at rear-left table corner to obstruct direct rear swings. (**DONE**)
+- **Pure Manhattan Orthogonal Trajectory:** Replaced diagonal RRT with 4-leg stepped orthogonal motion. (**DONE**)
+- **Symmetrical 3-Stage Return Sequencer:** Clean elevator lift and apex sweep eliminating diagonal return paths. (**DONE**)
+- **Benchmark Performance:** 550 trials logged: 532 completed (96.7%); 8 Oct-19 failures were pre-fix Blue-bin collisions; success flags are command-based, collisions not yet logged. (**PARTIAL**)
 
 ---
 
@@ -150,7 +150,7 @@
 - Collision detection engine: **FCL (Flexible Collision Library)**:
   - **Phase 1 - Broadphase (Coarse Filtering):** Uses **Bounding Volume Hierarchies (BVH / AABB)** to rapidly cull links and obstacles that are far apart without performing polygon calculations.
   - **Phase 2 - Narrowphase (Precise Distance Computation):** Applies the **Gilbert-Johnson-Keerthi (GJK)** algorithm and **Expanding Polytope Algorithm (EPA)** between the Convex Hulls of UR10e links and obstacle bounding geometry to determine exact signed distances.
-  - If signed distance $\le 0$ (penetration depth $> 0$), collision is flagged and the trajectory is rejected in $< 120\,\text{ms}$.
+  - If signed distance $\le 0$ (penetration depth $> 0$), collision is flagged and the trajectory is rejected (planning/rejection latency not yet measured).
 
 ### 2. Workcell PlanningScene Synchronization:
 - Synced geometries: Table ($2.0 \times 4.0 \times 0.10\,\text{m}$), Conveyor ($0.35 \times 3.6 \times 0.10\,\text{m}$), 3 Bins ($0.38 \times 0.38 \times 0.10\,\text{m}$), Dual Acrylic Shields ($0.08 \times 0.58 \times 0.36\,\text{m}$), and UR Control Box ($0.24 \times 0.32 \times 0.42\,\text{m}$).
@@ -161,10 +161,8 @@
 ## SLIDE 10: STANDARDIZED EVALUATION BENCHMARK: ISO 9283 & PRECISION VS. SPEED
 ### 1. Benchmark Standardization under ISO 9283:
 - We ground our evaluation metrics in **ISO 9283: Manipulating Industrial Robots — Performance Criteria and Related Test Methods**:
-  - **Pose Repeatability ($RP_l$):** Achieved **$RP_l \le 1.2\,\text{mm}$** over 500+ trials (comfortably within UR10e rated repeatability $\pm 0.05\,\text{mm}$ and cube dimension $50\,\text{mm}$).
-  - **Pose Accuracy ($AP_P$):** Achieved **$AP_P \le 1.5\,\text{mm}$** at pre-grasp and drop positions.
-  - **Path Repeatability ($RT_p$) & Path Accuracy ($AT_p$):** Vertical elevator translation strictly follows the Z-axis with lateral deviation $\le 1.0\,\text{mm}$.
-  - **Cycle Time ($t_v$) & Stabilization Time:** Mean cycle times range between $20.4\,\text{s}$ (Yellow) and $22.8\,\text{s}$ (Blue), including a $0.2\,\text{s}$ gripper stabilization pause.
+  - **Pose repeatability / accuracy ($RP_l$, $AP_P$) and path accuracy ($RT_p$, $AT_p$):** **Not measured yet.** `trials.csv` has no pose-error columns; the earlier 1.2 mm / 1.5 mm figures had no data behind them and were removed. Plan: log commanded vs. measured gripper pose per trial.
+  - **Cycle time ($t_v$):** Measured on the Oct 19 session (successful trials only): Red 14.6 s (n=14), Yellow 15.6 s (n=24), Blue 13.5 s (n=18).
 
 ### 2. Current Engineering Trade-Off: Precision vs. Speed:
 - **Current Phase (Precision First):** Prioritizes 100% grasp accuracy, zero slip, and guaranteed clearance over acrylic shields and control console.
@@ -197,7 +195,7 @@
 - Fully implemented industrial machine guarding ($0.36\,\text{m}$ acrylic shields + $0.42\,\text{m}$ control station) with open pick portal.
 - Replaced erratic diagonal splines with clean, predictable, 100% Manhattan orthogonal stepped trajectories.
 - Successfully diagnosed and resolved kinematic collision bottlenecks on the rear Blue bin.
-- Achieved 100% sorting reliability across 500+ logged trials with zero collision incidents.
+- 532/550 logged trials completed (96.7%); Blue bin fixed on Oct 19 (last 4 Blue trials pass; re-validation sample still small).
 
 ### 2. Open Floor for Committee Discussion:
 - Live demonstration of Manhattan sorting across Red, Yellow, and Blue bins.

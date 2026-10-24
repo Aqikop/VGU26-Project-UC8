@@ -27,6 +27,12 @@ public class RandomObjectSpawner : MonoBehaviour
     [Tooltip("Minimum cooldown (s) between consecutive spawns")]
     [SerializeField] private float minSpawnCooldown = 1.4f;
 
+    [Header("Reproducibility (R5)")]
+    [Tooltip("Use a fixed seed so the Red/Blue/Yellow spawn sequence is repeatable between runs")]
+    [SerializeField] private bool useFixedSeed = true;
+    [SerializeField] private int randomSeed = 42;
+    private System.Random rng;
+
     private int currentSpawnCount = 0;
     private float lastSpawnTime = -999f;
     private ConveyorController conveyor;
@@ -34,6 +40,9 @@ public class RandomObjectSpawner : MonoBehaviour
     private void Awake()
     {
         conveyor = FindObjectOfType<ConveyorController>();
+        int seed = useFixedSeed ? randomSeed : System.Environment.TickCount;
+        rng = new System.Random(seed);
+        Debug.Log($"[Spawner] RNG seed = {seed} (fixed={useFixedSeed})");
         // Ensure values allow continuous multi-item flow
         if (minSpawnCooldown > 1.5f) minSpawnCooldown = 1.4f;
         if (maxObjectsOnBelt < 2) maxObjectsOnBelt = 3;
@@ -190,7 +199,7 @@ public class RandomObjectSpawner : MonoBehaviour
         SortableObject sortable = newCube.AddComponent<SortableObject>();
 
         // 4. Phân bố ngẫu nhiên 3 màu: Red, Blue, Yellow
-        float rand = Random.value;
+        float rand = (float)rng.NextDouble();
         Color cubeColor;
         SortableObject.ColorType type;
 

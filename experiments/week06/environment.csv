@@ -1,0 +1,1 @@
+run_id,commit,seed,belt_speed_mps,spawn_interval_s,duration_s,spawned,reached_pick_zone,picked,missed,overlap_events,jam_events,fell_off,reset_ok,notes

@@ -1,3 +1,5 @@
+# NOTE (Week 6 close-out): LEGACY Week 04 layout. task_state_machine.py does NOT read this file;
+# the live bin/obstacle/apex values are hardcoded in the script. Migrate them here before Week 9.
 # CẤU HÌNH CHU TRÌNH GẮP - THẢ TĨNH (PICK AND PLACE CONFIGURATION)
 # Dự án: UC8 - Robotic Arm Conveyor Pick-and-Place with Obstacle Avoidance
 # Tuần: Week 04 / Requirement R4 (Milestone 1)

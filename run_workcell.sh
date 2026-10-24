@@ -7,7 +7,7 @@
 #   2. Chế độ 3 cửa sổ riêng biệt: ./run_workcell.sh --gui (hoặc chọn khi chạy)
 # ==============================================================================
 
-PROJECT_ROOT="/home/kduy/RoboticProject/project_blueprint"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROS_WS="$PROJECT_ROOT/ros_ws"
 LOGS_DIR="$PROJECT_ROOT/logs"
 SETUP_NOETIC="/opt/ros/noetic/setup.bash"

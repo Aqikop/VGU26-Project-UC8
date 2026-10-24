@@ -12,11 +12,11 @@
 | **R1** | Scope, Architecture, Workflow & Quyết định cốt lõi | W1 | Tuần 1 | Bộ tài liệu `scope.md`, `decisions.md`, `interfaces.md` được phê duyệt. | **Done** |
 | **R2** | Nạp mô hình UR10e & Planning qua MoveIt RViz | W2 | Tuần 2 | RViz nạp đúng UR10e; lập kế hoạch Home $\rightarrow$ Pose A $\rightarrow$ Home thành công không lỗi. | **Done** |
 | **R3** | Bridge Unity $\leftrightarrow$ ROS truyền dữ liệu & lệnh 2 chiều | W3 | Tuần 3 | Truyền nhận Pose cube chính xác; map đúng 6 khớp; command & feedback riêng biệt. | **Done** |
-| **R4** | Chu trình Pick-and-Place tĩnh cơ bản | **M1** | Tuần 4–5 | Gắp cube tĩnh và đặt vào bin ổn định $\ge 8/10$ trials; state machine có timeout. | Backlog |
-| **R5** | Băng chuyền vận chuyển & Spawner sinh vật ngẫu nhiên | M2 | Tuần 6 | Băng chuyền chạy 5 phút không kẹt; spawner sinh Red/Blue có seed; lệnh Start/Stop/Reset ổn định. | Backlog |
+| **R4** | Chu trình Pick-and-Place tĩnh cơ bản | **M1** | Tuần 4–5 | Gắp cube tĩnh và đặt vào bin ổn định $\ge 8/10$ trials; state machine có timeout. | **Done** (M1 accepted; evidence `experiments/week04/trials.csv`, see D5) |
+| **R5** | Băng chuyền vận chuyển & Spawner sinh vật ngẫu nhiên | M2 | Tuần 6 | Băng chuyền chạy 5 phút không kẹt; spawner sinh Red/Blue có seed; lệnh Start/Stop/Reset ổn định. | **Partial** (conveyor + continuous spawner; seed added; belt status, lifecycle log, 5-min run open, see D1) |
 | **R6** | Thị giác máy nhận dạng & phân loại màu Red/Blue | M2 | Tuần 7 | Xử lý ảnh camera tách đúng Red/Blue; test set gán nhãn đạt độ chính xác cao; tách detector & selector. | Backlog |
 | **R7** | Định vị 3D vật thể sang hệ tọa độ robot (`base_link`) | M2 | Tuần 8 | Chuyển đổi pixel sang $(X, Y, Z)$ trong `base_link`; đo sai số 10 điểm so với ground truth $\le 20\text{ mm}$. | Backlog |
-| **R8** | Lập kế hoạch né tránh vật cản tĩnh (Static Wall) | **M2** | Tuần 9–10 | MoveIt PlanningScene nhận diện Wall; quỹ đạo tự động vòng qua vật cản an toàn; báo no-path khi bị chặn. | Backlog |
+| **R8** | Lập kế hoạch né tránh vật cản tĩnh (Static Wall) | **M2** | Tuần 9–10 | MoveIt PlanningScene nhận diện Wall; quỹ đạo tự động vòng qua vật cản an toàn; báo no-path khi bị chặn. | **Partial** (scripted baseline; OMPL benchmark + no-path hold + attached object open, see D2/D6) |
 | **R9** | Theo dõi, dự báo và gắp vật thể trên băng chuyền chuyển động | **Final** | Tuần 11, 14–15 | Ước lượng vận tốc $v$; dự báo vị trí đón đầu; gắp thành công khi belt di chuyển liên tục (Continuous Picking). | Backlog |
 | **R10**| Cập nhật và đồng bộ vật cản động thời gian thực | M3 | Tuần 12 | Barrier di chuyển được cập nhật liên tục vào PlanningScene; phát hiện dữ liệu cũ (Stale timeout). | Backlog |
 | **R11**| Phản ứng an toàn: Safe-Stop $\rightarrow$ Replan $\rightarrow$ Resume | **M3** | Tuần 13–14 | Khi barrier cắt ngang: phanh dừng (Hold) $\rightarrow$ lập lại đường đi mới từ trạng thái thực $\rightarrow$ tiếp tục thực hiện. | Backlog |
@@ -30,3 +30,5 @@
 * **Milestone 2 (W10):** Nghiệm thu R5, R6, R7, R8 (Phân loại & Tránh vật cản tĩnh, chế độ Stop-and-Pick).
 * **Milestone 3 (W14):** Nghiệm thu R10, R11 (Phản ứng vật cản động với $\ge 20$ trials, đánh giá sơ bộ R9).
 * **Milestone Final (W15):** Nghiệm thu hoàn thiện R9 (Continuous Picking) và R12 (Bàn giao sản phẩm cuối).
+
+> Status key: Done = criteria met *and* evidence file exists. Partial = something runs but the criteria are not all met. Updated 2026-10-24 (Week 6 close-out).
