@@ -65,3 +65,8 @@ Thumbs.db
 *.tmp
 *.zip
 docs/week04/pylib/
+
+# catkin workspace files (local build)
+ros_ws/.catkin_workspace
+ros_ws/src/CMakeLists.txt
+ros_ws/src/ROS-TCP-Endpoint/
